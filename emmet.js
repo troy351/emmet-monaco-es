@@ -14,7 +14,9 @@ const emmetHTML = editor => {
   let cursor, emmetText, expandText;
 
   // get a legal emmet from a string
-  // if
+  // if whole string matches emmet rules, return it
+  // if a substring(right to left) split by white space matches emmet rules, return the substring
+  // if nothing matches, return empty string
   const getLegalEmmet = str => {
     // empty or ends with white space, illegal
     if (str === '' || str.match(/\s$/)) return '';
