@@ -13,15 +13,17 @@ const emmetHTML = editor => {
   const model = editor.model;
   let cursor, emmetText, expandText;
 
+  // get a legal emmet from a string
+  // if
   const getLegalEmmet = str => {
-    // empty or starts without one of `a-zA-Z[(.#` or ends with white space, illegal
-    if (str === '' || str.match(/(^[^a-zA-Z[(.#])|(\s$)/)) return '';
+    // empty or ends with white space, illegal
+    if (str === '' || str.match(/\s$/)) return '';
 
     // deal with white space, this determines how many characters needed to be emmeted
     // e.g. `a span div` => `a span <div></div>` skip `a span `
     // e.g. `a{111 222}` => `<a href="">111 222</a>`
     // conclusion: white spaces are only allowed between `[]` or `{}`
-    // note: quotes also allowed white spaces, but quotes must in `[]` or `{}` , so skip it
+    // note: quotes also allowed white spaces, but quotes must in `[]` or `{}`, so ignore it
     const step = { '{': 1, '}': -1, '[': 1, ']': -1 };
     let pair = 0;
 
@@ -32,6 +34,13 @@ const emmetHTML = editor => {
         str = str.substr(i + 1);
         break;
       }
+    }
+
+    // starts with illegal character
+    // note: emmet self allowed number element like `<1></1>`,
+    // but obviously its not fit html standard, so skip it
+    if (!str.match(/^[a-zA-Z[(.#]/)) {
+      return '';
     }
 
     // finally run expand to test the final result
