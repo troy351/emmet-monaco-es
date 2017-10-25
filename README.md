@@ -2,7 +2,7 @@
 emmet plugin for monaco editor
 **only with html support**
 
-#usage
+# usage
 only support ES modules
 
 - install dependency via npm `npm install --save @emmetio/expand-abbreviation`;
