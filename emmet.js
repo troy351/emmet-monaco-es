@@ -1,6 +1,6 @@
 import { expand } from '@emmetio/expand-abbreviation';
 
-const addEmmetHTML = editor => {
+const emmetHTML = editor => {
   if (!editor) {
     throw new Error('Must provide monaco-editor instance.');
   }
@@ -125,4 +125,4 @@ const addEmmetHTML = editor => {
   );
 };
 
-export default addEmmetHTML;
+export default emmetHTML;
