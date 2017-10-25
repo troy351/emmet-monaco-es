@@ -1,7 +1,7 @@
 # emmet-monaco
 emmet plugin for monaco editor
 
-**only with html support**
+**only support HTML**
 
 # usage
 only support ES modules
