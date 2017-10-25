@@ -59,6 +59,9 @@ const emmetHTML = editor => {
   const emmetLegal = editor.createContextKey('emmetLegal', false);
 
   editor.onDidChangeCursorPosition(cur => {
+    // to ensure emmet triggered at the right time
+    // we need to do grammar analysis
+
     cursor = cur.position;
 
     const column = cursor.column;
@@ -71,22 +74,22 @@ const emmetHTML = editor => {
 
     const lineNumber = cursor.lineNumber;
 
-    // Force line's state to be accurate
+    // force line's state to be accurate
     model.getLineTokens(lineNumber, /* inaccurateTokensAcceptable */ false);
-    // Get the tokenization state at the beginning of this line
+    // get the tokenization state at the beginning of this line
     const state = model._lines[lineNumber - 1].getState();
     // deal with state got null when paste
     if (!state) return;
 
     const freshState = state.clone();
-    // Get the human readable tokens on this line
+    // get the human readable tokens on this line
     const token = model._tokenizationSupport.tokenize(
       model.getLineContent(lineNumber),
       freshState,
       0
     ).tokens;
 
-    // get token type on current cursor position
+    // get token type at current cursor position
     let i;
     for (i = token.length - 1; i >= 0; i--) {
       if (column - 1 > token[i].offset) {
@@ -95,7 +98,8 @@ const emmetHTML = editor => {
     }
 
     // type must be empty string when start emmet
-    // and if not the first token make sure the precious token is `delimiter.html`
+    // and if not the first token, make sure the previous token is `delimiter.html`
+    // to prevent emmet triggered within attributes
     if (
       token[i].type !== '' ||
       (i > 0 && token[i - 1].type !== 'delimiter.html')
