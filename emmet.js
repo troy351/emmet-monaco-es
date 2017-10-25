@@ -122,6 +122,9 @@ const emmetHTML = editor => {
   editor.addCommand(
     monaco.KeyCode.Tab,
     () => {
+      // attention: push an undo stop before and after executeEdits
+      // to make sure the undo operation is as expected
+      editor.pushUndoStop();
       editor.executeEdits('emmet', [
         {
           identifier: { major: 1, minor: 1 },
@@ -135,6 +138,7 @@ const emmetHTML = editor => {
           forceMoveMarkers: true
         }
       ]);
+      editor.pushUndoStop();
     },
     'emmetLegal && !suggestWidgetVisible'
   );
