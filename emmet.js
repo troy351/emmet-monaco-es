@@ -9,8 +9,7 @@ const emmetHTML = editor => {
   if (!monaco) {
     throw new Error('Monaco-editor not loaded yet.');
   }
-
-  const model = editor.model;
+  
   let cursor, emmetText, expandText;
 
   // get a legal emmet from a string
@@ -61,7 +60,8 @@ const emmetHTML = editor => {
   editor.onDidChangeCursorPosition(cur => {
     // to ensure emmet triggered at the right time
     // we need to do grammar analysis
-
+    
+    const model = editor.model;
     cursor = cur.position;
 
     const column = cursor.column;
