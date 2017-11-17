@@ -1,4 +1,4 @@
-import { expand } from '@emmetio/expand-abbreviation';
+import { expandAbbreviation as expand } from './emmet';
 
 const emmetHTML = editor => {
   if (!editor) {
@@ -9,8 +9,10 @@ const emmetHTML = editor => {
   if (!monaco) {
     throw new Error('Monaco-editor not loaded yet.');
   }
-  
-  let cursor, emmetText, expandText;
+
+  let cursor;
+  let emmetText;
+  let expandText;
 
   // get a legal emmet from a string
   // if whole string matches emmet rules, return it
@@ -60,7 +62,7 @@ const emmetHTML = editor => {
   editor.onDidChangeCursorPosition(cur => {
     // to ensure emmet triggered at the right time
     // we need to do grammar analysis
-    
+
     const model = editor.model;
     cursor = cur.position;
 
@@ -74,6 +76,8 @@ const emmetHTML = editor => {
 
     const lineNumber = cursor.lineNumber;
 
+    /* eslint-disable no-underscore-dangle */
+
     // force line's state to be accurate
     model.getLineTokens(lineNumber, /* inaccurateTokensAcceptable */ false);
     // get the tokenization state at the beginning of this line
@@ -86,8 +90,10 @@ const emmetHTML = editor => {
     const token = model._tokenizationSupport.tokenize(
       model.getLineContent(lineNumber),
       freshState,
-      0
+      0,
     ).tokens;
+
+    /* eslint-enable */
 
     // get token type at current cursor position
     let i;
@@ -100,10 +106,7 @@ const emmetHTML = editor => {
     // type must be empty string when start emmet
     // and if not the first token, make sure the previous token is `delimiter.html`
     // to prevent emmet triggered within attributes
-    if (
-      token[i].type !== '' ||
-      (i > 0 && token[i - 1].type !== 'delimiter.html')
-    ) {
+    if (token[i].type !== '' || (i > 0 && token[i - 1].type !== 'delimiter.html')) {
       emmetLegal.set(false);
       return;
     }
@@ -125,6 +128,19 @@ const emmetHTML = editor => {
       // attention: push an undo stop before and after executeEdits
       // to make sure the undo operation is as expected
       editor.pushUndoStop();
+
+      // record first `${0}` position and remove all `${0}`
+      /* eslint-disable no-template-curly-in-string */
+      const posOffsetArr = expandText.split('${0}')[0].split('\n');
+      /* eslint-enable */
+      const lineNumber = cursor.lineNumber + posOffsetArr.length - 1;
+      const column =
+        posOffsetArr.length === 1
+          ? posOffsetArr[0].length - emmetText.length + cursor.column
+          : posOffsetArr.slice(-1)[0].length + 1;
+      expandText = expandText.replace(/\$\{0\}/g, '');
+
+      // replace range text with expandText
       editor.executeEdits('emmet', [
         {
           identifier: { major: 1, minor: 1 },
@@ -132,15 +148,19 @@ const emmetHTML = editor => {
             cursor.lineNumber,
             cursor.column - emmetText.length,
             cursor.lineNumber,
-            cursor.column
+            cursor.column,
           ),
           text: expandText,
-          forceMoveMarkers: true
-        }
+          forceMoveMarkers: true,
+        },
       ]);
+
+      // move cursor to the position of first `${0}` in expandText
+      editor.setPosition(new monaco.Position(lineNumber, column));
+
       editor.pushUndoStop();
     },
-    'emmetLegal && !suggestWidgetVisible'
+    'emmetLegal && !suggestWidgetVisible',
   );
 };
 
