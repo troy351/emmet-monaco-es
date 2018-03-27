@@ -7,7 +7,7 @@ const emmetHTML = editor => {
 
   const monaco = window.monaco;
   if (!monaco) {
-    throw new Error('Monaco-editor not loaded yet.');
+    throw new Error('monaco-editor not loaded yet.');
   }
 
   let cursor;
@@ -41,7 +41,7 @@ const emmetHTML = editor => {
 
     // starts with illegal character
     // note: emmet self allowed number element like `<1></1>`,
-    // but obviously its not fit html standard, so skip it
+    // but obviously its not fit with html standard, so skip it
     if (!str.match(/^[a-zA-Z[(.#]/)) {
       return '';
     }
@@ -59,43 +59,46 @@ const emmetHTML = editor => {
   // register a context key to make sure emmet triggered at proper condition
   const emmetLegal = editor.createContextKey('emmetLegal', false);
 
-  editor.onDidChangeCursorPosition(cur => {
-    // to ensure emmet triggered at the right time
-    // we need to do grammar analysis
+  // using onDidChangeCursorSelection instead of onDidChangeCursorPosition,
+  // that could skip checking when there is any selection
+  editor.onDidChangeCursorSelection(cur => {
+    const selection = cur.selection;
+    // if selection area not empty, return
+    if (
+      selection.startLineNumber !== selection.endLineNumber ||
+      selection.startColumn !== selection.endColumn
+    ) {
+      return;
+    }
 
+    // to ensure emmet triggered at the proper time
+    // grammar analysis is needed
     const model = editor.model;
-    cursor = cur.position;
+    cursor = selection.getPosition();
 
     const column = cursor.column;
-    // there is no character before column 1
-    // no need to continue
-    if (column === 1) {
+    const lineNumber = cursor.lineNumber;
+
+    // cursor at empty area, no need to continue
+    if (column <= model.getLineFirstNonWhitespaceColumn(lineNumber)) {
       emmetLegal.set(false);
       return;
     }
 
-    const lineNumber = cursor.lineNumber;
+    // get human readable current line tokens
+    // inspire from /vs/editor/standalone/browser/inspectTokens/inspectTokens.ts
+    // private _getTokensAtLine && private _getStateBeforeLine
 
-    /* eslint-disable no-underscore-dangle */
+    // eslint-disable-next-line no-underscore-dangle
+    const tokenizationSupport = model._tokens.tokenizationSupport;
+    let state = tokenizationSupport.getInitialState();
+    for (let i = 1; i < lineNumber; i++) {
+      const tokenizationResult = tokenizationSupport.tokenize(model.getLineContent(i), state, 0);
+      state = tokenizationResult.endState;
+    }
+    const token = tokenizationSupport.tokenize(model.getLineContent(lineNumber), state, 0).tokens;
 
-    // force line's state to be accurate
-    model.getLineTokens(lineNumber, /* inaccurateTokensAcceptable */ false);
-    // get the tokenization state at the beginning of this line
-    const state = model._lines[lineNumber - 1].getState();
-    // deal with state got null when paste
-    if (!state) return;
-
-    const freshState = state.clone();
-    // get the human readable tokens on this line
-    const token = model._tokenizationSupport.tokenize(
-      model.getLineContent(lineNumber),
-      freshState,
-      0,
-    ).tokens;
-
-    /* eslint-enable */
-
-    // get token type at current cursor position
+    // get token type at current column
     let i;
     for (i = token.length - 1; i >= 0; i--) {
       if (column - 1 > token[i].offset) {
@@ -130,9 +133,9 @@ const emmetHTML = editor => {
       editor.pushUndoStop();
 
       // record first `${0}` position and remove all `${0}`
-      /* eslint-disable no-template-curly-in-string */
+      // eslint-disable-next-line no-template-curly-in-string
       const posOffsetArr = expandText.split('${0}')[0].split('\n');
-      /* eslint-enable */
+
       const lineNumber = cursor.lineNumber + posOffsetArr.length - 1;
       const column =
         posOffsetArr.length === 1
