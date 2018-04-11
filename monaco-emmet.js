@@ -1,5 +1,10 @@
 import { expandAbbreviation as expand } from './emmet';
 
+// almost the same behavior as WebStorm's builtin emmet.
+// only triggered when the string before cursor matches emmet rules
+// and cursor is within html tag content area
+// and suggest widget not visible,
+// otherwise will fallback to its original functionality.
 const emmetHTML = editor => {
   if (!editor) {
     throw new Error('Must provide monaco-editor instance.');
