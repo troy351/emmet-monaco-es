@@ -8,6 +8,7 @@ emmet plugin for monaco editor
 # usage
 only support ES modules
 
-- download `emmet.js` and `monaco-emmet.js` from this repository
-- import `monaco-emmmet.js` in your code
+- run `npm install @emmetio/expand-abbreviation` to add dependencies
+- download `monaco-emmet.js` from this repository
+- import `monaco-emmmet.js` in your code as `emmetHTML`
 - `emmetHTML(editor)` to enable emmet, `editor` is your monaco-editor instance
