@@ -1,5 +1,6 @@
-import { expandAbbreviation as expand } from './emmet';
+import { expand } from '@emmetio/expand-abbreviation';
 
+const FIELD = '${0}';
 // almost the same behavior as WebStorm's builtin emmet.
 // only triggered when the string before cursor matches emmet rules
 // and cursor is within html tag content area
@@ -53,7 +54,7 @@ const emmetHTML = editor => {
 
     // finally run expand to test the final result
     try {
-      expandText = expand(str);
+      expandText = expand(str, { field: () => FIELD });
     } catch (e) {
       return '';
     }
@@ -139,7 +140,7 @@ const emmetHTML = editor => {
 
       // record first `${0}` position and remove all `${0}`
       // eslint-disable-next-line no-template-curly-in-string
-      const posOffsetArr = expandText.split('${0}')[0].split('\n');
+      const posOffsetArr = expandText.split(FIELD)[0].split('\n');
 
       const lineNumber = cursor.lineNumber + posOffsetArr.length - 1;
       const column =
