@@ -86,7 +86,7 @@ const emmetHTML = editor => {
     const lineNumber = cursor.lineNumber;
 
     // cursor at empty area, no need to continue
-    if (column <= model.getLineFirstNonWhitespaceColumn(lineNumber)) {
+    if (column === 1 || column <= model.getLineFirstNonWhitespaceColumn(lineNumber)) {
       emmetLegal.set(false);
       return;
     }
@@ -138,16 +138,16 @@ const emmetHTML = editor => {
       // to make sure the undo operation is as expected
       editor.pushUndoStop();
 
-      // record first `${0}` position and remove all `${0}`
-      // eslint-disable-next-line no-template-curly-in-string
-      const posOffsetArr = expandText.split(FIELD)[0].split('\n');
+      // record first `FIELD` position and remove all `FIELD`
+      const expandTextArr = expandText.split(FIELD)
+      const posOffsetArr = expandTextArr[0].split('\n');
 
       const lineNumber = cursor.lineNumber + posOffsetArr.length - 1;
       const column =
         posOffsetArr.length === 1
           ? posOffsetArr[0].length - emmetText.length + cursor.column
           : posOffsetArr.slice(-1)[0].length + 1;
-      expandText = expandText.replace(/\$\{0\}/g, '');
+      expandText = expandTextArr.join('');
 
       // replace range text with expandText
       editor.executeEdits('emmet', [
@@ -164,7 +164,7 @@ const emmetHTML = editor => {
         },
       ]);
 
-      // move cursor to the position of first `${0}` in expandText
+      // move cursor to the position of first `FIELD` in expandText
       editor.setPosition(new monaco.Position(lineNumber, column));
 
       editor.pushUndoStop();
