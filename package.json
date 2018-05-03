@@ -1,0 +1,11 @@
+{
+  "name": "emmet-monaco",
+  "version": "2.1.0",
+  "private": true,
+  "description": "emmet plugin for monaco-editor",
+  "author": "troy",
+  "dependencies": {
+    "@emmetio/expand-abbreviation": "^0.7.0",
+    "monaco-editor": "^0.12.0"
+  }
+}
