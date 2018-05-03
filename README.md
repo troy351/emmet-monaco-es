@@ -3,7 +3,7 @@ emmet plugin for monaco editor
 
 **only support HTML**
 
-**compatible with monaco-editor v0.11.1**
+**compatible with monaco-editor v0.12.0**
 
 # usage
 only support ES modules
