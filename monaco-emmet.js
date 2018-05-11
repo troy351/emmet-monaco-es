@@ -1,158 +1,179 @@
-import { expand } from '@emmetio/expand-abbreviation';
+import { expand } from '@emmetio/expand-abbreviation'
 
-const FIELD = '${0}';
-// almost the same behavior as WebStorm's builtin emmet.
-// only triggered when the string before cursor matches emmet rules
-// and cursor is within html tag content area
-// and suggest widget not visible,
-// otherwise will fallback to its original functionality.
+const FIELD = '${0}'
+/**
+ * almost the same behavior as WebStorm's builtin emmet.
+ * only triggered when string before text cursor(caret) matches emmet rules,
+ * caret within html tag content area and suggest widget not visible,
+ * otherwise will fallback to its original functionality.
+ */
 const emmetHTML = editor => {
   if (!editor) {
-    throw new Error('Must provide monaco-editor instance.');
+    throw new Error('Must provide monaco-editor instance.')
   }
 
-  const monaco = window.monaco;
+  const monaco = window.monaco
   if (!monaco) {
-    throw new Error('monaco-editor not loaded yet.');
+    throw new Error('monaco-editor not loaded yet.')
   }
 
-  let cursor;
-  let emmetText;
-  let expandText;
+  let cursor
+  // text needed to be emmeted
+  let emmetText
+  // emmet result
+  let expandText
 
-  // get a legal emmet from a string
+  // get legal emmet substring from a string
   // if whole string matches emmet rules, return it
-  // if a substring(right to left) split by white space matches emmet rules, return the substring
+  // if a substring(right to left) split by white space matches emmet rules,
+  // return the substring
   // if nothing matches, return empty string
   const getLegalEmmet = str => {
     // empty or ends with white space, illegal
-    if (str === '' || str.match(/\s$/)) return '';
+    if (str === '' || str.match(/\s$/)) {
+      return ''
+    }
 
     // deal with white space, this determines how many characters needed to be emmeted
     // e.g. `a span div` => `a span <div></div>` skip `a span `
     // e.g. `a{111 222}` => `<a href="">111 222</a>`
     // conclusion: white spaces are only allowed between `[]` or `{}`
-    // note: quotes also allowed white spaces, but quotes must in `[]` or `{}`, so ignore it
-    const step = { '{': 1, '}': -1, '[': 1, ']': -1 };
-    let pair = 0;
+    // note: quotes also allowed white spaces, but quotes must in `[]` or `{}`, so skip it
+    const step = { '{': 1, '}': -1, '[': 1, ']': -1 }
+    let pair = 0
 
     for (let i = str.length - 1; i > 0; i--) {
-      pair += step[str[i]] || 0;
+      pair += step[str[i]] || 0
       if (str[i].match(/\s/) && pair >= 0) {
         // illegal white space detected
-        str = str.substr(i + 1);
-        break;
+        str = str.substr(i + 1)
+        break
       }
     }
 
     // starts with illegal character
     // note: emmet self allowed number element like `<1></1>`,
-    // but obviously its not fit with html standard, so skip it
+    // but obviously it's not fit with html standard, so skip it
     if (!str.match(/^[a-zA-Z[(.#]/)) {
-      return '';
+      return ''
     }
 
-    // finally run expand to test the final result
+    // run expand to test the final result
+    // `field` was used to set proper caret position after emmet
     try {
-      expandText = expand(str, { field: () => FIELD });
+      expandText = expand(str, { field: () => FIELD })
     } catch (e) {
-      return '';
+      return ''
     }
 
-    return str;
-  };
+    return str
+  }
 
   // register a context key to make sure emmet triggered at proper condition
-  const emmetLegal = editor.createContextKey('emmetLegal', false);
+  const emmetLegal = editor.createContextKey('emmetLegal', false)
 
   // using onDidChangeCursorSelection instead of onDidChangeCursorPosition,
   // that could skip checking when there is any selection
   editor.onDidChangeCursorSelection(cur => {
-    const selection = cur.selection;
+    const selection = cur.selection
     // if selection area not empty, return
     if (
       selection.startLineNumber !== selection.endLineNumber ||
       selection.startColumn !== selection.endColumn
     ) {
-      return;
+      return
     }
 
-    // to ensure emmet triggered at the proper time
-    // grammar analysis is needed
-    const model = editor.model;
-    cursor = selection.getPosition();
+    /* do grammar analysis below */
+    const model = editor.getModel()
+    cursor = selection.getPosition()
 
-    const column = cursor.column;
-    const lineNumber = cursor.lineNumber;
+    const column = cursor.column
+    const lineNumber = cursor.lineNumber
 
-    // cursor at empty area, no need to continue
-    if (column === 1 || column <= model.getLineFirstNonWhitespaceColumn(lineNumber)) {
-      emmetLegal.set(false);
-      return;
+    // there is nothing before caret, return
+    if (
+      column === 1 ||
+      column <= model.getLineFirstNonWhitespaceColumn(lineNumber)
+    ) {
+      emmetLegal.set(false)
+      return
     }
 
+    // FIXME: find a faster way to get tokens of the current line
     // get human readable current line tokens
     // inspire from /vs/editor/standalone/browser/inspectTokens/inspectTokens.ts
-    // private _getTokensAtLine && private _getStateBeforeLine
+    // at function `private _getTokensAtLine` && `private _getStateBeforeLine`
+    const tokenizationSupport = model._tokens.tokenizationSupport
+    let state = tokenizationSupport.getInitialState()
 
-    // eslint-disable-next-line no-underscore-dangle
-    const tokenizationSupport = model._tokens.tokenizationSupport;
-    let state = tokenizationSupport.getInitialState();
-    for (let i = 1; i < lineNumber; i++) {
-      const tokenizationResult = tokenizationSupport.tokenize(model.getLineContent(i), state, 0);
-      state = tokenizationResult.endState;
+    for (let j = 1; j < lineNumber; j++) {
+      const tokenizationResult = tokenizationSupport.tokenize(
+        model.getLineContent(j),
+        state,
+        0,
+      )
+      state = tokenizationResult.endState
     }
-    const token = tokenizationSupport.tokenize(model.getLineContent(lineNumber), state, 0).tokens;
+
+    const token = tokenizationSupport.tokenize(
+      model.getLineContent(lineNumber),
+      state,
+      0,
+    ).tokens
 
     // get token type at current column
-    let i;
+    let i
     for (i = token.length - 1; i >= 0; i--) {
       if (column - 1 > token[i].offset) {
-        break;
+        break
       }
     }
 
     // type must be empty string when start emmet
     // and if not the first token, make sure the previous token is `delimiter.html`
     // to prevent emmet triggered within attributes
-    if (token[i].type !== '' || (i > 0 && token[i - 1].type !== 'delimiter.html')) {
-      emmetLegal.set(false);
-      return;
+    if (
+      token[i].type !== '' ||
+      (i > 0 && token[i - 1].type !== 'delimiter.html')
+    ) {
+      emmetLegal.set(false)
+      return
     }
 
-    // get content starts from current token offset to current cursor column
+    // get content between current token offset and current cursor column
     emmetText = model
       .getLineContent(lineNumber)
       .substring(token[i].offset, column - 1)
-      .trimLeft();
+      .trimLeft()
 
-    emmetText = getLegalEmmet(emmetText);
-    emmetLegal.set(!!emmetText);
-  });
+    emmetText = getLegalEmmet(emmetText)
+    emmetLegal.set(!!emmetText)
+  })
 
   // add tab command with context
   editor.addCommand(
     monaco.KeyCode.Tab,
     () => {
       // attention: push an undo stop before and after executeEdits
-      // to make sure the undo operation is as expected
-      editor.pushUndoStop();
+      // to make sure undo operation works as expected
+      editor.pushUndoStop()
 
       // record first `FIELD` position and remove all `FIELD`
       const expandTextArr = expandText.split(FIELD)
-      const posOffsetArr = expandTextArr[0].split('\n');
+      const posOffsetArr = expandTextArr[0].split('\n')
 
-      const lineNumber = cursor.lineNumber + posOffsetArr.length - 1;
+      const lineNumber = cursor.lineNumber + posOffsetArr.length - 1
       const column =
         posOffsetArr.length === 1
           ? posOffsetArr[0].length - emmetText.length + cursor.column
-          : posOffsetArr.slice(-1)[0].length + 1;
-      expandText = expandTextArr.join('');
+          : posOffsetArr.slice(-1)[0].length + 1
+
+      expandText = expandTextArr.join('')
 
       // replace range text with expandText
       editor.executeEdits('emmet', [
         {
-          identifier: { major: 1, minor: 1 },
           range: new monaco.Range(
             cursor.lineNumber,
             cursor.column - emmetText.length,
@@ -162,15 +183,16 @@ const emmetHTML = editor => {
           text: expandText,
           forceMoveMarkers: true,
         },
-      ]);
+      ])
 
       // move cursor to the position of first `FIELD` in expandText
-      editor.setPosition(new monaco.Position(lineNumber, column));
+      editor.setPosition(new monaco.Position(lineNumber, column))
 
-      editor.pushUndoStop();
+      editor.pushUndoStop()
     },
+    // do not trigger emmet when suggest widget visible(it's a builtin context key)
     'emmetLegal && !suggestWidgetVisible',
-  );
-};
+  )
+}
 
-export default emmetHTML;
+export default emmetHTML
