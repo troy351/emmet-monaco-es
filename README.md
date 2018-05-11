@@ -1,11 +1,11 @@
 # emmet-monaco
 emmet plugin for monaco editor
 
-**only support HTML**
+**only support HTML, compatible with monaco-editor v0.12.0**
 
-**compatible with monaco-editor v0.12.0**
+Source codes are well commented if you want to figure out how it works
 
-# usage
+# Usage
 only support ES modules
 
 - run `npm install @emmetio/expand-abbreviation` to add dependencies
