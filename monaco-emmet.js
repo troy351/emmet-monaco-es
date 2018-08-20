@@ -1,6 +1,7 @@
 import { expand } from '@emmetio/expand-abbreviation'
 
 const FIELD = '${0}'
+
 /**
  * almost the same behavior as WebStorm's builtin emmet.
  * only triggered when string before text cursor(caret) matches emmet rules,
@@ -9,12 +10,12 @@ const FIELD = '${0}'
  */
 const emmetHTML = editor => {
   if (!editor) {
-    throw new Error('Must provide monaco-editor instance.')
+    throw Error('Must provide monaco-editor instance.')
   }
 
   const monaco = window.monaco
   if (!monaco) {
-    throw new Error('monaco-editor not loaded yet.')
+    throw Error('monaco-editor not loaded yet.')
   }
 
   let cursor
@@ -30,9 +31,7 @@ const emmetHTML = editor => {
   // if nothing matches, return empty string
   const getLegalEmmet = str => {
     // empty or ends with white space, illegal
-    if (str === '' || str.match(/\s$/)) {
-      return ''
-    }
+    if (str === '' || str.match(/\s$/)) return ''
 
     // deal with white space, this determines how many characters needed to be emmeted
     // e.g. `a span div` => `a span <div></div>` skip `a span `
@@ -54,9 +53,7 @@ const emmetHTML = editor => {
     // starts with illegal character
     // note: emmet self allowed number element like `<1></1>`,
     // but obviously it's not fit with html standard, so skip it
-    if (!str.match(/^[a-zA-Z[(.#]/)) {
-      return ''
-    }
+    if (!str.match(/^[a-zA-Z[(.#]/)) return ''
 
     // run expand to test the final result
     // `field` was used to set proper caret position after emmet
@@ -100,57 +97,49 @@ const emmetHTML = editor => {
       return
     }
 
-    // FIXME: find a faster way to get tokens of the current line
-    // get human readable current line tokens
-    // inspire from /vs/editor/standalone/browser/inspectTokens/inspectTokens.ts
-    // at function `private _getTokensAtLine` && `private _getStateBeforeLine`
+    // inspired by `monaco.editor.tokenize`.
+    // see source map from `https://microsoft.github.io/monaco-editor/`
     const tokenizationSupport = model._tokens.tokenizationSupport
     let state = tokenizationSupport.getInitialState()
+    let tokenizationResult
 
-    for (let j = 1; j < lineNumber; j++) {
-      const tokenizationResult = tokenizationSupport.tokenize(
-        model.getLineContent(j),
+    for (let i = 1; i <= lineNumber; i++) {
+      tokenizationResult = tokenizationSupport.tokenize(
+        model.getLineContent(i),
         state,
         0,
       )
       state = tokenizationResult.endState
     }
 
-    const token = tokenizationSupport.tokenize(
-      model.getLineContent(lineNumber),
-      state,
-      0,
-    ).tokens
+    const tokens = tokenizationResult.tokens
 
     // get token type at current column
-    let i
-    for (i = token.length - 1; i >= 0; i--) {
-      if (column - 1 > token[i].offset) {
+    for (let i = tokens.length - 1; i >= 0; i--) {
+      if (column - 1 > tokens[i].offset) {
+        // type must be empty string when start emmet
+        // and if not the first token, make sure the previous token is `delimiter.html`
+        // to prevent emmet triggered within attributes
+        if (
+          tokens[i].type === '' &&
+          (i === 0 || tokens[i - 1].type === 'delimiter.html')
+        ) {
+          // get content between current token offset and current cursor column
+          emmetText = model
+            .getLineContent(lineNumber)
+            .substring(tokens[i].offset, column - 1)
+            .trimLeft()
+        } else {
+          emmetLegal.set(false)
+          return
+        }
         break
       }
     }
 
-    // type must be empty string when start emmet
-    // and if not the first token, make sure the previous token is `delimiter.html`
-    // to prevent emmet triggered within attributes
-    if (
-      token[i].type !== '' ||
-      (i > 0 && token[i - 1].type !== 'delimiter.html')
-    ) {
-      emmetLegal.set(false)
-      return
-    }
-
-    // get content between current token offset and current cursor column
-    emmetText = model
-      .getLineContent(lineNumber)
-      .substring(token[i].offset, column - 1)
-      .trimLeft()
-
     emmetText = getLegalEmmet(emmetText)
     emmetLegal.set(!!emmetText)
   })
-
   // add tab command with context
   editor.addCommand(
     monaco.KeyCode.Tab,
