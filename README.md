@@ -1,7 +1,7 @@
 # emmet-monaco
 emmet plugin for monaco editor
 
-**only support HTML, compatible with monaco-editor v0.12.0**
+**only support HTML, compatible with monaco-editor v0.12.0 and above**
 
 Source codes are well commented if you want to figure out how it works
 
