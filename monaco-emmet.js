@@ -83,6 +83,8 @@ const emmetHTML = editor => {
 
     /* do grammar analysis below */
     const model = editor.getModel()
+    if (!model) return
+
     cursor = selection.getPosition()
 
     const column = cursor.column
