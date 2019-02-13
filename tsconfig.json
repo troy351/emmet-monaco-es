@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "newLine": "lf",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "*": ["node_modules/*"],
+      "@emmetio/expand-abbreviation": ["types/emmetio__expand-abbreviation"]
+    }
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", ".history"]
+}

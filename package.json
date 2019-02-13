@@ -1,11 +1,35 @@
 {
-  "name": "emmet-monaco",
-  "version": "2.2.1",
-  "private": true,
+  "name": "emmet-monaco-es",
+  "version": "3.0.0",
   "description": "emmet plugin for monaco-editor",
-  "author": "troy",
+  "main": "dist/emmet-monaco.common.js",
+  "module": "dist/emmet-monaco.esm.js",
+  "typings": "index.d.ts",
+  "scripts": {
+    "watch": "rollup -c --watch",
+    "build": "rollup -c"
+  },
+  "sideEffects": false,
+  "license": "MIT",
+  "author": "Troy",
+  "homepage": "https://github.com/troy351/emmet-monaco-es",
+  "peerDependencies": {
+    "monaco-editor": "^0.15.6"
+  },
   "dependencies": {
-    "@emmetio/expand-abbreviation": "^0.7.1",
-    "monaco-editor": "^0.14.3"
+    "@emmetio/css-abbreviation": "^0.4.0",
+    "@emmetio/css-snippets-resolver": "^0.4.0",
+    "@emmetio/expand-abbreviation": "^0.7.3",
+    "@emmetio/output-profile": "^0.1.6",
+    "@emmetio/snippets-registry": "^0.3.1",
+    "@emmetio/stylesheet-formatters": "^0.2.1"
+  },
+  "devDependencies": {
+    "rollup": "^1.1.2",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-typescript": "^1.0.0",
+    "tslib": "^1.9.3",
+    "typescript": "^3.3.3"
   }
 }

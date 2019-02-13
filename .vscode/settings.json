@@ -1,0 +1,23 @@
+{
+  "editor.fontFamily": "Source Code Pro, Menlo, Consolas, 'Courier New', monospace",
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/.idea": true,
+    "**/.history": true
+  },
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 5000,
+  "tslint.autoFixOnSave": true,
+  "tslint.enable": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.tsdk": "./node_modules/typescript/lib/"
+}

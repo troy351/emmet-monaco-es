@@ -1,0 +1,22 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "arrow-parens": false,
+    "curly": [true, "ignore-same-line"],
+    "quotemark": [true, "single", "jsx-double"],
+    "indent": [true, "spaces", 2],
+    "interface-name": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-consecutive-blank-lines": false,
+    "eofline": false,
+    "semicolon": [true, "never"],
+    "trailing-comma": [true, "always"],
+    "triple-equals": true,
+    "prefer-for-of": false,
+    "no-console": false,
+    "no-debugger": false,
+    "no-unused-variable": true
+  }
+}
