@@ -2755,6 +2755,26 @@ function addTabCommand(editor, monaco, getStatus) {
     CONTEXT_KEY + " && !suggestWidgetVisible");
 }
 
+var registry = new SnippetsRegistry();
+registry.add({
+    "@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
+    bg: "background:#${1:000}",
+    bga: "background-attachment:fixed|scroll",
+    bgbk: "background-break:bounding-box|each-box|continuous",
+    bgi: "background-image:url(${0})",
+    bgo: "background-origin:padding-box|border-box|content-box",
+    c: "color:#${1:000}",
+    cl: "clear:both|left|right|none",
+    pos: "position:relative|absolute|fixed|static",
+    m: "margin",
+    p: "padding",
+    z: "z-index:1",
+    bd: "border:${1:1px} ${2:solid} ${3:#000}",
+    bds: "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
+    lg: "background-image:linear-gradient(${1})",
+    trf: "transform:scale(${1:x-coord}, ${2:y})",
+    mten: "margin: 10px;"
+});
 /**
  * almost the same behavior as WebStorm's builtin emmet.
  * only triggered when cursor(caret) not in attribute value area and do works via emmet,
@@ -2764,26 +2784,6 @@ function emmetCSS(editor, monaco) {
     if (monaco === void 0) { monaco = window.monaco; }
     if (!checkMonacoExists(monaco))
         return;
-    var registry = new SnippetsRegistry();
-    registry.add({
-        "@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
-        bg: "background:#${1:000}",
-        bga: "background-attachment:fixed|scroll",
-        bgbk: "background-break:bounding-box|each-box|continuous",
-        bgi: "background-image:url(${0})",
-        bgo: "background-origin:padding-box|border-box|content-box",
-        c: "color:#${1:000}",
-        cl: "clear:both|left|right|none",
-        pos: "position:relative|absolute|fixed|static",
-        m: "margin",
-        p: "padding",
-        z: "z-index:1",
-        bd: "border:${1:1px} ${2:solid} ${3:#000}",
-        bds: "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
-        lg: "background-image:linear-gradient(${1})",
-        trf: "transform:scale(${1:x-coord}, ${2:y})",
-        mten: "margin: 10px;"
-    });
     function expand(abbr) {
         var tree = index$1(index$2(abbr), registry);
         return index(tree, new Profile(), option);
