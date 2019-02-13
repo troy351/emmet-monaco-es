@@ -15,7 +15,16 @@
     "paths": {
       "@/*": ["src/*"],
       "*": ["node_modules/*"],
-      "@emmetio/expand-abbreviation": ["types/emmetio__expand-abbreviation"]
+      "@emmetio/expand-abbreviation": ["types/emmetio__expand-abbreviation"],
+      "@emmetio/stylesheet-formatters": [
+        "types/emmetio__stylesheet-formatters"
+      ],
+      "@emmetio/css-snippets-resolver": [
+        "types/emmetio__css-snippets-resolver"
+      ],
+      "@emmetio/snippets-registry": ["types/emmetio__snippets-registry"],
+      "@emmetio/output-profile": ["types/emmetio__output-profile"],
+      "@emmetio/css-abbreviation": ["types/emmetio__css-abbreviation"]
     }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],
