@@ -6,7 +6,9 @@ Emmet Plugin for monaco-editor
 Source codes are well commented if you want to figure out how it works
 
 # Install
-`$ npm install emmet-monaco-es`
+```shell
+$ npm install emmet-monaco-es
+```
 
 # Example
 ```javascript
