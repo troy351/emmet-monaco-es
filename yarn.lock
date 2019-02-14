@@ -116,7 +116,7 @@
   resolved "https://registry.yarnpkg.com/@emmetio/snippets-registry/-/snippets-registry-0.3.1.tgz#ec0e8a122fe9683659ce69a22396f4136b940d20"
   integrity sha1-7A6KEi/paDZZzmmiI5b0E2uUDSA=
 
-"@emmetio/snippets@^0.2.9":
+"@emmetio/snippets@^0.2.11", "@emmetio/snippets@^0.2.9":
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/@emmetio/snippets/-/snippets-0.2.11.tgz#0971624761ec5b9fe4546aa242670a150caecdd2"
   integrity sha512-qqU6b5KxQWzJvOlmsyjyTwGR+l5fre6+VK+Y/5XBGGN97pgIbx5lYTYzQ306TnDD5FRdOiThHevNuUn7W7IMzw==

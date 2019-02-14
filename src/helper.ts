@@ -10,7 +10,7 @@ export type MonacoEditor = Monaco.editor.IStandaloneCodeEditor;
 
 const CONTEXT_KEY = "emmetLegal";
 export const FIELD = "${}";
-export const option = { field: () => FIELD };
+export const defaultOption = { field: () => FIELD };
 
 export function checkMonacoExists(
   monaco?: typeof Monaco

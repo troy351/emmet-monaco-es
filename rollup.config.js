@@ -19,6 +19,16 @@ export default {
   watch: {
     exclude: "node_modules/**"
   },
-  plugins: [commonjs(), resolve(), typescript()],
+  plugins: [
+    commonjs(),
+    resolve(),
+    typescript(),
+    {
+      name: "json",
+      transform(code, id) {
+        return id.slice(-5) === ".json" ? `export default ${code}` : null;
+      }
+    }
+  ],
   external: ["monaco-editor"]
 };

@@ -1,4 +1,4 @@
-declare module "@emmetio/css-abbreviation" {
+declare module "@emmetio/abbreviation" {
   interface Node {
     parent: Node | null;
     next: Node | null;

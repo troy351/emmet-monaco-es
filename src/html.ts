@@ -1,13 +1,34 @@
-import { expand } from "@emmetio/expand-abbreviation";
+import parseAbbreviation from "@emmetio/abbreviation";
+import resolveSnippets from "@emmetio/html-snippets-resolver";
+import format from "@emmetio/markup-formatters";
+import transform from "@emmetio/html-transform";
+import htmlSnippet from "@emmetio/snippets/html.json";
+import SnippetsRegistry from "@emmetio/snippets-registry";
+import Profile from "@emmetio/output-profile";
+
 import {
   checkMonacoExists,
   caretChange,
   addTabCommand,
   MonacoEditor,
-  option,
+  defaultOption,
   getContextKey,
   EditorStatus
 } from "./helper";
+
+const option = {
+  ...defaultOption,
+  snippets: new SnippetsRegistry(htmlSnippet),
+  profile: new Profile()
+};
+
+function expand(abbr: string) {
+  const tree = parseAbbreviation(abbr)
+    .use(resolveSnippets, option.snippets)
+    .use(transform, null, null);
+
+  return format(tree, option.profile, option);
+}
 
 /**
  * almost the same behavior as WebStorm's builtin emmet.
@@ -15,7 +36,10 @@ import {
  * caret within html tag content area and suggest widget not visible,
  * otherwise will fallback to its original functionality.
  */
-export default function emmetHTML(editor: MonacoEditor, monaco = window.monaco) {
+export default function emmetHTML(
+  editor: MonacoEditor,
+  monaco = window.monaco
+) {
   if (!checkMonacoExists(monaco)) return;
 
   const status: EditorStatus = {
@@ -70,7 +94,7 @@ export default function emmetHTML(editor: MonacoEditor, monaco = window.monaco) 
       // run expand to test the final result
       // `field` was used to set proper caret position after emmet
       try {
-        status.expandText = expand(str, option);
+        status.expandText = expand(str);
       } catch (e) {
         return "";
       }

@@ -2,6 +2,32 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+
 /**
  * A streaming, character code-based string reader
  */
@@ -424,6 +450,7 @@ class FieldString {
 		return this.string;
 	}
 }
+//# sourceMappingURL=field-parser.es.js.map
 
 const defaultFieldsRenderer = text => text;
 
@@ -786,6 +813,7 @@ function getFormat(syntax, options) {
 
 	return Object.assign({}, format, options && options.format);
 }
+//# sourceMappingURL=stylesheet-formatters.es.js.map
 
 const DASH = 45; // -
 
@@ -1286,375 +1314,215 @@ function resolveNumericValue(property, token, formatOptions) {
 
 	return token;
 }
+//# sourceMappingURL=css-snippets-resolver.es.js.map
 
-class Snippet {
-    constructor(key, value) {
-        this.key = key;
-        this.value = value;
-    }
-}
-
-class SnippetsStorage {
-    constructor(data) {
-        this._string = new Map();
-        this._regexp = new Map();
-        this._disabled = false;
-
-        this.load(data);
-    }
-
-    get disabled() {
-        return this._disabled;
-    }
-
-    /**
-     * Disables current store. A disabled store always returns `undefined`
-     * on `get()` method
-     */
-    disable() {
-        this._disabled = true;
-    }
-
-    /**
-     * Enables current store.
-     */
-    enable() {
-        this._disabled = false;
-    }
-
-    /**
-     * Registers a new snippet item
-     * @param {String|Regexp} key
-     * @param {String|Function} value
-     */
-    set(key, value) {
-        if (typeof key === 'string') {
-            key.split('|').forEach(k => this._string.set(k, new Snippet(k, value)));
-        } else if (key instanceof RegExp) {
-            this._regexp.set(key, new Snippet(key, value));
-        } else {
-            throw new Error('Unknow snippet key: ' + key);
-        }
-
-        return this;
-    }
-
-    /**
-     * Returns a snippet matching given key. It first tries to find snippet
-     * exact match in a string key map, then tries to match one with regexp key
-     * @param {String} key
-     * @return {Snippet}
-     */
-    get(key) {
-        if (this.disabled) {
-            return undefined;
-        }
-
-        if (this._string.has(key)) {
-            return this._string.get(key);
-        }
-
-        const keys = Array.from(this._regexp.keys());
-        for (let i = 0, il = keys.length; i < il; i++) {
-            if (keys[i].test(key)) {
-                return this._regexp.get(keys[i]);
-            }
-        }
-    }
-
-    /**
-     * Batch load of snippets data
-     * @param {Object|Map} data
-     */
-    load(data) {
-        this.reset();
-        if (data instanceof Map) {
-            data.forEach((value, key) => this.set(key, value));
-        } else if (data && typeof data === 'object') {
-            Object.keys(data).forEach(key => this.set(key, data[key]));
-        }
-    }
-
-    /**
-     * Clears all stored snippets
-     */
-    reset() {
-        this._string.clear();
-        this._regexp.clear();
-    }
-
-    /**
-     * Returns all available snippets from given store
-     */
-    values() {
-        if (this.disabled) {
-            return [];
-        }
-        
-        const string = Array.from(this._string.values());
-        const regexp = Array.from(this._regexp.values());
-        return string.concat(regexp);
-    }
-}
-
-/**
- * A snippets registry. Contains snippets, separated by store and sorted by
- * priority: a store with higher priority takes precedence when resolving snippet
- * for given key
- */
-class SnippetsRegistry {
-    /**
-     * Creates snippets registry, filled with given `data`
-     * @param {Object|Array} data Registry snippets. If array is given, adds items
-     * from array in order of precedence, registers global snippets otherwise
-     */
-    constructor(data) {
-        this._registry = [];
-
-        if (Array.isArray(data)) {
-            data.forEach((snippets, level) => this.add(level, snippets));
-        } else if (typeof data === 'object') {
-            this.add(data);
-        }
-    }
-
-    /**
-     * Return store for given level
-     * @param {Number} level
-     * @return {SnippetsStorage}
-     */
-    get(level) {
-        for (let i = 0; i < this._registry.length; i++) {
-            const item = this._registry[i];
-            if (item.level === level) {
-                return item.store;
-            }
-        }
-    }
-
-    /**
-     * Adds new store for given level
-     * @param {Number} [level] Store level (priority). Store with higher level
-     * takes precedence when resolving snippets
-     * @param {Object} [snippets] A snippets data for new store
-     * @return {SnipetsStorage}
-     */
-    add(level, snippets) {
-        if (level != null && typeof level === 'object') {
-            snippets = level;
-            level = 0;
-        }
-
-        const store = new SnippetsStorage(snippets);
-
-        // remove previous store from same level
-        this.remove(level);
-
-        this._registry.push({level, store});
-        this._registry.sort((a, b) => b.level - a.level);
-
-        return store;
-    }
-
-    /**
-     * Remove registry with given level or store
-     * @param {Number|SnippetsStorage} data Either level or snippets store
-     */
-    remove(data) {
-        this._registry = this._registry
-        .filter(item => item.level !== data && item.store !== data);
-    }
-
-    /**
-     * Returns snippet from registry that matches given name
-     * @param {String} name
-     * @return {Snippet}
-     */
-    resolve(name) {
-        for (let i = 0; i < this._registry.length; i++) {
-            const snippet = this._registry[i].store.get(name);
-            if (snippet) {
-                return snippet;
-            }
-        }
-    }
-
-    /**
-     * Returns all available snippets from current registry. Snippets with the
-     * same key are resolved by their storage priority.
-     * @param {Object} options
-     * @param {Object} options.type Return snippets only of given type: 'string'
-     * or 'regexp'. Returns all snippets if not defined
-     * @return {Array}
-     */
-    all(options) {
-        options = options || {};
-        const result = new Map();
-
-        const fillResult = snippet => {
-            const type = snippet.key instanceof RegExp ? 'regexp' : 'string';
-            if ((!options.type || options.type === type) && !result.has(snippet.key)) {
-                result.set(snippet.key, snippet);
-            }
-        };
-
-        this._registry.forEach(item => {
-            item.store.values().forEach(fillResult);
-        });
-
-        return Array.from(result.values());
-    }
-
-    /**
-     * Removes all stores from registry
-     */
-    clear() {
-        this._registry.length = 0;
-    }
-}
-
-/**
- * @type {EmmetOutputProfile}
- */
-var defaultOptions$3 = {
-	indent: '\t',
-	tagCase: '',
-	attributeCase: '',
-	attributeQuotes: 'double',
-	format: true,
-	formatSkip: ['html'],
-	formatForce: ['body'],
-	inlineBreak: 3,
-	compactBooleanAttributes: false,
-	booleanAttributes: ['contenteditable', 'seamless', 'async', 'autofocus',
-		'autoplay', 'checked', 'controls', 'defer', 'disabled', 'formnovalidate',
-		'hidden', 'ismap', 'loop', 'multiple', 'muted', 'novalidate', 'readonly',
-		'required', 'reversed', 'selected', 'typemustmatch'],
-	selfClosingStyle: 'html',
-	inlineElements: ['a', 'abbr', 'acronym', 'applet', 'b', 'basefont', 'bdo',
-		'big', 'br', 'button', 'cite', 'code', 'del', 'dfn', 'em', 'font', 'i',
-		'iframe', 'img', 'input', 'ins', 'kbd', 'label', 'map', 'object', 'q',
-		's', 'samp', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
-		'textarea', 'tt', 'u', 'var']
+var cssSnippet = {
+	"@f": "@font-face {\n\tfont-family: ${1};\n\tsrc: url(${1});\n}",
+	"@ff": "@font-face {\n\tfont-family: '${1:FontName}';\n\tsrc: url('${2:FileName}.eot');\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'),\n\t\t url('${2:FileName}.woff') format('woff'),\n\t\t url('${2:FileName}.ttf') format('truetype'),\n\t\t url('${2:FileName}.svg#${1:FontName}') format('svg');\n\tfont-style: ${3:normal};\n\tfont-weight: ${4:normal};\n}",
+	"@i|@import": "@import url(${0});",
+	"@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
+	"@m|@media": "@media ${1:screen} {\n\t${0}\n}",
+	"ac": "align-content:flex-start|flex-end|center|space-between|space-around|stretch",
+	"ai": "align-items:flex-start|flex-end|center|baseline|stretch",
+	"anim": "animation:${1:name} ${2:duration} ${3:timing-function} ${4:delay} ${5:iteration-count} ${6:direction} ${7:fill-mode}",
+	"animdel": "animation-delay:${1:time}",
+	"animdir": "animation-direction:normal|reverse|alternate|alternate-reverse",
+	"animdur": "animation-duration:${1:0}s",
+	"animfm": "animation-fill-mode:both|forwards|backwards",
+	"animic": "animation-iteration-count:1|infinite",
+	"animn": "animation-name",
+	"animps": "animation-play-state:running|paused",
+	"animtf": "animation-timing-function:linear|ease|ease-in|ease-out|ease-in-out|cubic-bezier(${1:0.1}, ${2:0.7}, ${3:1.0}, ${3:0.1})",
+	"ap": "appearance:none",
+	"as": "align-self:auto|flex-start|flex-end|center|baseline|stretch",
+	"b": "bottom",
+	"bd": "border:${1:1px} ${2:solid} ${3:#000}",
+	"bdb": "border-bottom:${1:1px} ${2:solid} ${3:#000}",
+	"bdbc": "border-bottom-color:#${1:000}",
+	"bdbi": "border-bottom-image:url(${0})",
+	"bdbk": "border-break:close",
+	"bdbli": "border-bottom-left-image:url(${0})|continue",
+	"bdblrs": "border-bottom-left-radius",
+	"bdbri": "border-bottom-right-image:url(${0})|continue",
+	"bdbrrs": "border-bottom-right-radius",
+	"bdbs": "border-bottom-style",
+	"bdbw": "border-bottom-width",
+	"bdc": "border-color:#${1:000}",
+	"bdci": "border-corner-image:url(${0})|continue",
+	"bdcl": "border-collapse:collapse|separate",
+	"bdf": "border-fit:repeat|clip|scale|stretch|overwrite|overflow|space",
+	"bdi": "border-image:url(${0})",
+	"bdl": "border-left:${1:1px} ${2:solid} ${3:#000}",
+	"bdlc": "border-left-color:#${1:000}",
+	"bdlen": "border-length",
+	"bdli": "border-left-image:url(${0})",
+	"bdls": "border-left-style",
+	"bdlw": "border-left-width",
+	"bdr": "border-right:${1:1px} ${2:solid} ${3:#000}",
+	"bdrc": "border-right-color:#${1:000}",
+	"bdri": "border-right-image:url(${0})",
+	"bdrs": "border-radius",
+	"bdrst": "border-right-style",
+	"bdrw": "border-right-width",
+	"bds": "border-style:none|hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
+	"bdsp": "border-spacing",
+	"bdt": "border-top:${1:1px} ${2:solid} ${3:#000}",
+	"bdtc": "border-top-color:#${1:000}",
+	"bdti": "border-top-image:url(${0})",
+	"bdtli": "border-top-left-image:url(${0})|continue",
+	"bdtlrs": "border-top-left-radius",
+	"bdtri": "border-top-right-image:url(${0})|continue",
+	"bdtrrs": "border-top-right-radius",
+	"bdts": "border-top-style",
+	"bdtw": "border-top-width",
+	"bdw": "border-width",
+	"bfv": "backface-visibility:hidden|visible",
+	"bg": "background:#${1:000}",
+	"bga": "background-attachment:fixed|scroll",
+	"bgbk": "background-break:bounding-box|each-box|continuous",
+	"bgc": "background-color:#${1:fff}",
+	"bgcp": "background-clip:padding-box|border-box|content-box|no-clip",
+	"bgi": "background-image:url(${0})",
+	"bgo": "background-origin:padding-box|border-box|content-box",
+	"bgp": "background-position:${1:0} ${2:0}",
+	"bgpx": "background-position-x",
+	"bgpy": "background-position-y",
+	"bgr": "background-repeat:no-repeat|repeat-x|repeat-y|space|round",
+	"bgsz": "background-size:contain|cover",
+	"bxsh": "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} #${5:000}|none",
+	"bxsz": "box-sizing:border-box|content-box|border-box",
+	"c": "color:#${1:000}",
+	"cl": "clear:both|left|right|none",
+	"cm": "/* ${0} */",
+	"cnt": "content:'${0}'|normal|open-quote|no-open-quote|close-quote|no-close-quote|attr(${0})|counter(${0})|counters({$0})",
+	"coi": "counter-increment",
+	"colm": "columns",
+	"colmc": "column-count",
+	"colmf": "column-fill",
+	"colmg": "column-gap",
+	"colmr": "column-rule",
+	"colmrc": "column-rule-color",
+	"colmrs": "column-rule-style",
+	"colmrw": "column-rule-width",
+	"colms": "column-span",
+	"colmw": "column-width",
+	"cor": "counter-reset",
+	"cp": "clip:auto|rect(${1:top} ${2:right} ${3:bottom} ${4:left})",
+	"cps": "caption-side:top|bottom",
+	"cur": "cursor:pointer|auto|default|crosshair|hand|help|move|pointer|text",
+	"d": "display:block|none|flex|inline-flex|inline|inline-block|list-item|run-in|compact|table|inline-table|table-caption|table-column|table-column-group|table-header-group|table-footer-group|table-row|table-row-group|table-cell|ruby|ruby-base|ruby-base-group|ruby-text|ruby-text-group",
+	"ec": "empty-cells:show|hide",
+	"f": "font:${1:1em} ${2:sans-serif}",
+	"fd": "font-display:auto|block|swap|fallback|optional",
+	"fef": "font-effect:none|engrave|emboss|outline",
+	"fem": "font-emphasize",
+	"femp": "font-emphasize-position:before|after",
+	"fems": "font-emphasize-style:none|accent|dot|circle|disc",
+	"ff": "font-family:serif|sans-serif|cursive|fantasy|monospace",
+	"fft": "font-family:\"Times New Roman\", Times, Baskerville, Georgia, serif",
+	"ffa": "font-family:Arial, \"Helvetica Neue\", Helvetica, sans-serif",
+	"ffv": "font-family:Verdana, Geneva, sans-serif",
+	"fl": "float:left|right|none",
+	"fs": "font-style:italic|normal|oblique",
+	"fsm": "font-smoothing:antialiased|subpixel-antialiased|none",
+	"fst": "font-stretch:normal|ultra-condensed|extra-condensed|condensed|semi-condensed|semi-expanded|expanded|extra-expanded|ultra-expanded",
+	"fv": "font-variant:normal|small-caps",
+	"fvs": "font-variation-settings:normal|inherit|initial|unset",
+	"fw": "font-weight:normal|bold|bolder|lighter",
+	"fx": "flex",
+	"fxb": "flex-basis:fill|max-content|min-content|fit-content|content",
+	"fxd": "flex-direction:row|row-reverse|column|column-reverse",
+	"fxf": "flex-flow",
+	"fxg": "flex-grow",
+	"fxsh": "flex-shrink",
+	"fxw": "flex-wrap:nowrap|wrap|wrap-reverse",
+	"fz": "font-size",
+	"fza": "font-size-adjust",
+	"h": "height",
+	"jc": "justify-content:flex-start|flex-end|center|space-between|space-around",
+	"l": "left",
+	"lg": "background-image:linear-gradient(${1})",
+	"lh": "line-height",
+	"lis": "list-style",
+	"lisi": "list-style-image",
+	"lisp": "list-style-position:inside|outside",
+	"list": "list-style-type:disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman",
+	"lts": "letter-spacing:normal",
+	"m": "margin",
+	"mah": "max-height",
+	"mar": "max-resolution",
+	"maw": "max-width",
+	"mb": "margin-bottom",
+	"mih": "min-height",
+	"mir": "min-resolution",
+	"miw": "min-width",
+	"ml": "margin-left",
+	"mr": "margin-right",
+	"mt": "margin-top",
+	"ol": "outline",
+	"olc": "outline-color:#${1:000}|invert",
+	"olo": "outline-offset",
+	"ols": "outline-style:none|dotted|dashed|solid|double|groove|ridge|inset|outset",
+	"olw": "outline-width|thin|medium|thick",
+	"op": "opacity",
+	"ord": "order",
+	"ori": "orientation:landscape|portrait",
+	"orp": "orphans",
+	"ov": "overflow:hidden|visible|hidden|scroll|auto",
+	"ovs": "overflow-style:scrollbar|auto|scrollbar|panner|move|marquee",
+	"ovx": "overflow-x:hidden|visible|hidden|scroll|auto",
+	"ovy": "overflow-y:hidden|visible|hidden|scroll|auto",
+	"p": "padding",
+	"pb": "padding-bottom",
+	"pgba": "page-break-after:auto|always|left|right",
+	"pgbb": "page-break-before:auto|always|left|right",
+	"pgbi": "page-break-inside:auto|avoid",
+	"pl": "padding-left",
+	"pos": "position:relative|absolute|relative|fixed|static",
+	"pr": "padding-right",
+	"pt": "padding-top",
+	"q": "quotes",
+	"qen": "quotes:'\\201C' '\\201D' '\\2018' '\\2019'",
+	"qru": "quotes:'\\00AB' '\\00BB' '\\201E' '\\201C'",
+	"r": "right",
+	"rsz": "resize:none|both|horizontal|vertical",
+	"t": "top",
+	"ta": "text-align:left|center|right|justify",
+	"tal": "text-align-last:left|center|right",
+	"tbl": "table-layout:fixed",
+	"td": "text-decoration:none|underline|overline|line-through",
+	"te": "text-emphasis:none|accent|dot|circle|disc|before|after",
+	"th": "text-height:auto|font-size|text-size|max-size",
+	"ti": "text-indent",
+	"tj": "text-justify:auto|inter-word|inter-ideograph|inter-cluster|distribute|kashida|tibetan",
+	"to": "text-outline:${1:0} ${2:0} ${3:#000}",
+	"tov": "text-overflow:ellipsis|clip",
+	"tr": "text-replace",
+	"trf": "transform:${1}|skewX(${1:angle})|skewY(${1:angle})|scale(${1:x}, ${2:y})|scaleX(${1:x})|scaleY(${1:y})|scaleZ(${1:z})|scale3d(${1:x}, ${2:y}, ${3:z})|rotate(${1:angle})|rotateX(${1:angle})|rotateY(${1:angle})|rotateZ(${1:angle})|translate(${1:x}, ${2:y})|translateX(${1:x})|translateY(${1:y})|translateZ(${1:z})|translate3d(${1:tx}, ${2:ty}, ${3:tz})",
+	"trfo": "transform-origin",
+	"trfs": "transform-style:preserve-3d",
+	"trs": "transition:${1:prop} ${2:time}",
+	"trsde": "transition-delay:${1:time}",
+	"trsdu": "transition-duration:${1:time}",
+	"trsp": "transition-property:${1:prop}",
+	"trstf": "transition-timing-function:${1:fn}",
+	"tsh": "text-shadow:${1:hoff} ${2:voff} ${3:blur} ${4:#000}",
+	"tt": "text-transform:uppercase|lowercase|capitalize|none",
+	"tw": "text-wrap:none|normal|unrestricted|suppress",
+	"us": "user-select:none",
+	"v": "visibility:hidden|visible|collapse",
+	"va": "vertical-align:top|super|text-top|middle|baseline|bottom|text-bottom|sub",
+	"w": "width",
+	"whs": "white-space:nowrap|pre|pre-wrap|pre-line|normal",
+	"whsc": "white-space-collapse:normal|keep-all|loose|break-strict|break-all",
+	"wid": "widows",
+	"wm": "writing-mode:lr-tb|lr-tb|lr-bt|rl-tb|rl-bt|tb-rl|tb-lr|bt-lr|bt-rl",
+	"wob": "word-break:normal|keep-all|break-all",
+	"wos": "word-spacing",
+	"wow": "word-wrap:none|unrestricted|suppress|break-word|normal",
+	"z": "z-index",
+	"zom": "zoom:1"
 };
-
-/**
- * Creates output profile for given options
- */
-class Profile {
-	/**
-	 * @param {EmmetOutputProfile} options 
-	 */
-    constructor(options) {
-		/** @type {EmmetOutputProfile} */
-		this.options = Object.assign({}, defaultOptions$3, options);
-		this.quoteChar = this.options.attributeQuotes === 'single' ? '\'' : '"';
-    }
-
-	/**
-	 * Returns value of given option name
-	 * @param {String} name
-	 * @return {*}
-	 */
-	get(name) {
-		return this.options[name];
-	}
-
-    /**
-     * Quote given string according to profile
-     * @param {String} str String to quote
-     * @return {String}
-     */
-    quote(str) {
-        return `${this.quoteChar}${str != null ? str : ''}${this.quoteChar}`;
-    }
-
-    /**
-     * Output given tag name according to options
-     * @param {String} name
-     * @return {String}
-     */
-    name(name) {
-        return strcase(name, this.options.tagCase);
-    }
-
-	/**
-	 * Outputs attribute name according to current settings
-	 * @param {String} attr Attribute name
-	 * @return {String}
-	 */
-    attribute(attr) {
-        return strcase(attr, this.options.attributeCase);
-    }
-
-    /**
-     * Check if given attribute is boolean
-     * @param {Object} attr
-     * @return {Boolean}
-     */
-    isBooleanAttribute(attr) {
-        return attr.options.boolean
-			|| this.get('booleanAttributes').indexOf((attr.name || '').toLowerCase()) !== -1;
-    }
-
-	/**
-	 * Returns a token for self-closing tag, depending on current options
-	 * @return {String}
-	 */
-	selfClose() {
-		switch (this.options.selfClosingStyle) {
-			case 'xhtml': return ' /';
-			case 'xml':   return '/';
-			default:      return '';
-		}
-	}
-
-	/**
-	 * Returns indent for given level
-	 * @param {Number} level Indentation level
-	 * @return {String}
-	 */
-	indent(level) {
-		level = level || 0;
-		let output = '';
-		while (level--) {
-			output += this.options.indent;
-		}
-
-		return output;
-	}
-
-	/**
-	 * Check if given tag name belongs to inline-level element
-	 * @param {Object|String} node Parsed node or tag name
-	 * @return {Boolean}
-	 */
-	isInline(node) {
-        if (typeof node === 'string') {
-            return this.get('inlineElements').indexOf(node.toLowerCase()) !== -1;
-        }
-
-        // inline node is a node either with inline-level name or text-only node
-        return node.name != null ? this.isInline(node.name) : node.isTextOnly;
-	}
-
-	/**
-	 * Outputs formatted field for given params
-	 * @param {Number} index Field index
-	 * @param {String} [placeholder] Field placeholder, can be empty
-	 * @return {String}
-	 */
-	field(index, placeholder) {
-		return this.options.field(index, placeholder);
-	}
-}
-function strcase(string, type) {
-    if (type) {
-        return type === 'upper' ? string.toUpperCase() : string.toLowerCase();
-	}
-	
-    return string;
-}
 
 /**
  * Attribute descriptor of parsed abbreviation node
@@ -2654,9 +2522,378 @@ function isIdentPrefix(code) {
 	return code === AT$1 || code === DOLLAR$1$1 || code === EXCL;
 }
 
+class Snippet {
+    constructor(key, value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+class SnippetsStorage {
+    constructor(data) {
+        this._string = new Map();
+        this._regexp = new Map();
+        this._disabled = false;
+
+        this.load(data);
+    }
+
+    get disabled() {
+        return this._disabled;
+    }
+
+    /**
+     * Disables current store. A disabled store always returns `undefined`
+     * on `get()` method
+     */
+    disable() {
+        this._disabled = true;
+    }
+
+    /**
+     * Enables current store.
+     */
+    enable() {
+        this._disabled = false;
+    }
+
+    /**
+     * Registers a new snippet item
+     * @param {String|Regexp} key
+     * @param {String|Function} value
+     */
+    set(key, value) {
+        if (typeof key === 'string') {
+            key.split('|').forEach(k => this._string.set(k, new Snippet(k, value)));
+        } else if (key instanceof RegExp) {
+            this._regexp.set(key, new Snippet(key, value));
+        } else {
+            throw new Error('Unknow snippet key: ' + key);
+        }
+
+        return this;
+    }
+
+    /**
+     * Returns a snippet matching given key. It first tries to find snippet
+     * exact match in a string key map, then tries to match one with regexp key
+     * @param {String} key
+     * @return {Snippet}
+     */
+    get(key) {
+        if (this.disabled) {
+            return undefined;
+        }
+
+        if (this._string.has(key)) {
+            return this._string.get(key);
+        }
+
+        const keys = Array.from(this._regexp.keys());
+        for (let i = 0, il = keys.length; i < il; i++) {
+            if (keys[i].test(key)) {
+                return this._regexp.get(keys[i]);
+            }
+        }
+    }
+
+    /**
+     * Batch load of snippets data
+     * @param {Object|Map} data
+     */
+    load(data) {
+        this.reset();
+        if (data instanceof Map) {
+            data.forEach((value, key) => this.set(key, value));
+        } else if (data && typeof data === 'object') {
+            Object.keys(data).forEach(key => this.set(key, data[key]));
+        }
+    }
+
+    /**
+     * Clears all stored snippets
+     */
+    reset() {
+        this._string.clear();
+        this._regexp.clear();
+    }
+
+    /**
+     * Returns all available snippets from given store
+     */
+    values() {
+        if (this.disabled) {
+            return [];
+        }
+        
+        const string = Array.from(this._string.values());
+        const regexp = Array.from(this._regexp.values());
+        return string.concat(regexp);
+    }
+}
+
+/**
+ * A snippets registry. Contains snippets, separated by store and sorted by
+ * priority: a store with higher priority takes precedence when resolving snippet
+ * for given key
+ */
+class SnippetsRegistry {
+    /**
+     * Creates snippets registry, filled with given `data`
+     * @param {Object|Array} data Registry snippets. If array is given, adds items
+     * from array in order of precedence, registers global snippets otherwise
+     */
+    constructor(data) {
+        this._registry = [];
+
+        if (Array.isArray(data)) {
+            data.forEach((snippets, level) => this.add(level, snippets));
+        } else if (typeof data === 'object') {
+            this.add(data);
+        }
+    }
+
+    /**
+     * Return store for given level
+     * @param {Number} level
+     * @return {SnippetsStorage}
+     */
+    get(level) {
+        for (let i = 0; i < this._registry.length; i++) {
+            const item = this._registry[i];
+            if (item.level === level) {
+                return item.store;
+            }
+        }
+    }
+
+    /**
+     * Adds new store for given level
+     * @param {Number} [level] Store level (priority). Store with higher level
+     * takes precedence when resolving snippets
+     * @param {Object} [snippets] A snippets data for new store
+     * @return {SnipetsStorage}
+     */
+    add(level, snippets) {
+        if (level != null && typeof level === 'object') {
+            snippets = level;
+            level = 0;
+        }
+
+        const store = new SnippetsStorage(snippets);
+
+        // remove previous store from same level
+        this.remove(level);
+
+        this._registry.push({level, store});
+        this._registry.sort((a, b) => b.level - a.level);
+
+        return store;
+    }
+
+    /**
+     * Remove registry with given level or store
+     * @param {Number|SnippetsStorage} data Either level or snippets store
+     */
+    remove(data) {
+        this._registry = this._registry
+        .filter(item => item.level !== data && item.store !== data);
+    }
+
+    /**
+     * Returns snippet from registry that matches given name
+     * @param {String} name
+     * @return {Snippet}
+     */
+    resolve(name) {
+        for (let i = 0; i < this._registry.length; i++) {
+            const snippet = this._registry[i].store.get(name);
+            if (snippet) {
+                return snippet;
+            }
+        }
+    }
+
+    /**
+     * Returns all available snippets from current registry. Snippets with the
+     * same key are resolved by their storage priority.
+     * @param {Object} options
+     * @param {Object} options.type Return snippets only of given type: 'string'
+     * or 'regexp'. Returns all snippets if not defined
+     * @return {Array}
+     */
+    all(options) {
+        options = options || {};
+        const result = new Map();
+
+        const fillResult = snippet => {
+            const type = snippet.key instanceof RegExp ? 'regexp' : 'string';
+            if ((!options.type || options.type === type) && !result.has(snippet.key)) {
+                result.set(snippet.key, snippet);
+            }
+        };
+
+        this._registry.forEach(item => {
+            item.store.values().forEach(fillResult);
+        });
+
+        return Array.from(result.values());
+    }
+
+    /**
+     * Removes all stores from registry
+     */
+    clear() {
+        this._registry.length = 0;
+    }
+}
+
+/**
+ * @type {EmmetOutputProfile}
+ */
+var defaultOptions$3 = {
+	indent: '\t',
+	tagCase: '',
+	attributeCase: '',
+	attributeQuotes: 'double',
+	format: true,
+	formatSkip: ['html'],
+	formatForce: ['body'],
+	inlineBreak: 3,
+	compactBooleanAttributes: false,
+	booleanAttributes: ['contenteditable', 'seamless', 'async', 'autofocus',
+		'autoplay', 'checked', 'controls', 'defer', 'disabled', 'formnovalidate',
+		'hidden', 'ismap', 'loop', 'multiple', 'muted', 'novalidate', 'readonly',
+		'required', 'reversed', 'selected', 'typemustmatch'],
+	selfClosingStyle: 'html',
+	inlineElements: ['a', 'abbr', 'acronym', 'applet', 'b', 'basefont', 'bdo',
+		'big', 'br', 'button', 'cite', 'code', 'del', 'dfn', 'em', 'font', 'i',
+		'iframe', 'img', 'input', 'ins', 'kbd', 'label', 'map', 'object', 'q',
+		's', 'samp', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup',
+		'textarea', 'tt', 'u', 'var']
+};
+
+/**
+ * Creates output profile for given options
+ */
+class Profile {
+	/**
+	 * @param {EmmetOutputProfile} options 
+	 */
+    constructor(options) {
+		/** @type {EmmetOutputProfile} */
+		this.options = Object.assign({}, defaultOptions$3, options);
+		this.quoteChar = this.options.attributeQuotes === 'single' ? '\'' : '"';
+    }
+
+	/**
+	 * Returns value of given option name
+	 * @param {String} name
+	 * @return {*}
+	 */
+	get(name) {
+		return this.options[name];
+	}
+
+    /**
+     * Quote given string according to profile
+     * @param {String} str String to quote
+     * @return {String}
+     */
+    quote(str) {
+        return `${this.quoteChar}${str != null ? str : ''}${this.quoteChar}`;
+    }
+
+    /**
+     * Output given tag name according to options
+     * @param {String} name
+     * @return {String}
+     */
+    name(name) {
+        return strcase(name, this.options.tagCase);
+    }
+
+	/**
+	 * Outputs attribute name according to current settings
+	 * @param {String} attr Attribute name
+	 * @return {String}
+	 */
+    attribute(attr) {
+        return strcase(attr, this.options.attributeCase);
+    }
+
+    /**
+     * Check if given attribute is boolean
+     * @param {Object} attr
+     * @return {Boolean}
+     */
+    isBooleanAttribute(attr) {
+        return attr.options.boolean
+			|| this.get('booleanAttributes').indexOf((attr.name || '').toLowerCase()) !== -1;
+    }
+
+	/**
+	 * Returns a token for self-closing tag, depending on current options
+	 * @return {String}
+	 */
+	selfClose() {
+		switch (this.options.selfClosingStyle) {
+			case 'xhtml': return ' /';
+			case 'xml':   return '/';
+			default:      return '';
+		}
+	}
+
+	/**
+	 * Returns indent for given level
+	 * @param {Number} level Indentation level
+	 * @return {String}
+	 */
+	indent(level) {
+		level = level || 0;
+		let output = '';
+		while (level--) {
+			output += this.options.indent;
+		}
+
+		return output;
+	}
+
+	/**
+	 * Check if given tag name belongs to inline-level element
+	 * @param {Object|String} node Parsed node or tag name
+	 * @return {Boolean}
+	 */
+	isInline(node) {
+        if (typeof node === 'string') {
+            return this.get('inlineElements').indexOf(node.toLowerCase()) !== -1;
+        }
+
+        // inline node is a node either with inline-level name or text-only node
+        return node.name != null ? this.isInline(node.name) : node.isTextOnly;
+	}
+
+	/**
+	 * Outputs formatted field for given params
+	 * @param {Number} index Field index
+	 * @param {String} [placeholder] Field placeholder, can be empty
+	 * @return {String}
+	 */
+	field(index, placeholder) {
+		return this.options.field(index, placeholder);
+	}
+}
+function strcase(string, type) {
+    if (type) {
+        return type === 'upper' ? string.toUpperCase() : string.toLowerCase();
+	}
+	
+    return string;
+}
+
 var CONTEXT_KEY = "emmetLegal";
 var FIELD = "${}";
-var option = { field: function () { return FIELD; } };
+var defaultOption = { field: function () { return FIELD; } };
 function checkMonacoExists(monaco) {
     if (!monaco)
         console.error("monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter");
@@ -2758,27 +2995,13 @@ function addTabCommand(editor, monaco, getStatus) {
     // do not trigger emmet when suggest widget visible(it's a builtin context key)
     CONTEXT_KEY + " && !suggestWidgetVisible");
 }
+//# sourceMappingURL=helper.js.map
 
-var registry = new SnippetsRegistry();
-registry.add({
-    "@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
-    bg: "background:#${1:000}",
-    bga: "background-attachment:fixed|scroll",
-    bgbk: "background-break:bounding-box|each-box|continuous",
-    bgi: "background-image:url(${0})",
-    bgo: "background-origin:padding-box|border-box|content-box",
-    c: "color:#${1:000}",
-    cl: "clear:both|left|right|none",
-    pos: "position:relative|absolute|fixed|static",
-    m: "margin",
-    p: "padding",
-    z: "z-index:1",
-    bd: "border:${1:1px} ${2:solid} ${3:#000}",
-    bds: "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
-    lg: "background-image:linear-gradient(${1})",
-    trf: "transform:scale(${1:x-coord}, ${2:y})",
-    mten: "margin: 10px;"
-});
+var option = __assign({}, defaultOption, { snippets: new SnippetsRegistry(cssSnippet), profile: new Profile() });
+function expand(abbr) {
+    var tree = index$2(abbr).use(index$1, option.snippets);
+    return index(tree, option.profile, option);
+}
 /**
  * almost the same behavior as WebStorm's builtin emmet.
  * only triggered when cursor(caret) not in attribute value area and do works via emmet,
@@ -2788,10 +3011,6 @@ function emmetCSS(editor, monaco) {
     if (monaco === void 0) { monaco = window.monaco; }
     if (!checkMonacoExists(monaco))
         return;
-    function expand(abbr) {
-        var tree = index$1(index$2(abbr), registry);
-        return index(tree, new Profile(), option);
-    }
     var status = {
         lineNumber: 0,
         column: 0,
@@ -2830,6 +3049,7 @@ function emmetCSS(editor, monaco) {
     }, function (s) { return Object.assign(status, s); });
     addTabCommand(editor, monaco, function () { return status; });
 }
+//# sourceMappingURL=css.js.map
 
 const ASTERISK = 42; // *
 
@@ -3219,6 +3439,7 @@ function unroll(node) {
 
 	node.parent.removeChild(node);
 }
+//# sourceMappingURL=abbreviation.es.js.map
 
 const ASTERISK$1 = 42; // *
 
@@ -3601,6 +3822,7 @@ function unroll$1(node) {
 
 	node.parent.removeChild(node);
 }
+//# sourceMappingURL=abbreviation.es.js.map
 
 /**
  * For every node in given `tree`, finds matching snippet from `registry` and
@@ -3757,775 +3979,6 @@ function findDeepestNode(node) {
 	}
 
 	return node;
-}
-
-const inlineElements = new Set('a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'.split(','));
-const elementMap = {
-    p: 'span',
-    ul: 'li',
-    ol: 'li',
-    table: 'tr',
-    tr: 'td',
-    tbody: 'tr',
-    thead: 'tr',
-    tfoot: 'tr',
-    colgroup: 'col',
-    select: 'option',
-    optgroup: 'option',
-    audio: 'source',
-    video: 'source',
-    object: 'param',
-    map: 'area'
-};
-
-/**
- * Returns best child node name for given parent node name
- * @param  {String} parentName Name of parent node
- * @return {String}
- */
-function resolveImplicitName(parentName) {
-    parentName = (parentName || '').toLowerCase();
-    return elementMap[parentName]
-        || (inlineElements.has(parentName) ? 'span' : 'div');
-}
-
-/**
- * Adds missing tag names for given tree depending on node’s parent name
- */
-var implicitTags = function(tree) {
-    tree.walk(node => {
-        // resolve only nameless nodes without content
-        if (node.name == null && node.attributes.length) {
-            node.name = resolveImplicitName(node.parent.name);
-        }
-    });
-    return tree;
-};
-
-/**
- * Locates all occurances of given `token` which are not escaped (e.g. are not
- * preceded with `\`) given in `str`
- * @param  {String} str
- * @return {Array}  Array of token ranges
- */
-function findUnescapedTokens(str, token) {
-    const result = new Set();
-    const tlen = token.length;
-
-    // 1. Find all occurances of tokens
-    let pos = 0;
-    while ((pos = str.indexOf(token, pos)) !== -1) {
-        result.add(pos);
-        pos += tlen;
-    }
-
-    if (result.size) {
-        // 2. Remove ones that escaped
-        let pos = 0;
-        const len = str.length;
-
-        while (pos < len) {
-            if (str[pos++] === '\\') {
-                result.delete(pos++);
-            }
-        }
-    }
-
-    return Array.from(result).map(ix => range(ix, tlen));
-}
-
-/**
- * Replaces `ranges`, generated by `range()` function, with given `value` in `str`
- * @param  {String} str    Where to replace ranges
- * @param  {Array} ranges Ranes, created by `range()` function
- * @param  {String|Function} value  Replacement value. If it’s a function, it
- * will take a range value as argument and should return a new string
- * @return {String}
- */
-function replaceRanges(str, ranges, value) {
-	// should walk from the end of array to keep ranges valid after replacement
-	for (let i = ranges.length - 1; i >= 0; i--) {
-		const r = ranges[i];
-
-        let offset = 0;
-        let offsetLength = 0;
-        let descendingOrder = false;
-
-        if (str.substr(r[0] + r[1], 1) === '@'){
-            if (str.substr(r[0] + r[1] + 1, 1) === '-') {
-                descendingOrder = true;
-            } 
-            const matches = str.substr(r[0] + r[1] + 1 + Number(descendingOrder)).match(/^(\d+)/);
-            if (matches) {
-                offsetLength = matches[1].length + 1 + Number(descendingOrder);
-                offset = parseInt(matches[1]) - 1;
-            } else {
-                offsetLength = 2;
-            }
-        }
-
-		str = str.substring(0, r[0])
-			+ (typeof value === 'function' ? value(str.substr(r[0], r[1]), offset, descendingOrder) : value)
-			+ str.substring(r[0] + r[1] + offsetLength);
-	}
-
-	return str;
-}
-
-function range(start, length) {
-    return [start, length];
-}
-
-const numberingToken = '$';
-
-/**
- * Numbering of expanded abbreviation: finds all nodes with `$` in value
- * or attributes and replaces its occurances with repeater value
- */
-var applyNumbering = function(tree) {
-    tree.walk(applyNumbering$1);
-    return tree;
-};
-
-/**
- * Applies numbering for given node: replaces occurances of numbering token
- * in node’s name, content and attributes
- * @param  {Node} node
- * @return {Node}
- */
-function applyNumbering$1(node) {
-    const repeater = findRepeater(node);
-
-    if (repeater && repeater.value != null) {
-        // NB replace numbering in nodes with explicit repeater only:
-        // it solves issues with abbreviations like `xsl:if[test=$foo]` where
-        // `$foo` is preferred output
-        const value = repeater.value;
-        const count = repeater.count;
-
-        node.name = replaceNumbering(node.name, value, count);
-        node.value = replaceNumbering(node.value, value, count);
-        node.attributes.forEach(attr => {
-            const copy = node.getAttribute(attr.name).clone();
-            copy.name = replaceNumbering(attr.name, value, count);
-            copy.value = replaceNumbering(attr.value, value, count);
-            node.replaceAttribute(attr.name, copy);
-        });
-    }
-
-    return node;
-}
-
-/**
- * Returns repeater object for given node
- * @param  {Node} node
- * @return {Object}
- */
-function findRepeater(node) {
-    while (node) {
-        if (node.repeat) {
-            return node.repeat;
-        }
-
-        node = node.parent;
-    }
-}
-
-/**
- * Replaces numbering in given string
- * @param  {String} str
- * @param  {Number} value
- * @return {String}
- */
-function replaceNumbering(str, value, count) {
-    // replace numbering in strings only: skip explicit wrappers that could
-    // contain unescaped numbering tokens
-    if (typeof str === 'string') {
-        const ranges = getNumberingRanges(str);
-        return replaceNumberingRanges(str, ranges, value, count);
-    }
-
-    return str;
-}
-
-/**
- * Returns numbering ranges, e.g. ranges of `$` occurances, in given string.
- * Multiple adjacent ranges are combined
- * @param  {String} str
- * @return {Array}
- */
-function getNumberingRanges(str) {
-    return findUnescapedTokens(str || '', numberingToken)
-    .reduce((out, range$$1) => {
-        // skip ranges that actually belongs to output placeholder or tabstops
-        if (!/[#{]/.test(str[range$$1[0] + 1] || '')) {
-            const lastRange = out[out.length - 1];
-            if (lastRange && lastRange[0] + lastRange[1] === range$$1[0]) {
-                lastRange[1] += range$$1[1];
-            } else {
-                out.push(range$$1);
-            }
-        }
-
-        return out;
-    }, []);
-}
-
-/**
- * @param  {String} str
- * @param  {Array} ranges
- * @param  {Number} value
- * @return {String}
- */
-function replaceNumberingRanges(str, ranges, value, count) {
-    const replaced = replaceRanges(str, ranges, (token, offset, descendingOrder) => {
-    let _value = descendingOrder ? String(offset + count - value + 1) : String(value + offset);
-        // pad values for multiple numbering tokens, e.g. 3 for $$$ becomes 003
-        while (_value.length < token.length) {
-            _value = '0' + _value;
-        }
-        return _value;
-    });
-
-    // unescape screened numbering tokens
-    return unescapeString(replaced);
-}
-
-/**
- * Unescapes characters, screened with `\`, in given string
- * @param  {String} str
- * @return {String}
- */
-function unescapeString(str) {
-    let i = 0, result = '';
-    const len = str.length;
-
-    while (i < len) {
-        const ch = str[i++];
-        result += (ch === '\\') ? (str[i++] || '') : ch;
-    }
-
-    return result;
-}
-
-/** Placeholder for inserted content */
-const placeholder = '$#';
-
-/** Placeholder for caret */
-const caret = '|';
-
-const reUrl = /^((?:https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-const reEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
-const reProto = /^([a-z]+:)?\/\//i;
-
-/**
- * Inserts content into node with implicit repeat count: this node is then
- * duplicated for each content item and content itself is inserted either into
- * deepest child or instead of a special token.
- *
- * This method uses two distinct steps: `prepare()` and `insert()` since most
- * likely these steps will be used separately to properly insert content
- * with unescaped `$` numbering markers.
- *
- * @param {Node} tree Parsed abbreviation
- * @param {String[]} content Array of content items to insert
- * @return {Node}
- */
-/**
- * Finds nodes with implicit repeat and creates `amount` copies of it in tree
- * @param  {Node} tree
- * @param  {Number} amount
- * @return {Node}
- */
-function prepare(tree, amount) {
-    amount = amount || 1;
-    tree.walk(node => {
-        if (node.repeat && node.repeat.count === null) {
-            for (let i = 0; i < amount; i++) {
-                const clone = node.clone(true);
-                clone.repeat.implicit = true;
-                clone.repeat.count = amount;
-                clone.repeat.value = i + 1;
-                clone.repeat.index = i;
-                node.parent.insertBefore(clone, node);
-            }
-
-            node.remove();
-        }
-    });
-
-    return tree;
-}
-
-/**
- * Inserts content into implicitly repeated nodes, created by `prepare()` method
- * @param  {Node} tree
- * @param  {String[]} content
- * @return {Node}
- */
-function insert(tree, content) {
-    if (Array.isArray(content) && content.length) {
-        let updated = false;
-        tree.walk(node => {
-            if (node.repeat && node.repeat.implicit) {
-                updated = true;
-                insertContent(node, content[node.repeat.index]);
-            }
-        });
-
-        if (!updated) {
-            // no node with implicit repeat was found, insert content as
-            // deepest child
-            setNodeContent(findDeepestNode$1(tree), content.join('\n'));
-        }
-    }
-
-    return tree;
-}
-
-/**
- * Inserts `content` into given `node`: either replaces output placeholders
- * or inserts it into deepest child node
- * @param  {Node} node
- * @param  {String} content
- * @return {Node}
- */
-function insertContent(node, content) {
-	let inserted = insertContentIntoPlaceholder(node, content);
-	node.walk(child => inserted |= insertContentIntoPlaceholder(child, content));
-
-	if (!inserted) {
-		// no placeholders were found in node, insert content into deepest child
-		setNodeContent(findDeepestNode$1(node), content);
-	}
-
-	return node;
-}
-
-/**
- * Inserts given `content` into placeholders for given `node`. Placeholders
- * might be available in attribute values and node content
- * @param  {Node} node
- * @param  {String} content
- * @return {Boolean} Returns `true` if placeholders were found and replaced in node
- */
-function insertContentIntoPlaceholder(node, content) {
-	const state = {replaced: false};
-
-	node.value = replacePlaceholder(node.value, content, state);
-	node.attributes.forEach(attr => {
-		if (attr.value) {
-			node.setAttribute(attr.name, replacePlaceholder(attr.value, content, state));
-		}
-	});
-
-	return state.replaced;
-}
-
-/**
- * Replaces all placeholder occurances in given `str` with `value`
- * @param  {String} str
- * @param  {String} value
- * @param  {Object} [_state] If provided, set `replaced` property of given
- * object to `true` if placeholder was found and replaced
- * @return {String}
- */
-function replacePlaceholder(str, value, _state) {
-	if (typeof str === 'string') {
-		const ranges = findUnescapedTokens(str, placeholder);
-		if (ranges.length) {
-			if (_state) {
-				_state.replaced = true;
-			}
-
-			str = replaceRanges(str, ranges, value);
-		}
-	}
-
-	return str;
-}
-
-/**
- * Finds node which is the deepest for in current node or node iteself.
- * @param  {Node} node
- * @return {Node}
- */
-function findDeepestNode$1(node) {
-	while (node.children.length) {
-		node = node.children[node.children.length - 1];
-	}
-
-	return node;
-}
-
-/**
- * Updates content of given node
- * @param {Node} node
- * @param {String} content
- */
-function setNodeContent(node, content) {
-	// find caret position and replace it with content, if possible
-	if (node.value) {
-		const ranges = findUnescapedTokens(node.value, caret);
-		if (ranges.length) {
-			node.value = replaceRanges(node.value, ranges, content);
-			return;
-		}
-	}
-
-	if (node.name.toLowerCase() === 'a' || node.hasAttribute('href')) {
-		// special case: inserting content into `<a>` tag
-		if (reUrl.test(content)) {
-			node.setAttribute('href', (reProto.test(content) ? '' : 'http://') + content);
-		} else if (reEmail.test(content)) {
-			node.setAttribute('href', 'mailto:' + content);
-		}
-	}
-
-	node.value = content;
-}
-
-const defaultOptions$4 = {
-	element: '__',
-	modifier: '_'
-};
-
-const reElement  = /^(-+)([a-z0-9]+[a-z0-9-]*)/i;
-const reModifier = /^(_+)([a-z0-9]+[a-z0-9-_]*)/i;
-const blockCandidates1 = className => /^[a-z]\-/i.test(className);
-const blockCandidates2 = className => /^[a-z]/i.test(className);
-
-/**
- * BEM transformer: updates class names written as `-element` and
- * `_modifier` into full class names as described in BEM specs. Also adds missing
- * class names: fir example, if node contains `.block_modifier` class, ensures
- * that element contains `.block` class as well
- */
-var bem = function(tree, options) {
-	options = Object.assign({}, defaultOptions$4, options);
-
-	tree.walk(node => expandClassNames(node, options));
-
-	const lookup = createBlockLookup(tree);
-	tree.walk(node => expandShortNotation(node, lookup, options));
-
-	return tree;
-};
-
-/**
- * Expands existing class names in BEM notation in given `node`.
- * For example, if node contains `b__el_mod` class name, this method ensures
- * that element contains `b__el` class as well
- * @param  {Node} node
- * @param  {Object} options
- * @return {Set}
- */
-function expandClassNames(node, options) {
-	const classNames = node.classList.reduce((out, cl) => {
-		// remove all modifiers and element prefixes from class name to get a base element name
-		const ix = cl.indexOf('_');
-		if (ix > 0 && !cl.startsWith('-')) {
-			out.add(cl.slice(0, ix));
-		    out.add(cl.slice(ix));
-			return out;
-		}
-
-		return out.add(cl);
-	}, new Set());
-
-	if (classNames.size) {
-		node.setAttribute('class', Array.from(classNames).join(' '));
-	}
-}
-
-/**
- * Expands short BEM notation, e.g. `-element` and `_modifier`
- * @param  {Node} node      Parsed Emmet abbreviation node
- * @param  {Map} lookup     BEM block name lookup
- * @param  {Object} options
- */
-function expandShortNotation(node, lookup, options) {
-	const classNames = node.classList.reduce((out, cl) => {
-		let prefix, m;
-		const originalClass = cl;
-
-		// parse element definition (could be only one)
-		if (m = cl.match(reElement)) {
-			prefix = getBlockName(node, lookup, m[1]) + options.element + m[2];
-			out.add(prefix);
-			cl = cl.slice(m[0].length);
-		}
-
-		// parse modifiers definitions 
-		if (m = cl.match(reModifier)) {
-			if (!prefix) {
-				prefix = getBlockName(node, lookup, m[1]);
-				out.add(prefix);
-			}
-
-			out.add(`${prefix}${options.modifier}${m[2]}`);
-			cl = cl.slice(m[0].length);
-		}
-
-		if (cl === originalClass) {
-			// class name wasn’t modified: it’s not a BEM-specific class,
-			// add it as-is into output
-			out.add(originalClass);
-		}
-
-		return out;
-	}, new Set());
-
-	const arrClassNames = Array.from(classNames).filter(Boolean);
-	if (arrClassNames.length) {
-		node.setAttribute('class', arrClassNames.join(' '));
-	}
-}
-
-/**
- * Creates block name lookup for each node in given tree, e.g. finds block
- * name explicitly for each node
- * @param  {Node} tree
- * @return {Map}
- */
-function createBlockLookup(tree) {
-	const lookup = new Map();
-
-	tree.walk(node => {
-		const classNames = node.classList;
-		if (classNames.length) {
-			// guess best block name from class or use parent’s block name
-			lookup.set(node,
-				find(classNames, blockCandidates1)
-				|| find(classNames, blockCandidates2)
-				|| lookup.get(node.parent)
-			);
-		}
-	});
-
-	return lookup;
-}
-
-/**
- * Returns block name for given `node` by `prefix`, which tells the depth of
- * of parent node lookup
- * @param  {Node} node
- * @param  {Map} lookup
- * @param  {String} prefix
- * @return {String}
- */
-function getBlockName(node, lookup, prefix) {
-	let depth = prefix.length > 1 ? prefix.length : 0;
-
-	// NB don’t walk up to root node, stay at first root child in case of
-	// too deep prefix
-	while (node.parent && node.parent.parent && depth--) {
-		node = node.parent;
-	}
-
-	return lookup.get(node) || '';
-}
-
-function find(arr, filter) {
-	for(let i = 0; i < arr.length; i++){
-		if (reElement.test(arr[i]) || reModifier.test(arr[i])) {
-			break;
-		}
-		if (filter(arr[i])) {
-			return arr[i];
-		}
-	}
-}
-
-/**
- * JSX transformer: replaces `class` and `for` attributes with `className` and
- * `htmlFor` attributes respectively
- */
-var jsx = function(tree) {
-	tree.walk(node => {
-		replace(node, 'class', 'className');
-		replace(node, 'for', 'htmlFor');
-	});
-	return tree;
-};
-
-function replace(node, oldName, newName) {
-	let attr = node.getAttribute(oldName);
-	if (attr) {
-		attr.name = newName;
-	}
-}
-
-const reSupporterNames = /^xsl:(variable|with\-param)$/i;
-
-/**
- * XSL transformer: removes `select` attributes from certain nodes that contain
- * children
- */
-var xsl = function(tree) {
-	tree.walk(node => {
-		if (reSupporterNames.test(node.name || '') && (node.children.length || node.value)) {
-			node.removeAttribute('select');
-		}
-	});
-	return tree;
-};
-
-const supportedAddons = { bem, jsx, xsl };
-
-/**
- * Runs additional transforms on given tree.
- * These transforms may introduce side-effects and unexpected result
- * so they are not applied by default, authors must specify which addons
- * in `addons` argument as `{addonName: addonOptions}`
- * @param {Node} tree Parsed Emmet abbreviation
- * @param {Object} addons Add-ons to apply and their options
- */
-var addons = function(tree, addons) {
-    Object.keys(addons || {}).forEach(key => {
-        if (key in supportedAddons) {
-            const addonOpt = typeof addons[key] === 'object' ? addons[key] : null;
-            tree = tree.use(supportedAddons[key], addonOpt);
-        }
-    });
-
-    return tree;
-};
-
-/**
- * Applies basic HTML-specific transformations for given parsed abbreviation:
- * – resolve implied tag names
- * – insert repeated content
- * – resolve node numbering
- */
-var index$6 = function(tree, content, appliedAddons) {
-    if (typeof content === 'string') {
-        content = [content];
-    } else if (content && typeof content === 'object' && !Array.isArray(content)) {
-        appliedAddons = content;
-        content = null;
-    }
-
-    return tree
-    .use(implicitTags)
-    .use(prepare, Array.isArray(content) ? content.length : null)
-    .use(applyNumbering)
-    .use(insert, content)
-    .use(addons, appliedAddons);
-};
-
-/**
- * Replaces all unescaped ${variable} occurances in given parsed abbreviation
- * `tree` with values provided in `variables` hash. Precede `$` with `\` to
- * escape it and skip replacement
- * @param {Node} tree Parsed abbreviation tree
- * @param {Object} variables Variables values
- * @return {Node}
- */
-function replaceVariables(tree, variables) {
-	variables = variables || {};
-    tree.walk(node => replaceInNode(node, variables));
-    return tree;
-}
-
-function replaceInNode(node, variables) {
-    // Replace variables in attributes.
-    const attrs = node.attributes;
-
-    for (let i = 0, il = attrs.length; i < il; i++) {
-        const attr = attrs[i];
-        if (typeof attr.value === 'string') {
-            node.setAttribute(attr.name, replaceInString(attr.value, variables));
-        }
-    }
-
-    if (node.value != null) {
-        node.value = replaceInString(node.value, variables);
-    }
-
-    return node;
-}
-
-/**
- * Replaces all unescaped `${variable}` occurances in given string with values
- * from `variables` object
- * @param  {String} string
- * @param  {Object} variables
- * @return {String}
- */
-function replaceInString(string, variables) {
-    const model = createModel(string);
-    let offset = 0;
-    let output = '';
-
-    for (let i = 0, il = model.variables.length; i < il; i++) {
-        const v = model.variables[i];
-        let value = v.name in variables ? variables[v.name] : v.name;
-        if (typeof value === 'function') {
-            value = value(model.string, v, offset + v.location);
-        }
-
-        output += model.string.slice(offset, v.location) + value;
-        offset = v.location + v.length;
-    }
-
-    return output + model.string.slice(offset);
-}
-
-/**
- * Creates variable model from given string. The model contains a `string` with
- * all escaped variable tokens written without escape symbol and `variables`
- * property with all unescaped variables and their ranges
- * @param  {String} string
- * @return {Object}
- */
-function createModel(string) {
-    const reVariable = /\$\{([a-z][\w\-]*)\}/ig;
-    const escapeCharCode = 92; // `\` symbol
-    const variables = [];
-
-    // We have to replace unescaped (e.g. not preceded with `\`) tokens.
-    // Instead of writing a stream parser, we’ll cut some edges here:
-    // 1. Find all tokens
-    // 2. Walk string char-by-char and resolve only tokens that are not escaped
-    const tokens = new Map();
-    let m;
-    while (m = reVariable.exec(string)) {
-        tokens.set(m.index, m);
-    }
-
-    if (tokens.size) {
-        let start = 0, pos = 0, len = string.length;
-        let output = '';
-        while (pos < len) {
-            if (string.charCodeAt(pos) === escapeCharCode && tokens.has(pos + 1)) {
-                // Found escape symbol that escapes variable: we should
-                // omit this symbol in output string and skip variable
-                const token = tokens.get(pos + 1);
-                output += string.slice(start, pos) + token[0];
-                start = pos = token.index + token[0].length;
-                tokens.delete(pos + 1);
-                continue;
-            }
-
-            pos++;
-        }
-
-        string = output + string.slice(start);
-
-        // Not using `.map()` here to reduce memory allocations
-        const validMatches = Array.from(tokens.values());
-        for (let i = 0, il = validMatches.length; i < il; i++) {
-            const token = validMatches[i];
-            variables.push({
-                name: token[1],
-                location: token.index,
-                length: token[0].length
-            });
-        }
-    }
-
-    return {string, variables};
 }
 
 const TOKEN       = /^(.*?)([A-Z_]+)(.*?)$/;
@@ -5397,7 +4850,7 @@ const supportedSyntaxes = { html, haml, slim, pug };
  * }
  * @return {String}
  */
-function index$7(tree, profile, syntax, options) {
+function index$6(tree, profile, syntax, options) {
 	if (typeof syntax === 'object') {
 		options = syntax;
 		syntax = null;
@@ -5419,8 +4872,664 @@ function index$7(tree, profile, syntax, options) {
 function supports$1(syntax) {
 	return !!syntax && syntax in supportedSyntaxes;
 }
+//# sourceMappingURL=markup-formatters.es.js.map
 
-var html$1 = {
+const inlineElements = new Set('a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'.split(','));
+const elementMap = {
+    p: 'span',
+    ul: 'li',
+    ol: 'li',
+    table: 'tr',
+    tr: 'td',
+    tbody: 'tr',
+    thead: 'tr',
+    tfoot: 'tr',
+    colgroup: 'col',
+    select: 'option',
+    optgroup: 'option',
+    audio: 'source',
+    video: 'source',
+    object: 'param',
+    map: 'area'
+};
+
+/**
+ * Returns best child node name for given parent node name
+ * @param  {String} parentName Name of parent node
+ * @return {String}
+ */
+function resolveImplicitName(parentName) {
+    parentName = (parentName || '').toLowerCase();
+    return elementMap[parentName]
+        || (inlineElements.has(parentName) ? 'span' : 'div');
+}
+
+/**
+ * Adds missing tag names for given tree depending on node’s parent name
+ */
+var implicitTags = function(tree) {
+    tree.walk(node => {
+        // resolve only nameless nodes without content
+        if (node.name == null && node.attributes.length) {
+            node.name = resolveImplicitName(node.parent.name);
+        }
+    });
+    return tree;
+};
+
+/**
+ * Locates all occurances of given `token` which are not escaped (e.g. are not
+ * preceded with `\`) given in `str`
+ * @param  {String} str
+ * @return {Array}  Array of token ranges
+ */
+function findUnescapedTokens(str, token) {
+    const result = new Set();
+    const tlen = token.length;
+
+    // 1. Find all occurances of tokens
+    let pos = 0;
+    while ((pos = str.indexOf(token, pos)) !== -1) {
+        result.add(pos);
+        pos += tlen;
+    }
+
+    if (result.size) {
+        // 2. Remove ones that escaped
+        let pos = 0;
+        const len = str.length;
+
+        while (pos < len) {
+            if (str[pos++] === '\\') {
+                result.delete(pos++);
+            }
+        }
+    }
+
+    return Array.from(result).map(ix => range(ix, tlen));
+}
+
+/**
+ * Replaces `ranges`, generated by `range()` function, with given `value` in `str`
+ * @param  {String} str    Where to replace ranges
+ * @param  {Array} ranges Ranes, created by `range()` function
+ * @param  {String|Function} value  Replacement value. If it’s a function, it
+ * will take a range value as argument and should return a new string
+ * @return {String}
+ */
+function replaceRanges(str, ranges, value) {
+	// should walk from the end of array to keep ranges valid after replacement
+	for (let i = ranges.length - 1; i >= 0; i--) {
+		const r = ranges[i];
+
+        let offset = 0;
+        let offsetLength = 0;
+        let descendingOrder = false;
+
+        if (str.substr(r[0] + r[1], 1) === '@'){
+            if (str.substr(r[0] + r[1] + 1, 1) === '-') {
+                descendingOrder = true;
+            } 
+            const matches = str.substr(r[0] + r[1] + 1 + Number(descendingOrder)).match(/^(\d+)/);
+            if (matches) {
+                offsetLength = matches[1].length + 1 + Number(descendingOrder);
+                offset = parseInt(matches[1]) - 1;
+            } else {
+                offsetLength = 2;
+            }
+        }
+
+		str = str.substring(0, r[0])
+			+ (typeof value === 'function' ? value(str.substr(r[0], r[1]), offset, descendingOrder) : value)
+			+ str.substring(r[0] + r[1] + offsetLength);
+	}
+
+	return str;
+}
+
+function range(start, length) {
+    return [start, length];
+}
+
+const numberingToken = '$';
+
+/**
+ * Numbering of expanded abbreviation: finds all nodes with `$` in value
+ * or attributes and replaces its occurances with repeater value
+ */
+var applyNumbering = function(tree) {
+    tree.walk(applyNumbering$1);
+    return tree;
+};
+
+/**
+ * Applies numbering for given node: replaces occurances of numbering token
+ * in node’s name, content and attributes
+ * @param  {Node} node
+ * @return {Node}
+ */
+function applyNumbering$1(node) {
+    const repeater = findRepeater(node);
+
+    if (repeater && repeater.value != null) {
+        // NB replace numbering in nodes with explicit repeater only:
+        // it solves issues with abbreviations like `xsl:if[test=$foo]` where
+        // `$foo` is preferred output
+        const value = repeater.value;
+        const count = repeater.count;
+
+        node.name = replaceNumbering(node.name, value, count);
+        node.value = replaceNumbering(node.value, value, count);
+        node.attributes.forEach(attr => {
+            const copy = node.getAttribute(attr.name).clone();
+            copy.name = replaceNumbering(attr.name, value, count);
+            copy.value = replaceNumbering(attr.value, value, count);
+            node.replaceAttribute(attr.name, copy);
+        });
+    }
+
+    return node;
+}
+
+/**
+ * Returns repeater object for given node
+ * @param  {Node} node
+ * @return {Object}
+ */
+function findRepeater(node) {
+    while (node) {
+        if (node.repeat) {
+            return node.repeat;
+        }
+
+        node = node.parent;
+    }
+}
+
+/**
+ * Replaces numbering in given string
+ * @param  {String} str
+ * @param  {Number} value
+ * @return {String}
+ */
+function replaceNumbering(str, value, count) {
+    // replace numbering in strings only: skip explicit wrappers that could
+    // contain unescaped numbering tokens
+    if (typeof str === 'string') {
+        const ranges = getNumberingRanges(str);
+        return replaceNumberingRanges(str, ranges, value, count);
+    }
+
+    return str;
+}
+
+/**
+ * Returns numbering ranges, e.g. ranges of `$` occurances, in given string.
+ * Multiple adjacent ranges are combined
+ * @param  {String} str
+ * @return {Array}
+ */
+function getNumberingRanges(str) {
+    return findUnescapedTokens(str || '', numberingToken)
+    .reduce((out, range$$1) => {
+        // skip ranges that actually belongs to output placeholder or tabstops
+        if (!/[#{]/.test(str[range$$1[0] + 1] || '')) {
+            const lastRange = out[out.length - 1];
+            if (lastRange && lastRange[0] + lastRange[1] === range$$1[0]) {
+                lastRange[1] += range$$1[1];
+            } else {
+                out.push(range$$1);
+            }
+        }
+
+        return out;
+    }, []);
+}
+
+/**
+ * @param  {String} str
+ * @param  {Array} ranges
+ * @param  {Number} value
+ * @return {String}
+ */
+function replaceNumberingRanges(str, ranges, value, count) {
+    const replaced = replaceRanges(str, ranges, (token, offset, descendingOrder) => {
+    let _value = descendingOrder ? String(offset + count - value + 1) : String(value + offset);
+        // pad values for multiple numbering tokens, e.g. 3 for $$$ becomes 003
+        while (_value.length < token.length) {
+            _value = '0' + _value;
+        }
+        return _value;
+    });
+
+    // unescape screened numbering tokens
+    return unescapeString(replaced);
+}
+
+/**
+ * Unescapes characters, screened with `\`, in given string
+ * @param  {String} str
+ * @return {String}
+ */
+function unescapeString(str) {
+    let i = 0, result = '';
+    const len = str.length;
+
+    while (i < len) {
+        const ch = str[i++];
+        result += (ch === '\\') ? (str[i++] || '') : ch;
+    }
+
+    return result;
+}
+
+/** Placeholder for inserted content */
+const placeholder = '$#';
+
+/** Placeholder for caret */
+const caret = '|';
+
+const reUrl = /^((?:https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+const reEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+const reProto = /^([a-z]+:)?\/\//i;
+
+/**
+ * Inserts content into node with implicit repeat count: this node is then
+ * duplicated for each content item and content itself is inserted either into
+ * deepest child or instead of a special token.
+ *
+ * This method uses two distinct steps: `prepare()` and `insert()` since most
+ * likely these steps will be used separately to properly insert content
+ * with unescaped `$` numbering markers.
+ *
+ * @param {Node} tree Parsed abbreviation
+ * @param {String[]} content Array of content items to insert
+ * @return {Node}
+ */
+/**
+ * Finds nodes with implicit repeat and creates `amount` copies of it in tree
+ * @param  {Node} tree
+ * @param  {Number} amount
+ * @return {Node}
+ */
+function prepare(tree, amount) {
+    amount = amount || 1;
+    tree.walk(node => {
+        if (node.repeat && node.repeat.count === null) {
+            for (let i = 0; i < amount; i++) {
+                const clone = node.clone(true);
+                clone.repeat.implicit = true;
+                clone.repeat.count = amount;
+                clone.repeat.value = i + 1;
+                clone.repeat.index = i;
+                node.parent.insertBefore(clone, node);
+            }
+
+            node.remove();
+        }
+    });
+
+    return tree;
+}
+
+/**
+ * Inserts content into implicitly repeated nodes, created by `prepare()` method
+ * @param  {Node} tree
+ * @param  {String[]} content
+ * @return {Node}
+ */
+function insert(tree, content) {
+    if (Array.isArray(content) && content.length) {
+        let updated = false;
+        tree.walk(node => {
+            if (node.repeat && node.repeat.implicit) {
+                updated = true;
+                insertContent(node, content[node.repeat.index]);
+            }
+        });
+
+        if (!updated) {
+            // no node with implicit repeat was found, insert content as
+            // deepest child
+            setNodeContent(findDeepestNode$1(tree), content.join('\n'));
+        }
+    }
+
+    return tree;
+}
+
+/**
+ * Inserts `content` into given `node`: either replaces output placeholders
+ * or inserts it into deepest child node
+ * @param  {Node} node
+ * @param  {String} content
+ * @return {Node}
+ */
+function insertContent(node, content) {
+	let inserted = insertContentIntoPlaceholder(node, content);
+	node.walk(child => inserted |= insertContentIntoPlaceholder(child, content));
+
+	if (!inserted) {
+		// no placeholders were found in node, insert content into deepest child
+		setNodeContent(findDeepestNode$1(node), content);
+	}
+
+	return node;
+}
+
+/**
+ * Inserts given `content` into placeholders for given `node`. Placeholders
+ * might be available in attribute values and node content
+ * @param  {Node} node
+ * @param  {String} content
+ * @return {Boolean} Returns `true` if placeholders were found and replaced in node
+ */
+function insertContentIntoPlaceholder(node, content) {
+	const state = {replaced: false};
+
+	node.value = replacePlaceholder(node.value, content, state);
+	node.attributes.forEach(attr => {
+		if (attr.value) {
+			node.setAttribute(attr.name, replacePlaceholder(attr.value, content, state));
+		}
+	});
+
+	return state.replaced;
+}
+
+/**
+ * Replaces all placeholder occurances in given `str` with `value`
+ * @param  {String} str
+ * @param  {String} value
+ * @param  {Object} [_state] If provided, set `replaced` property of given
+ * object to `true` if placeholder was found and replaced
+ * @return {String}
+ */
+function replacePlaceholder(str, value, _state) {
+	if (typeof str === 'string') {
+		const ranges = findUnescapedTokens(str, placeholder);
+		if (ranges.length) {
+			if (_state) {
+				_state.replaced = true;
+			}
+
+			str = replaceRanges(str, ranges, value);
+		}
+	}
+
+	return str;
+}
+
+/**
+ * Finds node which is the deepest for in current node or node iteself.
+ * @param  {Node} node
+ * @return {Node}
+ */
+function findDeepestNode$1(node) {
+	while (node.children.length) {
+		node = node.children[node.children.length - 1];
+	}
+
+	return node;
+}
+
+/**
+ * Updates content of given node
+ * @param {Node} node
+ * @param {String} content
+ */
+function setNodeContent(node, content) {
+	// find caret position and replace it with content, if possible
+	if (node.value) {
+		const ranges = findUnescapedTokens(node.value, caret);
+		if (ranges.length) {
+			node.value = replaceRanges(node.value, ranges, content);
+			return;
+		}
+	}
+
+	if (node.name.toLowerCase() === 'a' || node.hasAttribute('href')) {
+		// special case: inserting content into `<a>` tag
+		if (reUrl.test(content)) {
+			node.setAttribute('href', (reProto.test(content) ? '' : 'http://') + content);
+		} else if (reEmail.test(content)) {
+			node.setAttribute('href', 'mailto:' + content);
+		}
+	}
+
+	node.value = content;
+}
+
+const defaultOptions$4 = {
+	element: '__',
+	modifier: '_'
+};
+
+const reElement  = /^(-+)([a-z0-9]+[a-z0-9-]*)/i;
+const reModifier = /^(_+)([a-z0-9]+[a-z0-9-_]*)/i;
+const blockCandidates1 = className => /^[a-z]\-/i.test(className);
+const blockCandidates2 = className => /^[a-z]/i.test(className);
+
+/**
+ * BEM transformer: updates class names written as `-element` and
+ * `_modifier` into full class names as described in BEM specs. Also adds missing
+ * class names: fir example, if node contains `.block_modifier` class, ensures
+ * that element contains `.block` class as well
+ */
+var bem = function(tree, options) {
+	options = Object.assign({}, defaultOptions$4, options);
+
+	tree.walk(node => expandClassNames(node, options));
+
+	const lookup = createBlockLookup(tree);
+	tree.walk(node => expandShortNotation(node, lookup, options));
+
+	return tree;
+};
+
+/**
+ * Expands existing class names in BEM notation in given `node`.
+ * For example, if node contains `b__el_mod` class name, this method ensures
+ * that element contains `b__el` class as well
+ * @param  {Node} node
+ * @param  {Object} options
+ * @return {Set}
+ */
+function expandClassNames(node, options) {
+	const classNames = node.classList.reduce((out, cl) => {
+		// remove all modifiers and element prefixes from class name to get a base element name
+		const ix = cl.indexOf('_');
+		if (ix > 0 && !cl.startsWith('-')) {
+			out.add(cl.slice(0, ix));
+		    out.add(cl.slice(ix));
+			return out;
+		}
+
+		return out.add(cl);
+	}, new Set());
+
+	if (classNames.size) {
+		node.setAttribute('class', Array.from(classNames).join(' '));
+	}
+}
+
+/**
+ * Expands short BEM notation, e.g. `-element` and `_modifier`
+ * @param  {Node} node      Parsed Emmet abbreviation node
+ * @param  {Map} lookup     BEM block name lookup
+ * @param  {Object} options
+ */
+function expandShortNotation(node, lookup, options) {
+	const classNames = node.classList.reduce((out, cl) => {
+		let prefix, m;
+		const originalClass = cl;
+
+		// parse element definition (could be only one)
+		if (m = cl.match(reElement)) {
+			prefix = getBlockName(node, lookup, m[1]) + options.element + m[2];
+			out.add(prefix);
+			cl = cl.slice(m[0].length);
+		}
+
+		// parse modifiers definitions 
+		if (m = cl.match(reModifier)) {
+			if (!prefix) {
+				prefix = getBlockName(node, lookup, m[1]);
+				out.add(prefix);
+			}
+
+			out.add(`${prefix}${options.modifier}${m[2]}`);
+			cl = cl.slice(m[0].length);
+		}
+
+		if (cl === originalClass) {
+			// class name wasn’t modified: it’s not a BEM-specific class,
+			// add it as-is into output
+			out.add(originalClass);
+		}
+
+		return out;
+	}, new Set());
+
+	const arrClassNames = Array.from(classNames).filter(Boolean);
+	if (arrClassNames.length) {
+		node.setAttribute('class', arrClassNames.join(' '));
+	}
+}
+
+/**
+ * Creates block name lookup for each node in given tree, e.g. finds block
+ * name explicitly for each node
+ * @param  {Node} tree
+ * @return {Map}
+ */
+function createBlockLookup(tree) {
+	const lookup = new Map();
+
+	tree.walk(node => {
+		const classNames = node.classList;
+		if (classNames.length) {
+			// guess best block name from class or use parent’s block name
+			lookup.set(node,
+				find(classNames, blockCandidates1)
+				|| find(classNames, blockCandidates2)
+				|| lookup.get(node.parent)
+			);
+		}
+	});
+
+	return lookup;
+}
+
+/**
+ * Returns block name for given `node` by `prefix`, which tells the depth of
+ * of parent node lookup
+ * @param  {Node} node
+ * @param  {Map} lookup
+ * @param  {String} prefix
+ * @return {String}
+ */
+function getBlockName(node, lookup, prefix) {
+	let depth = prefix.length > 1 ? prefix.length : 0;
+
+	// NB don’t walk up to root node, stay at first root child in case of
+	// too deep prefix
+	while (node.parent && node.parent.parent && depth--) {
+		node = node.parent;
+	}
+
+	return lookup.get(node) || '';
+}
+
+function find(arr, filter) {
+	for(let i = 0; i < arr.length; i++){
+		if (reElement.test(arr[i]) || reModifier.test(arr[i])) {
+			break;
+		}
+		if (filter(arr[i])) {
+			return arr[i];
+		}
+	}
+}
+
+/**
+ * JSX transformer: replaces `class` and `for` attributes with `className` and
+ * `htmlFor` attributes respectively
+ */
+var jsx = function(tree) {
+	tree.walk(node => {
+		replace(node, 'class', 'className');
+		replace(node, 'for', 'htmlFor');
+	});
+	return tree;
+};
+
+function replace(node, oldName, newName) {
+	let attr = node.getAttribute(oldName);
+	if (attr) {
+		attr.name = newName;
+	}
+}
+
+const reSupporterNames = /^xsl:(variable|with\-param)$/i;
+
+/**
+ * XSL transformer: removes `select` attributes from certain nodes that contain
+ * children
+ */
+var xsl = function(tree) {
+	tree.walk(node => {
+		if (reSupporterNames.test(node.name || '') && (node.children.length || node.value)) {
+			node.removeAttribute('select');
+		}
+	});
+	return tree;
+};
+
+const supportedAddons = { bem, jsx, xsl };
+
+/**
+ * Runs additional transforms on given tree.
+ * These transforms may introduce side-effects and unexpected result
+ * so they are not applied by default, authors must specify which addons
+ * in `addons` argument as `{addonName: addonOptions}`
+ * @param {Node} tree Parsed Emmet abbreviation
+ * @param {Object} addons Add-ons to apply and their options
+ */
+var addons = function(tree, addons) {
+    Object.keys(addons || {}).forEach(key => {
+        if (key in supportedAddons) {
+            const addonOpt = typeof addons[key] === 'object' ? addons[key] : null;
+            tree = tree.use(supportedAddons[key], addonOpt);
+        }
+    });
+
+    return tree;
+};
+
+/**
+ * Applies basic HTML-specific transformations for given parsed abbreviation:
+ * – resolve implied tag names
+ * – insert repeated content
+ * – resolve node numbering
+ */
+var index$7 = function(tree, content, appliedAddons) {
+    if (typeof content === 'string') {
+        content = [content];
+    } else if (content && typeof content === 'object' && !Array.isArray(content)) {
+        appliedAddons = content;
+        content = null;
+    }
+
+    return tree
+    .use(implicitTags)
+    .use(prepare, Array.isArray(content) ? content.length : null)
+    .use(applyNumbering)
+    .use(insert, content)
+    .use(addons, appliedAddons);
+};
+
+var htmlSnippet = {
 	"a": "a[href]",
 	"a:blank": "a[href='http://${0}' target='_blank' rel='noopener noreferrer']",
 	"a:link": "a[href='http://${0}']",
@@ -5571,817 +5680,13 @@ var html$1 = {
 	"cc:noie": "{<!--[if !IE]><!-->${0}<!--<![endif]-->}"
 };
 
-var css$1 = {
-	"@f": "@font-face {\n\tfont-family: ${1};\n\tsrc: url(${1});\n}",
-	"@ff": "@font-face {\n\tfont-family: '${1:FontName}';\n\tsrc: url('${2:FileName}.eot');\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'),\n\t\t url('${2:FileName}.woff') format('woff'),\n\t\t url('${2:FileName}.ttf') format('truetype'),\n\t\t url('${2:FileName}.svg#${1:FontName}') format('svg');\n\tfont-style: ${3:normal};\n\tfont-weight: ${4:normal};\n}",
-	"@i|@import": "@import url(${0});",
-	"@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
-	"@m|@media": "@media ${1:screen} {\n\t${0}\n}",
-	"ac": "align-content:flex-start|flex-end|center|space-between|space-around|stretch",
-	"ai": "align-items:flex-start|flex-end|center|baseline|stretch",
-	"anim": "animation:${1:name} ${2:duration} ${3:timing-function} ${4:delay} ${5:iteration-count} ${6:direction} ${7:fill-mode}",
-	"animdel": "animation-delay:${1:time}",
-	"animdir": "animation-direction:normal|reverse|alternate|alternate-reverse",
-	"animdur": "animation-duration:${1:0}s",
-	"animfm": "animation-fill-mode:both|forwards|backwards",
-	"animic": "animation-iteration-count:1|infinite",
-	"animn": "animation-name",
-	"animps": "animation-play-state:running|paused",
-	"animtf": "animation-timing-function:linear|ease|ease-in|ease-out|ease-in-out|cubic-bezier(${1:0.1}, ${2:0.7}, ${3:1.0}, ${3:0.1})",
-	"ap": "appearance:none",
-	"as": "align-self:auto|flex-start|flex-end|center|baseline|stretch",
-	"b": "bottom",
-	"bd": "border:${1:1px} ${2:solid} ${3:#000}",
-	"bdb": "border-bottom:${1:1px} ${2:solid} ${3:#000}",
-	"bdbc": "border-bottom-color:#${1:000}",
-	"bdbi": "border-bottom-image:url(${0})",
-	"bdbk": "border-break:close",
-	"bdbli": "border-bottom-left-image:url(${0})|continue",
-	"bdblrs": "border-bottom-left-radius",
-	"bdbri": "border-bottom-right-image:url(${0})|continue",
-	"bdbrrs": "border-bottom-right-radius",
-	"bdbs": "border-bottom-style",
-	"bdbw": "border-bottom-width",
-	"bdc": "border-color:#${1:000}",
-	"bdci": "border-corner-image:url(${0})|continue",
-	"bdcl": "border-collapse:collapse|separate",
-	"bdf": "border-fit:repeat|clip|scale|stretch|overwrite|overflow|space",
-	"bdi": "border-image:url(${0})",
-	"bdl": "border-left:${1:1px} ${2:solid} ${3:#000}",
-	"bdlc": "border-left-color:#${1:000}",
-	"bdlen": "border-length",
-	"bdli": "border-left-image:url(${0})",
-	"bdls": "border-left-style",
-	"bdlw": "border-left-width",
-	"bdr": "border-right:${1:1px} ${2:solid} ${3:#000}",
-	"bdrc": "border-right-color:#${1:000}",
-	"bdri": "border-right-image:url(${0})",
-	"bdrs": "border-radius",
-	"bdrst": "border-right-style",
-	"bdrw": "border-right-width",
-	"bds": "border-style:none|hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
-	"bdsp": "border-spacing",
-	"bdt": "border-top:${1:1px} ${2:solid} ${3:#000}",
-	"bdtc": "border-top-color:#${1:000}",
-	"bdti": "border-top-image:url(${0})",
-	"bdtli": "border-top-left-image:url(${0})|continue",
-	"bdtlrs": "border-top-left-radius",
-	"bdtri": "border-top-right-image:url(${0})|continue",
-	"bdtrrs": "border-top-right-radius",
-	"bdts": "border-top-style",
-	"bdtw": "border-top-width",
-	"bdw": "border-width",
-	"bfv": "backface-visibility:hidden|visible",
-	"bg": "background:#${1:000}",
-	"bga": "background-attachment:fixed|scroll",
-	"bgbk": "background-break:bounding-box|each-box|continuous",
-	"bgc": "background-color:#${1:fff}",
-	"bgcp": "background-clip:padding-box|border-box|content-box|no-clip",
-	"bgi": "background-image:url(${0})",
-	"bgo": "background-origin:padding-box|border-box|content-box",
-	"bgp": "background-position:${1:0} ${2:0}",
-	"bgpx": "background-position-x",
-	"bgpy": "background-position-y",
-	"bgr": "background-repeat:no-repeat|repeat-x|repeat-y|space|round",
-	"bgsz": "background-size:contain|cover",
-	"bxsh": "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} #${5:000}|none",
-	"bxsz": "box-sizing:border-box|content-box|border-box",
-	"c": "color:#${1:000}",
-	"cl": "clear:both|left|right|none",
-	"cm": "/* ${0} */",
-	"cnt": "content:'${0}'|normal|open-quote|no-open-quote|close-quote|no-close-quote|attr(${0})|counter(${0})|counters({$0})",
-	"coi": "counter-increment",
-	"colm": "columns",
-	"colmc": "column-count",
-	"colmf": "column-fill",
-	"colmg": "column-gap",
-	"colmr": "column-rule",
-	"colmrc": "column-rule-color",
-	"colmrs": "column-rule-style",
-	"colmrw": "column-rule-width",
-	"colms": "column-span",
-	"colmw": "column-width",
-	"cor": "counter-reset",
-	"cp": "clip:auto|rect(${1:top} ${2:right} ${3:bottom} ${4:left})",
-	"cps": "caption-side:top|bottom",
-	"cur": "cursor:pointer|auto|default|crosshair|hand|help|move|pointer|text",
-	"d": "display:block|none|flex|inline-flex|inline|inline-block|list-item|run-in|compact|table|inline-table|table-caption|table-column|table-column-group|table-header-group|table-footer-group|table-row|table-row-group|table-cell|ruby|ruby-base|ruby-base-group|ruby-text|ruby-text-group",
-	"ec": "empty-cells:show|hide",
-	"f": "font:${1:1em} ${2:sans-serif}",
-	"fd": "font-display:auto|block|swap|fallback|optional",
-	"fef": "font-effect:none|engrave|emboss|outline",
-	"fem": "font-emphasize",
-	"femp": "font-emphasize-position:before|after",
-	"fems": "font-emphasize-style:none|accent|dot|circle|disc",
-	"ff": "font-family:serif|sans-serif|cursive|fantasy|monospace",
-	"fft": "font-family:\"Times New Roman\", Times, Baskerville, Georgia, serif",
-	"ffa": "font-family:Arial, \"Helvetica Neue\", Helvetica, sans-serif",
-	"ffv": "font-family:Verdana, Geneva, sans-serif",
-	"fl": "float:left|right|none",
-	"fs": "font-style:italic|normal|oblique",
-	"fsm": "font-smoothing:antialiased|subpixel-antialiased|none",
-	"fst": "font-stretch:normal|ultra-condensed|extra-condensed|condensed|semi-condensed|semi-expanded|expanded|extra-expanded|ultra-expanded",
-	"fv": "font-variant:normal|small-caps",
-	"fvs": "font-variation-settings:normal|inherit|initial|unset",
-	"fw": "font-weight:normal|bold|bolder|lighter",
-	"fx": "flex",
-	"fxb": "flex-basis:fill|max-content|min-content|fit-content|content",
-	"fxd": "flex-direction:row|row-reverse|column|column-reverse",
-	"fxf": "flex-flow",
-	"fxg": "flex-grow",
-	"fxsh": "flex-shrink",
-	"fxw": "flex-wrap:nowrap|wrap|wrap-reverse",
-	"fz": "font-size",
-	"fza": "font-size-adjust",
-	"h": "height",
-	"jc": "justify-content:flex-start|flex-end|center|space-between|space-around",
-	"l": "left",
-	"lg": "background-image:linear-gradient(${1})",
-	"lh": "line-height",
-	"lis": "list-style",
-	"lisi": "list-style-image",
-	"lisp": "list-style-position:inside|outside",
-	"list": "list-style-type:disc|circle|square|decimal|decimal-leading-zero|lower-roman|upper-roman",
-	"lts": "letter-spacing:normal",
-	"m": "margin",
-	"mah": "max-height",
-	"mar": "max-resolution",
-	"maw": "max-width",
-	"mb": "margin-bottom",
-	"mih": "min-height",
-	"mir": "min-resolution",
-	"miw": "min-width",
-	"ml": "margin-left",
-	"mr": "margin-right",
-	"mt": "margin-top",
-	"ol": "outline",
-	"olc": "outline-color:#${1:000}|invert",
-	"olo": "outline-offset",
-	"ols": "outline-style:none|dotted|dashed|solid|double|groove|ridge|inset|outset",
-	"olw": "outline-width|thin|medium|thick",
-	"op": "opacity",
-	"ord": "order",
-	"ori": "orientation:landscape|portrait",
-	"orp": "orphans",
-	"ov": "overflow:hidden|visible|hidden|scroll|auto",
-	"ovs": "overflow-style:scrollbar|auto|scrollbar|panner|move|marquee",
-	"ovx": "overflow-x:hidden|visible|hidden|scroll|auto",
-	"ovy": "overflow-y:hidden|visible|hidden|scroll|auto",
-	"p": "padding",
-	"pb": "padding-bottom",
-	"pgba": "page-break-after:auto|always|left|right",
-	"pgbb": "page-break-before:auto|always|left|right",
-	"pgbi": "page-break-inside:auto|avoid",
-	"pl": "padding-left",
-	"pos": "position:relative|absolute|relative|fixed|static",
-	"pr": "padding-right",
-	"pt": "padding-top",
-	"q": "quotes",
-	"qen": "quotes:'\\201C' '\\201D' '\\2018' '\\2019'",
-	"qru": "quotes:'\\00AB' '\\00BB' '\\201E' '\\201C'",
-	"r": "right",
-	"rsz": "resize:none|both|horizontal|vertical",
-	"t": "top",
-	"ta": "text-align:left|center|right|justify",
-	"tal": "text-align-last:left|center|right",
-	"tbl": "table-layout:fixed",
-	"td": "text-decoration:none|underline|overline|line-through",
-	"te": "text-emphasis:none|accent|dot|circle|disc|before|after",
-	"th": "text-height:auto|font-size|text-size|max-size",
-	"ti": "text-indent",
-	"tj": "text-justify:auto|inter-word|inter-ideograph|inter-cluster|distribute|kashida|tibetan",
-	"to": "text-outline:${1:0} ${2:0} ${3:#000}",
-	"tov": "text-overflow:ellipsis|clip",
-	"tr": "text-replace",
-	"trf": "transform:${1}|skewX(${1:angle})|skewY(${1:angle})|scale(${1:x}, ${2:y})|scaleX(${1:x})|scaleY(${1:y})|scaleZ(${1:z})|scale3d(${1:x}, ${2:y}, ${3:z})|rotate(${1:angle})|rotateX(${1:angle})|rotateY(${1:angle})|rotateZ(${1:angle})|translate(${1:x}, ${2:y})|translateX(${1:x})|translateY(${1:y})|translateZ(${1:z})|translate3d(${1:tx}, ${2:ty}, ${3:tz})",
-	"trfo": "transform-origin",
-	"trfs": "transform-style:preserve-3d",
-	"trs": "transition:${1:prop} ${2:time}",
-	"trsde": "transition-delay:${1:time}",
-	"trsdu": "transition-duration:${1:time}",
-	"trsp": "transition-property:${1:prop}",
-	"trstf": "transition-timing-function:${1:fn}",
-	"tsh": "text-shadow:${1:hoff} ${2:voff} ${3:blur} ${4:#000}",
-	"tt": "text-transform:uppercase|lowercase|capitalize|none",
-	"tw": "text-wrap:none|normal|unrestricted|suppress",
-	"us": "user-select:none",
-	"v": "visibility:hidden|visible|collapse",
-	"va": "vertical-align:top|super|text-top|middle|baseline|bottom|text-bottom|sub",
-	"w": "width",
-	"whs": "white-space:nowrap|pre|pre-wrap|pre-line|normal",
-	"whsc": "white-space-collapse:normal|keep-all|loose|break-strict|break-all",
-	"wid": "widows",
-	"wm": "writing-mode:lr-tb|lr-tb|lr-bt|rl-tb|rl-bt|tb-rl|tb-lr|bt-lr|bt-rl",
-	"wob": "word-break:normal|keep-all|break-all",
-	"wos": "word-spacing",
-	"wow": "word-wrap:none|unrestricted|suppress|break-word|normal",
-	"z": "z-index",
-	"zom": "zoom:1"
-};
-
-var xsl$1 = {
-    "tm|tmatch": "xsl:template[match mode]",
-    "tn|tname": "xsl:template[name]",
-    "call": "xsl:call-template[name]",
-    "ap": "xsl:apply-templates[select mode]",
-    "api": "xsl:apply-imports",
-    "imp": "xsl:import[href]",
-    "inc": "xsl:include[href]",
-    "ch": "xsl:choose",
-    "wh|xsl:when": "xsl:when[test]",
-    "ot": "xsl:otherwise",
-    "if": "xsl:if[test]",
-    "par": "xsl:param[name]",
-    "pare": "xsl:param[name select]",
-    "var": "xsl:variable[name]",
-    "vare": "xsl:variable[name select]",
-    "wp": "xsl:with-param[name select]",
-    "key": "xsl:key[name match use]",
-    "elem": "xsl:element[name]",
-    "attr": "xsl:attribute[name]",
-    "attrs": "xsl:attribute-set[name]",
-    "cp": "xsl:copy[select]",
-    "co": "xsl:copy-of[select]",
-    "val": "xsl:value-of[select]",
-    "for|each": "xsl:for-each[select]",
-    "tex": "xsl:text",
-    "com": "xsl:comment",
-    "msg": "xsl:message[terminate=no]",
-    "fall": "xsl:fallback",
-    "num": "xsl:number[value]",
-    "nam": "namespace-alias[stylesheet-prefix result-prefix]",
-    "pres": "xsl:preserve-space[elements]",
-    "strip": "xsl:strip-space[elements]",
-    "proc": "xsl:processing-instruction[name]",
-    "sort": "xsl:sort[select order]",
-    "choose": "xsl:choose>xsl:when+xsl:otherwise",
-    "xsl": "!!!+xsl:stylesheet[version=1.0 xmlns:xsl=http://www.w3.org/1999/XSL/Transform]>{\n|}",
-    "!!!": "{<?xml version=\"1.0\" encoding=\"UTF-8\"?>}"
-};
-
-var index$8 = { html: html$1, css: css$1, xsl: xsl$1 };
-
-var latin = {
-	"common": ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipisicing", "elit"],
-	"words": ["exercitationem", "perferendis", "perspiciatis", "laborum", "eveniet",
-		"sunt", "iure", "nam", "nobis", "eum", "cum", "officiis", "excepturi",
-		"odio", "consectetur", "quasi", "aut", "quisquam", "vel", "eligendi",
-		"itaque", "non", "odit", "tempore", "quaerat", "dignissimos",
-		"facilis", "neque", "nihil", "expedita", "vitae", "vero", "ipsum",
-		"nisi", "animi", "cumque", "pariatur", "velit", "modi", "natus",
-		"iusto", "eaque", "sequi", "illo", "sed", "ex", "et", "voluptatibus",
-		"tempora", "veritatis", "ratione", "assumenda", "incidunt", "nostrum",
-		"placeat", "aliquid", "fuga", "provident", "praesentium", "rem",
-		"necessitatibus", "suscipit", "adipisci", "quidem", "possimus",
-		"voluptas", "debitis", "sint", "accusantium", "unde", "sapiente",
-		"voluptate", "qui", "aspernatur", "laudantium", "soluta", "amet",
-		"quo", "aliquam", "saepe", "culpa", "libero", "ipsa", "dicta",
-		"reiciendis", "nesciunt", "doloribus", "autem", "impedit", "minima",
-		"maiores", "repudiandae", "ipsam", "obcaecati", "ullam", "enim",
-		"totam", "delectus", "ducimus", "quis", "voluptates", "dolores",
-		"molestiae", "harum", "dolorem", "quia", "voluptatem", "molestias",
-		"magni", "distinctio", "omnis", "illum", "dolorum", "voluptatum", "ea",
-		"quas", "quam", "corporis", "quae", "blanditiis", "atque", "deserunt",
-		"laboriosam", "earum", "consequuntur", "hic", "cupiditate",
-		"quibusdam", "accusamus", "ut", "rerum", "error", "minus", "eius",
-		"ab", "ad", "nemo", "fugit", "officia", "at", "in", "id", "quos",
-		"reprehenderit", "numquam", "iste", "fugiat", "sit", "inventore",
-		"beatae", "repellendus", "magnam", "recusandae", "quod", "explicabo",
-		"doloremque", "aperiam", "consequatur", "asperiores", "commodi",
-		"optio", "dolor", "labore", "temporibus", "repellat", "veniam",
-		"architecto", "est", "esse", "mollitia", "nulla", "a", "similique",
-		"eos", "alias", "dolore", "tenetur", "deleniti", "porro", "facere",
-		"maxime", "corrupti"]
-};
-
-var ru = {
-	"common": ["далеко-далеко", "за", "словесными", "горами", "в стране", "гласных", "и согласных", "живут", "рыбные", "тексты"],
-	"words": ["вдали", "от всех", "они", "буквенных", "домах", "на берегу", "семантика",
-		"большого", "языкового", "океана", "маленький", "ручеек", "даль",
-		"журчит", "по всей", "обеспечивает", "ее","всеми", "необходимыми",
-		"правилами", "эта", "парадигматическая", "страна", "которой", "жаренные",
-		"предложения", "залетают", "прямо", "рот", "даже", "всемогущая",
-		"пунктуация", "не", "имеет", "власти", "над", "рыбными", "текстами",
-		"ведущими", "безорфографичный", "образ", "жизни", "однажды", "одна",
-		"маленькая", "строчка","рыбного", "текста", "имени", "lorem", "ipsum",
-		"решила", "выйти", "большой", "мир", "грамматики", "великий", "оксмокс",
-		"предупреждал", "о", "злых", "запятых", "диких", "знаках", "вопроса",
-		"коварных", "точках", "запятой", "но", "текст", "дал", "сбить",
-		"себя", "толку", "он", "собрал", "семь", "своих", "заглавных", "букв",
-		"подпоясал", "инициал", "за", "пояс", "пустился", "дорогу",
-		"взобравшись", "первую", "вершину", "курсивных", "гор", "бросил",
-		"последний", "взгляд", "назад", "силуэт", "своего", "родного", "города",
-		"буквоград", "заголовок", "деревни", "алфавит", "подзаголовок", "своего",
-		"переулка", "грустный", "реторический", "вопрос", "скатился", "его",
-		"щеке", "продолжил", "свой", "путь", "дороге", "встретил", "рукопись",
-		"она", "предупредила",  "моей", "все", "переписывается", "несколько",
-		"раз", "единственное", "что", "меня", "осталось", "это", "приставка",
-		"возвращайся", "ты", "лучше", "свою", "безопасную", "страну", "послушавшись",
-		"рукописи", "наш", "продолжил", "свой", "путь", "вскоре", "ему",
-		"повстречался", "коварный", "составитель", "рекламных", "текстов",
-		"напоивший", "языком", "речью", "заманивший", "свое", "агентство",
-		"которое", "использовало", "снова", "снова", "своих", "проектах",
-		"если", "переписали", "то", "живет", "там", "до", "сих", "пор"]
-};
-
-var sp = {
-	"common": ["mujer", "uno", "dolor", "más", "de", "poder", "mismo", "si"],
-	"words": ["ejercicio", "preferencia", "perspicacia", "laboral", "paño",
-		"suntuoso", "molde", "namibia", "planeador", "mirar", "demás", "oficinista", "excepción",
-		"odio", "consecuencia", "casi", "auto", "chicharra", "velo", "elixir",
-		"ataque", "no", "odio", "temporal", "cuórum", "dignísimo",
-		"facilismo", "letra", "nihilista", "expedición", "alma", "alveolar", "aparte",
-		"león", "animal", "como", "paria", "belleza", "modo", "natividad",
-		"justo", "ataque", "séquito", "pillo", "sed", "ex", "y", "voluminoso",
-		"temporalidad", "verdades", "racional", "asunción", "incidente", "marejada",
-		"placenta", "amanecer", "fuga", "previsor", "presentación", "lejos",
-		"necesariamente", "sospechoso", "adiposidad", "quindío", "pócima",
-		"voluble", "débito", "sintió", "accesorio", "falda", "sapiencia",
-		"volutas", "queso", "permacultura", "laudo", "soluciones", "entero",
-		"pan", "litro", "tonelada", "culpa", "libertario", "mosca", "dictado",
-		"reincidente", "nascimiento", "dolor", "escolar", "impedimento", "mínima",
-		"mayores", "repugnante", "dulce", "obcecado", "montaña", "enigma",
-		"total", "deletéreo", "décima", "cábala", "fotografía", "dolores",
-		"molesto", "olvido", "paciencia", "resiliencia", "voluntad", "molestias",
-		"magnífico", "distinción", "ovni", "marejada", "cerro", "torre", "y",
-		"abogada", "manantial", "corporal", "agua", "crepúsculo", "ataque", "desierto",
-		"laboriosamente", "angustia", "afortunado", "alma", "encefalograma",
-		"materialidad", "cosas", "o", "renuncia", "error", "menos", "conejo",
-		"abadía", "analfabeto", "remo", "fugacidad", "oficio", "en", "almácigo", "vos", "pan",
-		"represión", "números", "triste", "refugiado", "trote", "inventor",
-		"corchea", "repelente", "magma", "recusado", "patrón", "explícito",
-		"paloma", "síndrome", "inmune", "autoinmune", "comodidad",
-		"ley", "vietnamita", "demonio", "tasmania", "repeler", "apéndice",
-		"arquitecto", "columna", "yugo", "computador", "mula", "a", "propósito",
-		"fantasía", "alias", "rayo", "tenedor", "deleznable", "ventana", "cara",
-		"anemia", "corrupto"]
-};
-
-const langs = { latin, ru, sp };
-
-const defaultOptions$5 = {
-	wordCount: 30,
-	skipCommon: false,
-	lang: 'latin'
-};
-
-/**
- * Replaces given parsed Emmet abbreviation node with nodes filled with
- * Lorem Ipsum stub text.
- * @param {Node} node
- * @return {Node}
- */
-var index$9 = function(node, options) {
-	options = Object.assign({}, defaultOptions$5, options);
-	const dict = langs[options.lang] || langs.latin;
-    const startWithCommon = !options.skipCommon && !isRepeating(node);
-
-	if (!node.repeat && !isRoot$1(node.parent)) {
-		// non-repeating element, insert text stub as a content of parent node
-		// and remove current one
-		node.parent.value = paragraph(dict, options.wordCount, startWithCommon);
-		node.remove();
-	} else {
-		// Replace named node with generated content
-		node.value = paragraph(dict, options.wordCount, startWithCommon);
-		node.name = node.parent.name ? resolveImplicitName(node.parent.name) : null;
-	}
-
-	return node;
-};
-
-function isRoot$1(node) {
-	return !node.parent;
+var option$1 = __assign({}, defaultOption, { snippets: new SnippetsRegistry(htmlSnippet), profile: new Profile() });
+function expand$1(abbr) {
+    var tree = index$3(abbr)
+        .use(index$5, option$1.snippets)
+        .use(index$7, null, null);
+    return index$6(tree, option$1.profile, option$1);
 }
-
-/**
- * Returns random integer between <code>from</code> and <code>to</code> values
- * @param {Number} from
- * @param {Number} to
- * @returns {Number}
- */
-function rand(from, to) {
-	return Math.floor(Math.random() * (to - from) + from);
-}
-
-/**
- * @param {Array} arr
- * @param {Number} count
- * @returns {Array}
- */
-function sample(arr, count) {
-	const len = arr.length;
-	const iterations = Math.min(len, count);
-	const result = new Set();
-
-	while (result.size < iterations) {
-		result.add(arr[rand(0, len)]);
-	}
-
-	return Array.from(result);
-}
-
-function choice(val) {
-	return val[rand(0, val.length - 1)];
-}
-
-function sentence(words, end) {
-	if (words.length) {
-		words = [capitalize(words[0])].concat(words.slice(1));
-	}
-
-	return words.join(' ') + (end || choice('?!...')); // more dots than question marks
-}
-
-function capitalize(word) {
-	return word[0].toUpperCase() + word.slice(1);
-}
-
-/**
- * Insert commas at randomly selected words. This function modifies values
- * inside <code>words</code> array
- * @param {Array} words
- */
-function insertCommas(words) {
-	if (words.length < 2) {
-		return words;
-	}
-
-	words = words.slice();
-	const len = words.length;
-	const hasComma = /,$/;
-	let totalCommas = 0;
-
-	if (len > 3 && len <= 6) {
-		totalCommas = rand(0, 1);
-	} else if (len > 6 && len <= 12) {
-		totalCommas = rand(0, 2);
-	} else {
-		totalCommas = rand(1, 4);
-	}
-
-	for (let i = 0, pos; i < totalCommas; i++) {
-		pos = rand(0, len - 2);
-		if (!hasComma.test(words[pos])) {
-			words[pos] += ',';
-		}
-	}
-
-	return words;
-}
-
-/**
- * Generate a paragraph of "Lorem ipsum" text
- * @param {Object} dict Words dictionary (see `lang/*.json`)
- * @param {Number} wordCount Words count in paragraph
- * @param {Boolean} startWithCommon Should paragraph start with common
- * "lorem ipsum" sentence.
- * @returns {String}
- */
-function paragraph(dict, wordCount, startWithCommon) {
-	const result = [];
-	let totalWords = 0;
-	let words;
-
-	if (startWithCommon && dict.common) {
-		words = dict.common.slice(0, wordCount);
-		totalWords += words.length;
-		result.push(sentence(insertCommas(words), '.'));
-	}
-
-	while (totalWords < wordCount) {
-		words = sample(dict.words, Math.min(rand(2, 30), wordCount - totalWords));
-		totalWords += words.length;
-		result.push(sentence(insertCommas(words)));
-	}
-
-	return result.join(' ');
-}
-
-/**
- * Check if given node is in repeating context, e.g. node itself or one of its
- * parent is repeated
- * @param  {Node}  node
- * @return {Boolean}
- */
-function isRepeating(node) {
-    while (node.parent) {
-        if (node.repeat && node.repeat.value && node.repeat.value > 1) {
-            return true;
-        }
-
-        node = node.parent;
-    }
-
-    return false;
-}
-
-/**
- * Expands given abbreviation into code
- * @param  {String|Node} abbr    Abbreviation to parse or already parsed abbreviation
- * @param  {Object} config
- * @return {String}
- */
-function expand(abbr, config) {
-	config = Object.assign({}, config);
-
-	if (typeof abbr === 'string') {
-		abbr = parse$3(abbr, config);
-	}
-
-	return index$7(abbr, config.profile, config.syntax, config);
-}
-
-/**
- * Parses given Emmet abbreviation into a final abbreviation tree with all
- * required transformations applied
- * @param {String} Abbreviation to parse
- * @param  {Object} config
- * @return {Node}
- */
-function parse$3(abbr, config) {
-	return index$3(abbr)
-		.use(index$5, config.snippets)
-		.use(replaceVariables, config.variables)
-		.use(index$6, config.text, config.options);
-}
-
-/**
- * Expands given abbreviation into code
- * @param  {String|Node} abbr    Abbreviation to parse or already parsed abbreviation
- * @param  {Object} config
- * @return {String}
- */
-function expand$1(abbr, config) {
-	config = config || {};
-
-	if (typeof abbr === 'string') {
-		abbr = parse$1$1(abbr, config);
-	}
-
-	return index(abbr, config.profile, config.syntax, config);
-}
-
-/**
- * Parses given Emmet abbreviation into a final abbreviation tree with all
- * required transformations applied
- * @param {String|Node} abbr Abbreviation to parse or already parsed abbreviation
- * @param  {Object} config
- * @return {Node}
- */
-function parse$1$1(abbr, config) {
-	if (typeof abbr === 'string') {
-		abbr = index$2(abbr);
-	}
-
-	return abbr.use(index$1, config.snippets, config.options);
-}
-
-const reLorem = /^lorem([a-z]*)(\d*)$/i;
-
-/**
- * Constructs a snippets registry, filled with snippets, for given options
- * @param  {String} syntax  Abbreviation syntax
- * @param  {Object|Object[]} snippets Additional snippets
- * @return {SnippetsRegistry}
- */
-function snippetsRegistryFactory(type, syntax, snippets) {
-	const registrySnippets = [];
-
-	if (type === 'markup') {
-		registrySnippets.push(index$8.html);
-	} else if (type === 'stylesheet') {
-		registrySnippets.push(index$8.css);
-	}
-
-	if (syntax in index$8 && registrySnippets.indexOf(index$8[syntax]) === -1) {
-		registrySnippets.push(index$8[syntax]);
-	}
-
-	if (Array.isArray(snippets)) {
-		snippets.forEach(item => {
-			// if array item is a string, treat it as a reference to globally
-			// defined snippets
-			registrySnippets.push(typeof item === 'string' ? index$8[item] : item);
-		});
-	} else if (typeof snippets === 'object') {
-		registrySnippets.push(snippets);
-	}
-
-	const registry = new SnippetsRegistry(registrySnippets.filter(Boolean));
-
-	// for non-stylesheet syntaxes add Lorem Ipsum generator
-	if (type !== 'stylesheet') {
-		registry.get(0).set(reLorem, loremGenerator);
-	}
-
-	return registry;
-}
-
-function loremGenerator(node) {
-	const options = {};
-	const m = node.name.match(reLorem);
-	if (m[1]) {
-		options.lang = m[1];
-	}
-
-	if (m[2]) {
-		options.wordCount = +m[2];
-	}
-
-	return index$9(node, options);
-}
-
-/**
- * Default variables used in snippets to insert common values into predefined snippets
- * @type {Object}
- */
-const defaultVariables = {
-	lang: 'en',
-	locale: 'en-US',
-	charset: 'UTF-8'
-};
-
-/**
- * A list of syntaxes that should use Emmet CSS abbreviations:
- * a variations of default abbreviation that holds values right in abbreviation name
- * @type {Array}
- */
-const stylesheetSyntaxes = ['css', 'sass', 'scss', 'less', 'stylus', 'sss'];
-
-const defaultOptions$6 = {
-	/**
-	 * Type of abbreviation to parse: 'markup' or 'stylesheet'.
-	 * Can be auto-detected from `syntax` property. Default is 'markup'
-	 */
-	type: null,
-
-	/**
-	 * Abbreviation output syntax
-	 * @type {String}
-	 */
-	syntax: 'html',
-
-	/**
-	 * Field/tabstop generator for editor. Most editors support TextMate-style
-	 * fields: ${0} or ${1:item}. So for TextMate-style fields this function
-	 * will look like this:
-	 * @example
-	 * (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
-	 *
-	 * @param  {Number} index         Placeholder index. Fields with the same indices
-	 * should be linked
-	 * @param  {String} [placeholder] Field placeholder
-	 * @return {String}
-	 */
-	field: (index$$1, placeholder) => placeholder || '',
-
-	/**
-	 * Insert given text string(s) into expanded abbreviation
-	 * If array of strings is given, the implicitly repeated element (e.g. `li*`)
-	 * will be repeated by the amount of items in array
-	 * @type {String|String[]}
-	 */
-	text: null,
-
-	/**
-	 * Either predefined output profile or options for output profile. Used for
-	 * abbreviation output
-	 * @type {Profile|Object}
-	 */
-	profile: null,
-
-	/**
-	 * Custom variables for variable resolver
-	 * @see @emmetio/variable-resolver
-	 * @type {Object}
-	 */
-	variables: {},
-
-	/**
-	 * Custom predefined snippets for abbreviation. The expanded abbreviation
-	 * will try to match given snippets that may contain custom elements,
-	 * predefined attributes etc.
-	 * May also contain array of items: either snippets (Object) or references
-	 * to default syntax snippets (String; the key in default snippets hash)
-	 * @see @emmetio/snippets
-	 * @type {Object|SnippetsRegistry}
-	 */
-	snippets: {},
-
-	/**
-	 * Hash of additional transformations that should be applied to expanded
-	 * abbreviation, like BEM or JSX. Since these transformations introduce
-	 * side-effect, they are disabled by default and should be enabled by
-	 * providing a transform name as a key and transform options as value:
-	 * @example
-	 * {
-	 *     bem: {element: '--'},
-	 *     jsx: true // no options, just enable transform
-	 * }
-	 * @see @emmetio/html-transform/lib/addons
-	 * @type {Object}
-	 */
-	options: null,
-
-	/**
-	 * Additional options for syntax formatter
-	 * @see @emmetio/markup-formatters
-	 * @type {Object}
-	 */
-	format: null
-};
-
-/**
- * Expands given abbreviation into string, formatted according to provided
- * syntax and options
- * @param  {String|Node} abbr       Abbreviation string or parsed abbreviation tree
- * @param  {String|Object} [config] Parsing and formatting options (object) or
- * abbreviation syntax (string)
- * @return {String}
- */
-function expand$2(abbr, config) {
-	config = createOptions(config);
-
-	return getType(config.type, config.syntax) === 'stylesheet'
-		? expand$1(abbr, config)
-		: expand(abbr, config);
-}
-
-/**
- * Creates snippets registry for given syntax and additional `snippets`
- * @param  {String} type     Abbreviation type, 'markup' or 'stylesheet'
- * @param  {String} syntax   Snippets syntax, used for retrieving predefined snippets
- * @param  {SnippetsRegistry|Object|Object[]} [snippets] Additional snippets
- * @return {SnippetsRegistry}
- */
-function createSnippetsRegistry(type, syntax, snippets) {
-	// Backward-compatibility with <0.6
-	if (type && type !== 'markup' && type !== 'stylesheet') {
-		snippets = syntax;
-		syntax = type;
-		type = 'markup';
-	}
-
-	return snippets instanceof SnippetsRegistry
-		? snippets
-		: snippetsRegistryFactory(type, syntax, snippets);
-}
-
-function createOptions(options) {
-	if (typeof options === 'string') {
-		options = { syntax: options };
-	}
-
-	options = Object.assign({}, defaultOptions$6, options);
-	if (options.type == null && options.syntax) {
-		options.type = isStylesheet(options.syntax) ? 'stylesheet' : 'markup';
-	}
-
-	options.format = Object.assign({field: options.field}, options.format);
-	options.profile = createProfile(options);
-	options.variables = Object.assign({}, defaultVariables, options.variables);
-	options.snippets = createSnippetsRegistry(options.type, options.syntax, options.snippets);
-
-	return options;
-}
-
-/**
- * Check if given syntax belongs to stylesheet markup.
- * Emmet uses different abbreviation flavours: one is a default markup syntax,
- * used for HTML, Slim, Pug etc, the other one is used for stylesheets and
- * allows embedded values in abbreviation name
- * @param  {String}  syntax
- * @return {Boolean}
- */
-function isStylesheet(syntax) {
-	return stylesheetSyntaxes.indexOf(syntax) !== -1;
-}
-
-/**
- * Creates output profile from given options
- * @param  {Object} options
- * @return {Profile}
- */
-function createProfile(options) {
-	return options.profile instanceof Profile
-		? options.profile
-		: new Profile(options.profile);
-}
-
-/**
- * Returns type of abbreviation expander: either 'markup' or 'stylesheet'
- * @param {String} type
- * @param {String} [syntax]
- */
-function getType(type, syntax) {
-	if (type) {
-		return type === 'stylesheet' ? 'stylesheet' : 'markup';
-	}
-
-	return isStylesheet(syntax) ? 'stylesheet' : 'markup';
-}
-
 /**
  * almost the same behavior as WebStorm's builtin emmet.
  * only triggered when string before text cursor(caret) matches emmet rules,
@@ -6436,7 +5741,7 @@ function emmetHTML(editor, monaco) {
         // run expand to test the final result
         // `field` was used to set proper caret position after emmet
         try {
-            status.expandText = expand$2(str, option);
+            status.expandText = expand$1(str);
         }
         catch (e) {
             return "";
@@ -6445,6 +5750,9 @@ function emmetHTML(editor, monaco) {
     }, function (s) { return Object.assign(status, s); });
     addTabCommand(editor, monaco, function () { return status; });
 }
+//# sourceMappingURL=html.js.map
+
+//# sourceMappingURL=index.js.map
 
 exports.emmetCSS = emmetCSS;
 exports.emmetHTML = emmetHTML;

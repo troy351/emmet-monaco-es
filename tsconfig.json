@@ -10,21 +10,29 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "newLine": "lf",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "*": ["node_modules/*"],
       "@emmetio/expand-abbreviation": ["types/emmetio__expand-abbreviation"],
+      "@emmetio/snippets": ["types/emmetio__snippets"],
       "@emmetio/stylesheet-formatters": [
         "types/emmetio__stylesheet-formatters"
       ],
       "@emmetio/css-snippets-resolver": [
         "types/emmetio__css-snippets-resolver"
       ],
+      "@emmetio/html-snippets-resolver": [
+        "types/emmetio__html-snippets-resolver"
+      ],
       "@emmetio/snippets-registry": ["types/emmetio__snippets-registry"],
       "@emmetio/output-profile": ["types/emmetio__output-profile"],
-      "@emmetio/css-abbreviation": ["types/emmetio__css-abbreviation"]
+      "@emmetio/css-abbreviation": ["types/emmetio__css-abbreviation"],
+      "@emmetio/abbreviation": ["types/emmetio__abbreviation"],
+      "@emmetio/markup-formatters": ["types/emmetio__markup-formatters"],
+      "@emmetio/html-transform": ["types/emmetio__html-transform"]
     }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],
