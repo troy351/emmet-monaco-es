@@ -450,7 +450,6 @@ class FieldString {
 		return this.string;
 	}
 }
-//# sourceMappingURL=field-parser.es.js.map
 
 const defaultFieldsRenderer = text => text;
 
@@ -813,7 +812,6 @@ function getFormat(syntax, options) {
 
 	return Object.assign({}, format, options && options.format);
 }
-//# sourceMappingURL=stylesheet-formatters.es.js.map
 
 const DASH = 45; // -
 
@@ -1314,7 +1312,6 @@ function resolveNumericValue(property, token, formatOptions) {
 
 	return token;
 }
-//# sourceMappingURL=css-snippets-resolver.es.js.map
 
 var cssSnippet = {
 	"@f": "@font-face {\n\tfont-family: ${1};\n\tsrc: url(${1});\n}",
@@ -2995,7 +2992,6 @@ function addTabCommand(editor, monaco, getStatus) {
     // do not trigger emmet when suggest widget visible(it's a builtin context key)
     CONTEXT_KEY + " && !suggestWidgetVisible");
 }
-//# sourceMappingURL=helper.js.map
 
 var option = __assign({}, defaultOption, { snippets: new SnippetsRegistry(cssSnippet), profile: new Profile() });
 function expand(abbr) {
@@ -3049,7 +3045,6 @@ function emmetCSS(editor, monaco) {
     }, function (s) { return Object.assign(status, s); });
     addTabCommand(editor, monaco, function () { return status; });
 }
-//# sourceMappingURL=css.js.map
 
 const ASTERISK = 42; // *
 
@@ -3439,7 +3434,6 @@ function unroll(node) {
 
 	node.parent.removeChild(node);
 }
-//# sourceMappingURL=abbreviation.es.js.map
 
 const ASTERISK$1 = 42; // *
 
@@ -3822,7 +3816,6 @@ function unroll$1(node) {
 
 	node.parent.removeChild(node);
 }
-//# sourceMappingURL=abbreviation.es.js.map
 
 /**
  * For every node in given `tree`, finds matching snippet from `registry` and
@@ -4872,7 +4865,6 @@ function index$6(tree, profile, syntax, options) {
 function supports$1(syntax) {
 	return !!syntax && syntax in supportedSyntaxes;
 }
-//# sourceMappingURL=markup-formatters.es.js.map
 
 const inlineElements = new Set('a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'.split(','));
 const elementMap = {
@@ -5750,9 +5742,6 @@ function emmetHTML(editor, monaco) {
     }, function (s) { return Object.assign(status, s); });
     addTabCommand(editor, monaco, function () { return status; });
 }
-//# sourceMappingURL=html.js.map
-
-//# sourceMappingURL=index.js.map
 
 exports.emmetCSS = emmetCSS;
 exports.emmetHTML = emmetHTML;

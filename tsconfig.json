@@ -16,7 +16,6 @@
     "paths": {
       "@/*": ["src/*"],
       "*": ["node_modules/*"],
-      "@emmetio/expand-abbreviation": ["types/emmetio__expand-abbreviation"],
       "@emmetio/snippets": ["types/emmetio__snippets"],
       "@emmetio/stylesheet-formatters": [
         "types/emmetio__stylesheet-formatters"
