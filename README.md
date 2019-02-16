@@ -27,8 +27,12 @@ import { emmetHTML, emmetCSS } from "emmet-monaco-es";
 
 // both `emmetHTML` and `emmetCSS` are used the same way
 emmetHTML(
-  editor, // monaco editor instance
-  monaco // monaco self. If not provided, will use window.monaco instead
+  // monaco editor instance,
+  // i.e. instance created by monaco.editor.create()
+  editor,
+  // monaco-editor it self. If not provided, will use window.monaco instead.
+  // This could make the plugin support both ESM and AMD loaded monaco-editor
+  monaco
 );
 ```
 
