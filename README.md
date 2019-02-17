@@ -41,7 +41,7 @@ dispose();
 ```
 
 # TODO
-- More reasonable `dispose`, can't dispose `editor.addCommand` for now. See [Microst/monaco-editor#942](https://github.com/Microsoft/monaco-editor/issues/942)
+- More reasonable `dispose`, can't dispose `editor.addCommand` for now. See [Microsoft/monaco-editor#942](https://github.com/Microsoft/monaco-editor/issues/942)
 
 # License
 
