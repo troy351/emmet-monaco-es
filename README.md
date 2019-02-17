@@ -26,7 +26,7 @@ $ npm install emmet-monaco-es
 import { emmetHTML, emmetCSS } from "emmet-monaco-es";
 
 // both `emmetHTML` and `emmetCSS` are used the same way
-emmetHTML(
+const dispose = emmetHTML(
   // monaco editor instance,
   // i.e. instance created by monaco.editor.create()
   editor,
@@ -34,7 +34,14 @@ emmetHTML(
   // This could make the plugin support both ESM and AMD loaded monaco-editor
   monaco
 );
+
+// run it if you want to dispose emmet
+// NOTE: `dispose` would be undefined if emmetHTML twice with the same editor without any dispose in between
+dispose();
 ```
+
+# TODO
+- More reasonable `dispose`, can't dispose `editor.addCommand` for now. See [Microst/monaco-editor#942](https://github.com/Microsoft/monaco-editor/issues/942)
 
 # License
 

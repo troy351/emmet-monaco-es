@@ -8,7 +8,9 @@ declare global {
 
 export type MonacoEditor = Monaco.editor.IStandaloneCodeEditor;
 
-const CONTEXT_KEY = "emmetLegal";
+export const CONTEXT_KEY_LEGAL = "emmetLegal";
+export const CONTEXT_KEY_ENABLED = "emmetEnabled";
+
 export const FIELD = "${}";
 export const defaultOption = { field: () => FIELD };
 
@@ -23,8 +25,45 @@ export function checkMonacoExists(
   return !!monaco;
 }
 
-export function getContextKey(editor: MonacoEditor) {
-  return editor.createContextKey(CONTEXT_KEY, false);
+export function checkDuplicatedEnable(contextKeys: EmmetContextKeys) {
+  const isDuplicated = !contextKeys.isNew && contextKeys.enabled.get();
+
+  if (isDuplicated)
+    console.error(
+      "monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter"
+    );
+
+  return isDuplicated;
+}
+
+type EmmetContextKey = Monaco.editor.IContextKey<boolean>;
+interface EmmetContextKeys {
+  legal: EmmetContextKey;
+  enabled: EmmetContextKey;
+  /**
+   * new created or load from map
+   */
+  isNew: boolean;
+}
+
+// store context key for each editor, for usage of rebind
+const contextKeyMap = new WeakMap<MonacoEditor, EmmetContextKeys>();
+
+export function getContextKey(editor: MonacoEditor): EmmetContextKeys {
+  let keys = contextKeyMap.get(editor);
+  if (keys) {
+    keys.isNew = false;
+    return keys;
+  }
+
+  keys = {
+    legal: editor.createContextKey(CONTEXT_KEY_LEGAL, false),
+    enabled: editor.createContextKey(CONTEXT_KEY_ENABLED, true),
+    isNew: true
+  };
+
+  contextKeyMap.set(editor, keys);
+  return keys;
 }
 
 export interface EditorStatus {
@@ -68,7 +107,7 @@ export function caretChange(
 ) {
   // using onDidChangeCursorSelection instead of onDidChangeCursorPosition,
   // that could skip checking when there is any selection
-  editor.onDidChangeCursorSelection(cur => {
+  return editor.onDidChangeCursorSelection(cur => {
     const selection = cur.selection;
     // if selection area not empty, return
     if (
@@ -182,6 +221,6 @@ export function addTabCommand(
       editor.pushUndoStop();
     },
     // do not trigger emmet when suggest widget visible(it's a builtin context key)
-    `${CONTEXT_KEY} && !suggestWidgetVisible`
+    `${CONTEXT_KEY_ENABLED} && !suggestWidgetVisible && ${CONTEXT_KEY_LEGAL}`
   );
 }

@@ -13,7 +13,8 @@ import {
   MonacoEditor,
   defaultOption,
   getContextKey,
-  EditorStatus
+  EditorStatus,
+  checkDuplicatedEnable
 } from "./helper";
 
 const option = {
@@ -50,11 +51,13 @@ export default function emmetHTML(
   };
 
   // register a context key to make sure emmet triggered at proper condition
-  const emmetLegal = getContextKey(editor);
+  const contextKeys = getContextKey(editor);
 
-  caretChange(
+  if (checkDuplicatedEnable(contextKeys)) return;
+
+  const disposeCaretChange = caretChange(
     editor,
-    emmetLegal,
+    contextKeys.legal,
     (tokens, index) =>
       tokens[index].type === "" &&
       (index === 0 || tokens[index - 1].type === "delimiter.html"),
@@ -104,5 +107,16 @@ export default function emmetHTML(
     s => Object.assign(status, s)
   );
 
-  addTabCommand(editor, monaco, () => status);
+  if (contextKeys.isNew) {
+    // new added emmet
+    addTabCommand(editor, monaco, () => status);
+  } else {
+    // disposed emmet, just set enabled to true
+    contextKeys.enabled.set(true);
+  }
+
+  return function() {
+    contextKeys.enabled.set(false);
+    disposeCaretChange.dispose();
+  };
 }

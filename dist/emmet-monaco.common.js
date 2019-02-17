@@ -2888,7 +2888,8 @@ function strcase(string, type) {
     return string;
 }
 
-var CONTEXT_KEY = "emmetLegal";
+var CONTEXT_KEY_LEGAL = "emmetLegal";
+var CONTEXT_KEY_ENABLED = "emmetEnabled";
 var FIELD = "${}";
 var defaultOption = { field: function () { return FIELD; } };
 function checkMonacoExists(monaco) {
@@ -2896,8 +2897,27 @@ function checkMonacoExists(monaco) {
         console.error("monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter");
     return !!monaco;
 }
+function checkDuplicatedEnable(contextKeys) {
+    var isDuplicated = !contextKeys.isNew && contextKeys.enabled.get();
+    if (isDuplicated)
+        console.error("monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter");
+    return isDuplicated;
+}
+// store context key for each editor, for usage of rebind
+var contextKeyMap = new WeakMap();
 function getContextKey(editor) {
-    return editor.createContextKey(CONTEXT_KEY, false);
+    var keys = contextKeyMap.get(editor);
+    if (keys) {
+        keys.isNew = false;
+        return keys;
+    }
+    keys = {
+        legal: editor.createContextKey(CONTEXT_KEY_LEGAL, false),
+        enabled: editor.createContextKey(CONTEXT_KEY_ENABLED, true),
+        isNew: true
+    };
+    contextKeyMap.set(editor, keys);
+    return keys;
 }
 /**
  * caret change event
@@ -2913,7 +2933,7 @@ function getContextKey(editor) {
 function caretChange(editor, legalKey, isLegalToken, getLegalSubstr, onChange) {
     // using onDidChangeCursorSelection instead of onDidChangeCursorPosition,
     // that could skip checking when there is any selection
-    editor.onDidChangeCursorSelection(function (cur) {
+    return editor.onDidChangeCursorSelection(function (cur) {
         var selection = cur.selection;
         // if selection area not empty, return
         if (selection.startLineNumber !== selection.endLineNumber ||
@@ -2990,7 +3010,7 @@ function addTabCommand(editor, monaco, getStatus) {
         editor.pushUndoStop();
     }, 
     // do not trigger emmet when suggest widget visible(it's a builtin context key)
-    CONTEXT_KEY + " && !suggestWidgetVisible");
+    CONTEXT_KEY_ENABLED + " && !suggestWidgetVisible && " + CONTEXT_KEY_LEGAL);
 }
 
 var option = __assign({}, defaultOption, { snippets: new SnippetsRegistry(cssSnippet), profile: new Profile() });
@@ -3014,8 +3034,10 @@ function emmetCSS(editor, monaco) {
         expandText: ""
     };
     // register a context key to make sure emmet triggered at proper condition
-    var emmetLegal = getContextKey(editor);
-    caretChange(editor, emmetLegal, function (tokens, index$$1) {
+    var contextKeys = getContextKey(editor);
+    if (checkDuplicatedEnable(contextKeys))
+        return;
+    var disposeCaretChange = caretChange(editor, contextKeys.legal, function (tokens, index$$1) {
         // stop emmet when at attribute.value
         return tokens[index$$1].type.substring(0, 15) !== "attribute.value";
     }, function (str) {
@@ -3043,7 +3065,18 @@ function emmetCSS(editor, monaco) {
         }
         return str;
     }, function (s) { return Object.assign(status, s); });
-    addTabCommand(editor, monaco, function () { return status; });
+    if (contextKeys.isNew) {
+        // new added emmet
+        addTabCommand(editor, monaco, function () { return status; });
+    }
+    else {
+        // disposed emmet, just set enabled to true
+        contextKeys.enabled.set(true);
+    }
+    return function () {
+        contextKeys.enabled.set(false);
+        disposeCaretChange.dispose();
+    };
 }
 
 const ASTERISK = 42; // *
@@ -5696,8 +5729,10 @@ function emmetHTML(editor, monaco) {
         expandText: ""
     };
     // register a context key to make sure emmet triggered at proper condition
-    var emmetLegal = getContextKey(editor);
-    caretChange(editor, emmetLegal, function (tokens, index) {
+    var contextKeys = getContextKey(editor);
+    if (checkDuplicatedEnable(contextKeys))
+        return;
+    var disposeCaretChange = caretChange(editor, contextKeys.legal, function (tokens, index) {
         return tokens[index].type === "" &&
             (index === 0 || tokens[index - 1].type === "delimiter.html");
     }, function (str) {
@@ -5740,7 +5775,18 @@ function emmetHTML(editor, monaco) {
         }
         return str;
     }, function (s) { return Object.assign(status, s); });
-    addTabCommand(editor, monaco, function () { return status; });
+    if (contextKeys.isNew) {
+        // new added emmet
+        addTabCommand(editor, monaco, function () { return status; });
+    }
+    else {
+        // disposed emmet, just set enabled to true
+        contextKeys.enabled.set(true);
+    }
+    return function () {
+        contextKeys.enabled.set(false);
+        disposeCaretChange.dispose();
+    };
 }
 
 exports.emmetCSS = emmetCSS;

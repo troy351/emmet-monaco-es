@@ -8,7 +8,7 @@ import * as Monaco from "monaco-editor";
 export function emmetCSS(
   editor: Monaco.editor.IStandaloneCodeEditor,
   monaco?: typeof Monaco
-): void;
+): (() => void) | undefined;
 
 /**
  * emmet for html
@@ -18,4 +18,4 @@ export function emmetCSS(
 export function emmetHTML(
   editor: Monaco.editor.IStandaloneCodeEditor,
   monaco?: typeof Monaco
-): void;
+): (() => void) | undefined;
