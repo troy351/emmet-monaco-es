@@ -22,6 +22,7 @@ $ npm install emmet-monaco-es
 
 # Example
 
+ES Module
 ```javascript
 import { emmetHTML, emmetCSS } from "emmet-monaco-es";
 
@@ -38,6 +39,15 @@ const dispose = emmetHTML(
 // run it if you want to dispose emmet
 // NOTE: `dispose` would be undefined if emmetHTML twice with the same editor without any dispose in between
 dispose();
+```
+Browser
+```html
+<script src="https://unpkg.com/emmet-monaco-es/dist/emmet-monaco.min.js"></script>
+<script>
+  // NOTE: monaco-editor should be loaded first
+  // see above esm example for details
+  emmetMonaco.emmetHTML(editor, monaco)
+</script>
 ```
 
 # TODO
