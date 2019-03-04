@@ -1,6 +1,6 @@
 {
   "name": "emmet-monaco-es",
-  "version": "3.3.0",
+  "version": "4.0.0",
   "description": "emmet plugin for monaco-editor",
   "main": "dist/emmet-monaco.common.js",
   "module": "dist/emmet-monaco.esm.js",

@@ -5,17 +5,7 @@ import parseAbbreviation from "@emmetio/css-abbreviation";
 import SnippetsRegistry from "@emmetio/snippets-registry";
 import Profile from "@emmetio/output-profile";
 
-import {
-  checkMonacoExists,
-  caretChange,
-  addTabCommand,
-  MonacoEditor,
-  defaultOption,
-  getContextKey,
-  EditorStatus,
-  FIELD,
-  checkDuplicatedEnable
-} from "./helper";
+import { checkMonacoExists, onCompletion, defaultOption } from "./helper";
 
 const option = {
   ...defaultOption,
@@ -29,34 +19,22 @@ function expand(abbr: string) {
 }
 
 /**
- * almost the same behavior as WebStorm's builtin emmet.
- * only triggered when cursor(caret) not in attribute value area and do works via emmet,
- * otherwise will fallback to its original functionality.
+ * almost the same behavior as VSCode's builtin emmet.
+ * only triggered when string before text cursor(caret) matches emmet rules,
+ * caret within html tag content area and suggest widget not visible,
  */
-export default function emmetCSS(editor: MonacoEditor, monaco = window.monaco) {
+export default function emmetCSS(monaco = window.monaco) {
   if (!checkMonacoExists(monaco)) return;
 
-  const status: EditorStatus = {
-    lineNumber: 0,
-    column: 0,
-    emmetText: "",
-    expandText: ""
-  };
-
-  // register a context key to make sure emmet triggered at proper condition
-  const contextKeys = getContextKey(editor);
-
-  if (checkDuplicatedEnable(contextKeys)) return;
-
-  const disposeCaretChange = caretChange(
-    editor,
-    contextKeys.legal,
+  return onCompletion(
+    monaco,
+    ["css", "less", "scss"],
     (tokens, index) =>
       // stop emmet when at attribute.value
       tokens[index].type.substring(0, 15) !== "attribute.value",
     str => {
       // empty or ends with white space, illegal
-      if (str === "" || str.match(/\s$/)) return "";
+      if (str === "" || str.match(/\s$/)) return;
 
       // find last substring after `{` or `}` or `;`
       str = str
@@ -64,36 +42,18 @@ export default function emmetCSS(editor: MonacoEditor, monaco = window.monaco) {
         .split(/{|}|;/)
         .pop()!;
 
-      if (!str) return "";
+      if (!str) return;
 
       // run expand to test the final result
       // `field` was used to set proper caret position after emmet
       try {
-        const expandText = expand(str);
-
-        // expand fail
-        if (expandText === `${str}: ${FIELD};`) return "";
-
-        status.expandText = expandText;
-      } catch (e) {
-        return "";
+        return {
+          emmetText: str,
+          expandText: expand(str)
+        };
+      } catch {
+        return;
       }
-
-      return str;
-    },
-    s => Object.assign(status, s)
+    }
   );
-
-  if (contextKeys.isNew) {
-    // new added emmet
-    addTabCommand(editor, monaco, () => status);
-  } else {
-    // disposed emmet, just set enabled to true
-    contextKeys.enabled.set(true);
-  }
-
-  return function() {
-    contextKeys.enabled.set(false);
-    disposeCaretChange.dispose();
-  };
 }

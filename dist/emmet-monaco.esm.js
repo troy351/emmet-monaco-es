@@ -2884,129 +2884,86 @@ function strcase(string, type) {
     return string;
 }
 
-var CONTEXT_KEY_LEGAL = "emmetLegal";
-var CONTEXT_KEY_ENABLED = "emmetEnabled";
-var FIELD = "${}";
-var defaultOption = { field: function () { return FIELD; } };
+var defaultOption = {
+    field: function (index) { return "$" + index; }
+};
 function checkMonacoExists(monaco) {
     if (!monaco)
         console.error("monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter");
     return !!monaco;
 }
-function checkDuplicatedEnable(contextKeys) {
-    var isDuplicated = !contextKeys.isNew && contextKeys.enabled.get();
-    if (isDuplicated)
-        console.error("monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter");
-    return isDuplicated;
-}
-// store context key for each editor, for usage of rebind
-var contextKeyMap = new WeakMap();
-function getContextKey(editor) {
-    var keys = contextKeyMap.get(editor);
-    if (keys) {
-        keys.isNew = false;
-        return keys;
-    }
-    keys = {
-        legal: editor.createContextKey(CONTEXT_KEY_LEGAL, false),
-        enabled: editor.createContextKey(CONTEXT_KEY_ENABLED, true),
-        isNew: true
-    };
-    contextKeyMap.set(editor, keys);
-    return keys;
-}
 /**
- * caret change event
- * @param editor editor instance
- * @param legalKey check legal context key
+ * add completion provider
+ * @param monaco monaco self
+ * @param language added language
  * @param isLegalToken check if given token legal
  * @param getLegalSubstr get legal emmet substring from a string.
  * if whole string matches emmet rules, return it.
  * if a substring(right to left) split by white space matches emmet rules, return the substring.
  * if nothing matches, return empty string
- * @param onChange result callback
  */
-function caretChange(editor, legalKey, isLegalToken, getLegalSubstr, onChange) {
-    // using onDidChangeCursorSelection instead of onDidChangeCursorPosition,
-    // that could skip checking when there is any selection
-    return editor.onDidChangeCursorSelection(function (cur) {
-        var selection = cur.selection;
-        // if selection area not empty, return
-        if (selection.startLineNumber !== selection.endLineNumber ||
-            selection.startColumn !== selection.endColumn) {
-            return;
-        }
-        /* do grammar analysis below */
-        var model = editor.getModel();
-        if (!model)
-            return;
-        var _a = selection.getPosition(), column = _a.column, lineNumber = _a.lineNumber;
-        // there is nothing before caret, return
-        if (column === 1 ||
-            column <= model.getLineFirstNonWhitespaceColumn(lineNumber)) {
-            legalKey.set(false);
-            return;
-        }
-        // inspired by `monaco.editor.tokenize`.
-        // see source map from `https://microsoft.github.io/monaco-editor/`
-        var tokenizationSupport = model._tokens.tokenizationSupport;
-        var state = tokenizationSupport.getInitialState();
-        var tokenizationResult;
-        for (var i = 1; i <= lineNumber; i++) {
-            tokenizationResult = tokenizationSupport.tokenize(model.getLineContent(i), state, 0);
-            state = tokenizationResult.endState;
-        }
-        var tokens = tokenizationResult.tokens;
-        // get token type at current column
-        for (var i = tokens.length - 1; i >= 0; i--) {
-            if (column - 1 > tokens[i].offset) {
-                // type must be empty string when start emmet
-                // and if not the first token, make sure the previous token is `delimiter.html`
-                // to prevent emmet triggered within attributes
-                if (isLegalToken(tokens, i)) {
-                    // get content between current token offset and current cursor column
-                    var emmetText = getLegalSubstr(model
-                        .getLineContent(lineNumber)
-                        .substring(tokens[i].offset, column - 1));
-                    legalKey.set(!!emmetText);
-                    onChange({ emmetText: emmetText, lineNumber: lineNumber, column: column });
+function onCompletion(monaco, language, isLegalToken, getLegalSubstr) {
+    if (typeof language === "string")
+        language = [language];
+    var providers = language.map(function (lang) {
+        return monaco.languages.registerCompletionItemProvider(lang, {
+            triggerCharacters: "1234567890>+-^*()#.[]$@{}=".split(""),
+            provideCompletionItems: function (model, position) {
+                var column = position.column, lineNumber = position.lineNumber;
+                // there is nothing before caret, return
+                if (column === 1 ||
+                    column <= model.getLineFirstNonWhitespaceColumn(lineNumber)) {
+                    return;
                 }
-                else {
-                    legalKey.set(false);
+                // inspired by `monaco.editor.tokenize`.
+                // see source map from `https://microsoft.github.io/monaco-editor/`
+                var tokenizationSupport = model._tokens.tokenizationSupport;
+                var state = tokenizationSupport.getInitialState();
+                var tokenizationResult;
+                for (var i = 1; i <= lineNumber; i++) {
+                    tokenizationResult = tokenizationSupport.tokenize(model.getLineContent(i), state, 0);
+                    state = tokenizationResult.endState;
                 }
-                break;
+                var tokens = tokenizationResult.tokens;
+                var set = undefined;
+                // get token type at current column
+                for (var i = tokens.length - 1; i >= 0; i--) {
+                    if (column - 1 > tokens[i].offset) {
+                        // type must be empty string when start emmet
+                        // and if not the first token, make sure the previous token is `delimiter.html`
+                        // to prevent emmet triggered within attributes
+                        if (isLegalToken(tokens, i)) {
+                            // get content between current token offset and current cursor column
+                            set = getLegalSubstr(model
+                                .getLineContent(lineNumber)
+                                .substring(tokens[i].offset, column - 1));
+                        }
+                        break;
+                    }
+                }
+                if (!set)
+                    return;
+                var emmetText = set.emmetText, expandText = set.expandText;
+                return {
+                    suggestions: [
+                        {
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            label: emmetText,
+                            insertText: expandText,
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            range: new monaco.Range(lineNumber, column - emmetText.length, lineNumber, column),
+                            detail: "Emmet Abbreviation",
+                            documentation: expandText.replace(/\$\d+/g, "|")
+                        }
+                    ],
+                    incomplete: true
+                };
             }
-        }
+        });
     });
-}
-function addTabCommand(editor, monaco, getStatus) {
-    // add tab command with context
-    editor.addCommand(monaco.KeyCode.Tab, function () {
-        // attention: push an undo stop before and after executeEdits
-        // to make sure undo operation works as expected
-        editor.pushUndoStop();
-        var _a = getStatus(), lineNumber = _a.lineNumber, column = _a.column, expandText = _a.expandText, emmetText = _a.emmetText;
-        // record first `FIELD` position and remove all `FIELD`
-        var expandTextArr = expandText.split(FIELD);
-        var posOffsetArr = expandTextArr[0].split("\n");
-        var insertPosition = new monaco.Position(lineNumber + posOffsetArr.length - 1, posOffsetArr.length === 1
-            ? posOffsetArr[0].length - emmetText.length + column
-            : posOffsetArr.slice(-1)[0].length + 1);
-        expandText = expandTextArr.join("");
-        // replace range text with expandText
-        editor.executeEdits("emmet", [
-            {
-                range: new monaco.Range(lineNumber, column - emmetText.length, lineNumber, column),
-                text: expandText,
-                forceMoveMarkers: true
-            }
-        ]);
-        // move cursor to the position of first `FIELD` in expandText
-        editor.setPosition(insertPosition);
-        editor.pushUndoStop();
-    }, 
-    // do not trigger emmet when suggest widget visible(it's a builtin context key)
-    CONTEXT_KEY_ENABLED + " && !suggestWidgetVisible && " + CONTEXT_KEY_LEGAL);
+    return function () {
+        providers.forEach(function (provider) { return provider.dispose(); });
+    };
 }
 
 var option = __assign({}, defaultOption, { snippets: new SnippetsRegistry(cssSnippet), profile: new Profile() });
@@ -3015,64 +2972,40 @@ function expand(abbr) {
     return index(tree, option.profile, option);
 }
 /**
- * almost the same behavior as WebStorm's builtin emmet.
- * only triggered when cursor(caret) not in attribute value area and do works via emmet,
- * otherwise will fallback to its original functionality.
+ * almost the same behavior as VSCode's builtin emmet.
+ * only triggered when string before text cursor(caret) matches emmet rules,
+ * caret within html tag content area and suggest widget not visible,
  */
-function emmetCSS(editor, monaco) {
+function emmetCSS(monaco) {
     if (monaco === void 0) { monaco = window.monaco; }
     if (!checkMonacoExists(monaco))
         return;
-    var status = {
-        lineNumber: 0,
-        column: 0,
-        emmetText: "",
-        expandText: ""
-    };
-    // register a context key to make sure emmet triggered at proper condition
-    var contextKeys = getContextKey(editor);
-    if (checkDuplicatedEnable(contextKeys))
-        return;
-    var disposeCaretChange = caretChange(editor, contextKeys.legal, function (tokens, index$$1) {
+    return onCompletion(monaco, ["css", "less", "scss"], function (tokens, index$$1) {
         // stop emmet when at attribute.value
         return tokens[index$$1].type.substring(0, 15) !== "attribute.value";
     }, function (str) {
         // empty or ends with white space, illegal
         if (str === "" || str.match(/\s$/))
-            return "";
+            return;
         // find last substring after `{` or `}` or `;`
         str = str
             .trim()
             .split(/{|}|;/)
             .pop();
         if (!str)
-            return "";
+            return;
         // run expand to test the final result
         // `field` was used to set proper caret position after emmet
         try {
-            var expandText = expand(str);
-            // expand fail
-            if (expandText === str + ": " + FIELD + ";")
-                return "";
-            status.expandText = expandText;
+            return {
+                emmetText: str,
+                expandText: expand(str)
+            };
         }
-        catch (e) {
-            return "";
+        catch (_a) {
+            return;
         }
-        return str;
-    }, function (s) { return Object.assign(status, s); });
-    if (contextKeys.isNew) {
-        // new added emmet
-        addTabCommand(editor, monaco, function () { return status; });
-    }
-    else {
-        // disposed emmet, just set enabled to true
-        contextKeys.enabled.set(true);
-    }
-    return function () {
-        contextKeys.enabled.set(false);
-        disposeCaretChange.dispose();
-    };
+    });
 }
 
 const ASTERISK = 42; // *
@@ -5709,32 +5642,21 @@ function expand$1(abbr) {
     return index$6(tree, option$1.profile, option$1);
 }
 /**
- * almost the same behavior as WebStorm's builtin emmet.
+ * almost the same behavior as VSCode's builtin emmet.
  * only triggered when string before text cursor(caret) matches emmet rules,
  * caret within html tag content area and suggest widget not visible,
- * otherwise will fallback to its original functionality.
  */
-function emmetHTML(editor, monaco) {
+function emmetHTML(monaco) {
     if (monaco === void 0) { monaco = window.monaco; }
     if (!checkMonacoExists(monaco))
         return;
-    var status = {
-        lineNumber: 0,
-        column: 0,
-        emmetText: "",
-        expandText: ""
-    };
-    // register a context key to make sure emmet triggered at proper condition
-    var contextKeys = getContextKey(editor);
-    if (checkDuplicatedEnable(contextKeys))
-        return;
-    var disposeCaretChange = caretChange(editor, contextKeys.legal, function (tokens, index) {
+    return onCompletion(monaco, "html", function (tokens, index) {
         return tokens[index].type === "" &&
             (index === 0 || tokens[index - 1].type === "delimiter.html");
     }, function (str) {
         // empty or ends with white space, illegal
         if (str === "" || str.match(/\s$/))
-            return "";
+            return;
         str = str.trim();
         // deal with white space, this determines how many characters needed to be emmeted
         // e.g. `a span div` => `a span <div></div>` skip `a span `
@@ -5760,29 +5682,19 @@ function emmetHTML(editor, monaco) {
         // note: emmet self allowed number element like `<1></1>`,
         // but obviously it's not fit with html standard, so skip it
         if (!str.match(/^[a-zA-Z[(.#]/))
-            return "";
+            return;
         // run expand to test the final result
         // `field` was used to set proper caret position after emmet
         try {
-            status.expandText = expand$1(str);
+            return {
+                emmetText: str,
+                expandText: expand$1(str)
+            };
         }
-        catch (e) {
-            return "";
+        catch (_a) {
+            return;
         }
-        return str;
-    }, function (s) { return Object.assign(status, s); });
-    if (contextKeys.isNew) {
-        // new added emmet
-        addTabCommand(editor, monaco, function () { return status; });
-    }
-    else {
-        // disposed emmet, just set enabled to true
-        contextKeys.enabled.set(true);
-    }
-    return function () {
-        contextKeys.enabled.set(false);
-        disposeCaretChange.dispose();
-    };
+    });
 }
 
 export { emmetCSS, emmetHTML };

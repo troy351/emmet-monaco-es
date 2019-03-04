@@ -6,16 +6,7 @@ import htmlSnippet from "@emmetio/snippets/html.json";
 import SnippetsRegistry from "@emmetio/snippets-registry";
 import Profile from "@emmetio/output-profile";
 
-import {
-  checkMonacoExists,
-  caretChange,
-  addTabCommand,
-  MonacoEditor,
-  defaultOption,
-  getContextKey,
-  EditorStatus,
-  checkDuplicatedEnable
-} from "./helper";
+import { checkMonacoExists, onCompletion, defaultOption } from "./helper";
 
 const option = {
   ...defaultOption,
@@ -32,38 +23,22 @@ function expand(abbr: string) {
 }
 
 /**
- * almost the same behavior as WebStorm's builtin emmet.
+ * almost the same behavior as VSCode's builtin emmet.
  * only triggered when string before text cursor(caret) matches emmet rules,
  * caret within html tag content area and suggest widget not visible,
- * otherwise will fallback to its original functionality.
  */
-export default function emmetHTML(
-  editor: MonacoEditor,
-  monaco = window.monaco
-) {
+export default function emmetHTML(monaco = window.monaco) {
   if (!checkMonacoExists(monaco)) return;
 
-  const status: EditorStatus = {
-    lineNumber: 0,
-    column: 0,
-    emmetText: "",
-    expandText: ""
-  };
-
-  // register a context key to make sure emmet triggered at proper condition
-  const contextKeys = getContextKey(editor);
-
-  if (checkDuplicatedEnable(contextKeys)) return;
-
-  const disposeCaretChange = caretChange(
-    editor,
-    contextKeys.legal,
+  return onCompletion(
+    monaco,
+    "html",
     (tokens, index) =>
       tokens[index].type === "" &&
       (index === 0 || tokens[index - 1].type === "delimiter.html"),
     str => {
       // empty or ends with white space, illegal
-      if (str === "" || str.match(/\s$/)) return "";
+      if (str === "" || str.match(/\s$/)) return;
 
       str = str.trim();
 
@@ -92,31 +67,18 @@ export default function emmetHTML(
       // starts with illegal character
       // note: emmet self allowed number element like `<1></1>`,
       // but obviously it's not fit with html standard, so skip it
-      if (!str.match(/^[a-zA-Z[(.#]/)) return "";
+      if (!str.match(/^[a-zA-Z[(.#]/)) return;
 
       // run expand to test the final result
       // `field` was used to set proper caret position after emmet
       try {
-        status.expandText = expand(str);
-      } catch (e) {
-        return "";
+        return {
+          emmetText: str,
+          expandText: expand(str)
+        };
+      } catch {
+        return;
       }
-
-      return str;
-    },
-    s => Object.assign(status, s)
+    }
   );
-
-  if (contextKeys.isNew) {
-    // new added emmet
-    addTabCommand(editor, monaco, () => status);
-  } else {
-    // disposed emmet, just set enabled to true
-    contextKeys.enabled.set(true);
-  }
-
-  return function() {
-    contextKeys.enabled.set(false);
-    disposeCaretChange.dispose();
-  };
 }

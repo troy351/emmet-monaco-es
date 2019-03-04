@@ -14,6 +14,12 @@ Treeshaking support
 
 Source codes are well commented if you want to figure out how it works
 
+# Advantage
+
+Almost the same as VSCode's built-in emmet, integrated with completion provider.
+
+Support `HTML`, `CSS`, `LESS`, `SCSS`
+
 # Install
 
 ```shell
@@ -23,35 +29,31 @@ $ npm install emmet-monaco-es
 # Example
 
 ES Module
+
 ```javascript
 import { emmetHTML, emmetCSS } from "emmet-monaco-es";
 
 // both `emmetHTML` and `emmetCSS` are used the same way
 const dispose = emmetHTML(
-  // monaco editor instance,
-  // i.e. instance created by monaco.editor.create()
-  editor,
   // monaco-editor it self. If not provided, will use window.monaco instead.
   // This could make the plugin support both ESM and AMD loaded monaco-editor
   monaco
 );
 
 // run it if you want to dispose emmet
-// NOTE: `dispose` would be undefined if emmetHTML twice with the same editor without any dispose in between
 dispose();
 ```
+
 Browser
+
 ```html
 <script src="https://unpkg.com/emmet-monaco-es/dist/emmet-monaco.min.js"></script>
 <script>
   // NOTE: monaco-editor should be loaded first
   // see above esm example for details
-  emmetMonaco.emmetHTML(editor, monaco)
+  emmetMonaco.emmetHTML(monaco);
 </script>
 ```
-
-# TODO
-- More reasonable `dispose`, can't dispose `editor.addCommand` for now. See [Microsoft/monaco-editor#942](https://github.com/Microsoft/monaco-editor/issues/942)
 
 # License
 
