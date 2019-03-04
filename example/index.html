@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Monaco Emmet Example</title>
+    <style>
+      body > div {
+        float: left;
+        width: 50%;
+      }
+
+      .container {
+        height: 600px;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="html">
+      <h2>HTML</h2>
+      <div class="container"></div>
+    </div>
+    <div class="css">
+      <h2>CSS</h2>
+      <div class="container"></div>
+    </div>
+    <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+    <script src="../dist/emmet-monaco.min.js"></script>
+    <script>
+      require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
+      require(["vs/editor/editor.main"], function() {
+        var containers = document.getElementsByClassName("container");
+
+        emmetMonaco.emmetHTML();
+        monaco.editor.create(containers[0], {
+          value: "",
+          language: "html"
+        });
+
+        emmetMonaco.emmetCSS();
+        monaco.editor.create(containers[1], {
+          value: "",
+          language: "css"
+        });
+      });
+    </script>
+  </body>
+</html>
