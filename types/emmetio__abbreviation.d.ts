@@ -1,9 +1,11 @@
 declare module "@emmetio/abbreviation" {
-  interface Node {
+  export interface Node {
+    name: string;
     parent: Node | null;
     next: Node | null;
     previous: Node | null;
     children: Node[];
+    value: string;
   }
 
   export interface Tree {

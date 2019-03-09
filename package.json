@@ -1,7 +1,12 @@
 {
   "name": "emmet-monaco-es",
-  "version": "4.0.0",
+  "version": "4.1.1",
   "description": "emmet plugin for monaco-editor",
+  "keywords": [
+    "emmet",
+    "emmet-plugin",
+    "monaco-editor"
+  ],
   "main": "dist/emmet-monaco.common.js",
   "module": "dist/emmet-monaco.esm.js",
   "typings": "index.d.ts",
@@ -22,6 +27,7 @@
     "@emmetio/css-snippets-resolver": "^0.4.0",
     "@emmetio/html-snippets-resolver": "^0.1.4",
     "@emmetio/html-transform": "^0.3.10",
+    "@emmetio/lorem": "^1.0.2",
     "@emmetio/markup-formatters": "^0.4.1",
     "@emmetio/output-profile": "^0.1.6",
     "@emmetio/snippets": "^0.2.11",
@@ -29,12 +35,12 @@
     "@emmetio/stylesheet-formatters": "^0.2.1"
   },
   "devDependencies": {
-    "rollup": "^1.1.2",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup": "^1.6.0",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-terser": "^4.0.4",
     "rollup-plugin-typescript": "^1.0.0",
     "tslib": "^1.9.3",
-    "typescript": "^3.3.3"
+    "typescript": "^3.3.3333"
   }
 }

@@ -5,12 +5,24 @@ import transform from "@emmetio/html-transform";
 import htmlSnippet from "@emmetio/snippets/html.json";
 import SnippetsRegistry from "@emmetio/snippets-registry";
 import Profile from "@emmetio/output-profile";
+import lorem, { LoremOption } from "@emmetio/lorem";
 
 import { checkMonacoExists, onCompletion, defaultOption } from "./helper";
 
+// add lorem
+const reLorem = /^lorem([a-z]*)(\d*)$/i;
+const registry = new SnippetsRegistry(htmlSnippet);
+registry.get(0).set(reLorem, node => {
+  const option: LoremOption = {} as any;
+  const [, lang, wordCount] = node.name.match(reLorem)!;
+  if (lang) option.lang = lang;
+  if (wordCount) option.wordCount = +wordCount;
+  return lorem(node, option);
+});
+
 const option = {
   ...defaultOption,
-  snippets: new SnippetsRegistry(htmlSnippet),
+  snippets: registry,
   profile: new Profile()
 };
 

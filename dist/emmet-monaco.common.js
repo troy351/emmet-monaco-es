@@ -1038,7 +1038,7 @@ const unitlessProperties = [
 	'flex', 'flex-grow', 'flex-shrink'
 ];
 
-const defaultOptions$2 = {
+const defaultOptions$1 = {
 	intUnit: 'px',
 	floatUnit: 'em',
 	unitAliases: {
@@ -1059,8 +1059,8 @@ const defaultOptions$2 = {
  */
 
 function index$1(tree, registry, options) {
-	options = Object.assign({}, defaultOptions$2, options);
-	options.unitAliases = Object.assign({}, defaultOptions$2.unitAliases, options && options.unitAliases);
+	options = Object.assign({}, defaultOptions$1, options);
+	options.unitAliases = Object.assign({}, defaultOptions$1.unitAliases, options && options.unitAliases);
 
 	const snippets = convertToCSSSnippets(registry);
 
@@ -2748,7 +2748,7 @@ class SnippetsRegistry {
 /**
  * @type {EmmetOutputProfile}
  */
-var defaultOptions$3 = {
+var defaultOptions$2 = {
 	indent: '\t',
 	tagCase: '',
 	attributeCase: '',
@@ -2779,7 +2779,7 @@ class Profile {
 	 */
     constructor(options) {
 		/** @type {EmmetOutputProfile} */
-		this.options = Object.assign({}, defaultOptions$3, options);
+		this.options = Object.assign({}, defaultOptions$2, options);
 		this.quoteChar = this.options.attributeQuotes === 'single' ? '\'' : '"';
     }
 
@@ -2984,9 +2984,9 @@ function emmetCSS(monaco) {
     if (monaco === void 0) { monaco = window.monaco; }
     if (!checkMonacoExists(monaco))
         return;
-    return onCompletion(monaco, ["css", "less", "scss"], function (tokens, index$$1) {
+    return onCompletion(monaco, ["css", "less", "scss"], function (tokens, index) {
         // stop emmet when at attribute.value
-        return tokens[index$$1].type.substring(0, 15) !== "attribute.value";
+        return tokens[index].type.substring(0, 15) !== "attribute.value";
     }, function (str) {
         // empty or ends with white space, illegal
         if (str === "" || str.match(/\s$/))
@@ -5258,7 +5258,7 @@ function setNodeContent(node, content) {
 	node.value = content;
 }
 
-const defaultOptions$4 = {
+const defaultOptions$3 = {
 	element: '__',
 	modifier: '_'
 };
@@ -5275,7 +5275,7 @@ const blockCandidates2 = className => /^[a-z]/i.test(className);
  * that element contains `.block` class as well
  */
 var bem = function(tree, options) {
-	options = Object.assign({}, defaultOptions$4, options);
+	options = Object.assign({}, defaultOptions$3, options);
 
 	tree.walk(node => expandClassNames(node, options));
 
@@ -5638,7 +5638,274 @@ var htmlSnippet = {
 	"cc:noie": "{<!--[if !IE]><!-->${0}<!--<![endif]-->}"
 };
 
-var option$1 = __assign({}, defaultOption, { snippets: new SnippetsRegistry(htmlSnippet), profile: new Profile() });
+var latin = {
+	"common": ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipisicing", "elit"],
+	"words": ["exercitationem", "perferendis", "perspiciatis", "laborum", "eveniet",
+		"sunt", "iure", "nam", "nobis", "eum", "cum", "officiis", "excepturi",
+		"odio", "consectetur", "quasi", "aut", "quisquam", "vel", "eligendi",
+		"itaque", "non", "odit", "tempore", "quaerat", "dignissimos",
+		"facilis", "neque", "nihil", "expedita", "vitae", "vero", "ipsum",
+		"nisi", "animi", "cumque", "pariatur", "velit", "modi", "natus",
+		"iusto", "eaque", "sequi", "illo", "sed", "ex", "et", "voluptatibus",
+		"tempora", "veritatis", "ratione", "assumenda", "incidunt", "nostrum",
+		"placeat", "aliquid", "fuga", "provident", "praesentium", "rem",
+		"necessitatibus", "suscipit", "adipisci", "quidem", "possimus",
+		"voluptas", "debitis", "sint", "accusantium", "unde", "sapiente",
+		"voluptate", "qui", "aspernatur", "laudantium", "soluta", "amet",
+		"quo", "aliquam", "saepe", "culpa", "libero", "ipsa", "dicta",
+		"reiciendis", "nesciunt", "doloribus", "autem", "impedit", "minima",
+		"maiores", "repudiandae", "ipsam", "obcaecati", "ullam", "enim",
+		"totam", "delectus", "ducimus", "quis", "voluptates", "dolores",
+		"molestiae", "harum", "dolorem", "quia", "voluptatem", "molestias",
+		"magni", "distinctio", "omnis", "illum", "dolorum", "voluptatum", "ea",
+		"quas", "quam", "corporis", "quae", "blanditiis", "atque", "deserunt",
+		"laboriosam", "earum", "consequuntur", "hic", "cupiditate",
+		"quibusdam", "accusamus", "ut", "rerum", "error", "minus", "eius",
+		"ab", "ad", "nemo", "fugit", "officia", "at", "in", "id", "quos",
+		"reprehenderit", "numquam", "iste", "fugiat", "sit", "inventore",
+		"beatae", "repellendus", "magnam", "recusandae", "quod", "explicabo",
+		"doloremque", "aperiam", "consequatur", "asperiores", "commodi",
+		"optio", "dolor", "labore", "temporibus", "repellat", "veniam",
+		"architecto", "est", "esse", "mollitia", "nulla", "a", "similique",
+		"eos", "alias", "dolore", "tenetur", "deleniti", "porro", "facere",
+		"maxime", "corrupti"]
+};
+
+var ru = {
+	"common": ["далеко-далеко", "за", "словесными", "горами", "в стране", "гласных", "и согласных", "живут", "рыбные", "тексты"],
+	"words": ["вдали", "от всех", "они", "буквенных", "домах", "на берегу", "семантика",
+		"большого", "языкового", "океана", "маленький", "ручеек", "даль",
+		"журчит", "по всей", "обеспечивает", "ее","всеми", "необходимыми",
+		"правилами", "эта", "парадигматическая", "страна", "которой", "жаренные",
+		"предложения", "залетают", "прямо", "рот", "даже", "всемогущая",
+		"пунктуация", "не", "имеет", "власти", "над", "рыбными", "текстами",
+		"ведущими", "безорфографичный", "образ", "жизни", "однажды", "одна",
+		"маленькая", "строчка","рыбного", "текста", "имени", "lorem", "ipsum",
+		"решила", "выйти", "большой", "мир", "грамматики", "великий", "оксмокс",
+		"предупреждал", "о", "злых", "запятых", "диких", "знаках", "вопроса",
+		"коварных", "точках", "запятой", "но", "текст", "дал", "сбить",
+		"себя", "толку", "он", "собрал", "семь", "своих", "заглавных", "букв",
+		"подпоясал", "инициал", "за", "пояс", "пустился", "дорогу",
+		"взобравшись", "первую", "вершину", "курсивных", "гор", "бросил",
+		"последний", "взгляд", "назад", "силуэт", "своего", "родного", "города",
+		"буквоград", "заголовок", "деревни", "алфавит", "подзаголовок", "своего",
+		"переулка", "грустный", "реторический", "вопрос", "скатился", "его",
+		"щеке", "продолжил", "свой", "путь", "дороге", "встретил", "рукопись",
+		"она", "предупредила",  "моей", "все", "переписывается", "несколько",
+		"раз", "единственное", "что", "меня", "осталось", "это", "приставка",
+		"возвращайся", "ты", "лучше", "свою", "безопасную", "страну", "послушавшись",
+		"рукописи", "наш", "продолжил", "свой", "путь", "вскоре", "ему",
+		"повстречался", "коварный", "составитель", "рекламных", "текстов",
+		"напоивший", "языком", "речью", "заманивший", "свое", "агентство",
+		"которое", "использовало", "снова", "снова", "своих", "проектах",
+		"если", "переписали", "то", "живет", "там", "до", "сих", "пор"]
+};
+
+var sp = {
+	"common": ["mujer", "uno", "dolor", "más", "de", "poder", "mismo", "si"],
+	"words": ["ejercicio", "preferencia", "perspicacia", "laboral", "paño",
+		"suntuoso", "molde", "namibia", "planeador", "mirar", "demás", "oficinista", "excepción",
+		"odio", "consecuencia", "casi", "auto", "chicharra", "velo", "elixir",
+		"ataque", "no", "odio", "temporal", "cuórum", "dignísimo",
+		"facilismo", "letra", "nihilista", "expedición", "alma", "alveolar", "aparte",
+		"león", "animal", "como", "paria", "belleza", "modo", "natividad",
+		"justo", "ataque", "séquito", "pillo", "sed", "ex", "y", "voluminoso",
+		"temporalidad", "verdades", "racional", "asunción", "incidente", "marejada",
+		"placenta", "amanecer", "fuga", "previsor", "presentación", "lejos",
+		"necesariamente", "sospechoso", "adiposidad", "quindío", "pócima",
+		"voluble", "débito", "sintió", "accesorio", "falda", "sapiencia",
+		"volutas", "queso", "permacultura", "laudo", "soluciones", "entero",
+		"pan", "litro", "tonelada", "culpa", "libertario", "mosca", "dictado",
+		"reincidente", "nascimiento", "dolor", "escolar", "impedimento", "mínima",
+		"mayores", "repugnante", "dulce", "obcecado", "montaña", "enigma",
+		"total", "deletéreo", "décima", "cábala", "fotografía", "dolores",
+		"molesto", "olvido", "paciencia", "resiliencia", "voluntad", "molestias",
+		"magnífico", "distinción", "ovni", "marejada", "cerro", "torre", "y",
+		"abogada", "manantial", "corporal", "agua", "crepúsculo", "ataque", "desierto",
+		"laboriosamente", "angustia", "afortunado", "alma", "encefalograma",
+		"materialidad", "cosas", "o", "renuncia", "error", "menos", "conejo",
+		"abadía", "analfabeto", "remo", "fugacidad", "oficio", "en", "almácigo", "vos", "pan",
+		"represión", "números", "triste", "refugiado", "trote", "inventor",
+		"corchea", "repelente", "magma", "recusado", "patrón", "explícito",
+		"paloma", "síndrome", "inmune", "autoinmune", "comodidad",
+		"ley", "vietnamita", "demonio", "tasmania", "repeler", "apéndice",
+		"arquitecto", "columna", "yugo", "computador", "mula", "a", "propósito",
+		"fantasía", "alias", "rayo", "tenedor", "deleznable", "ventana", "cara",
+		"anemia", "corrupto"]
+};
+
+const langs = { latin, ru, sp };
+
+const defaultOptions$4 = {
+	wordCount: 30,
+	skipCommon: false,
+	lang: 'latin'
+};
+
+/**
+ * Replaces given parsed Emmet abbreviation node with nodes filled with
+ * Lorem Ipsum stub text.
+ * @param {Node} node
+ * @return {Node}
+ */
+var index$8 = function(node, options) {
+	options = Object.assign({}, defaultOptions$4, options);
+	const dict = langs[options.lang] || langs.latin;
+    const startWithCommon = !options.skipCommon && !isRepeating(node);
+
+	if (!node.repeat && !isRoot$1(node.parent)) {
+		// non-repeating element, insert text stub as a content of parent node
+		// and remove current one
+		node.parent.value = paragraph(dict, options.wordCount, startWithCommon);
+		node.remove();
+	} else {
+		// Replace named node with generated content
+		node.value = paragraph(dict, options.wordCount, startWithCommon);
+		node.name = node.parent.name ? resolveImplicitName(node.parent.name) : null;
+	}
+
+	return node;
+};
+
+function isRoot$1(node) {
+	return !node.parent;
+}
+
+/**
+ * Returns random integer between <code>from</code> and <code>to</code> values
+ * @param {Number} from
+ * @param {Number} to
+ * @returns {Number}
+ */
+function rand(from, to) {
+	return Math.floor(Math.random() * (to - from) + from);
+}
+
+/**
+ * @param {Array} arr
+ * @param {Number} count
+ * @returns {Array}
+ */
+function sample(arr, count) {
+	const len = arr.length;
+	const iterations = Math.min(len, count);
+	const result = new Set();
+
+	while (result.size < iterations) {
+		result.add(arr[rand(0, len)]);
+	}
+
+	return Array.from(result);
+}
+
+function choice(val) {
+	return val[rand(0, val.length - 1)];
+}
+
+function sentence(words, end) {
+	if (words.length) {
+		words = [capitalize(words[0])].concat(words.slice(1));
+	}
+
+	return words.join(' ') + (end || choice('?!...')); // more dots than question marks
+}
+
+function capitalize(word) {
+	return word[0].toUpperCase() + word.slice(1);
+}
+
+/**
+ * Insert commas at randomly selected words. This function modifies values
+ * inside <code>words</code> array
+ * @param {Array} words
+ */
+function insertCommas(words) {
+	if (words.length < 2) {
+		return words;
+	}
+
+	words = words.slice();
+	const len = words.length;
+	const hasComma = /,$/;
+	let totalCommas = 0;
+
+	if (len > 3 && len <= 6) {
+		totalCommas = rand(0, 1);
+	} else if (len > 6 && len <= 12) {
+		totalCommas = rand(0, 2);
+	} else {
+		totalCommas = rand(1, 4);
+	}
+
+	for (let i = 0, pos; i < totalCommas; i++) {
+		pos = rand(0, len - 2);
+		if (!hasComma.test(words[pos])) {
+			words[pos] += ',';
+		}
+	}
+
+	return words;
+}
+
+/**
+ * Generate a paragraph of "Lorem ipsum" text
+ * @param {Object} dict Words dictionary (see `lang/*.json`)
+ * @param {Number} wordCount Words count in paragraph
+ * @param {Boolean} startWithCommon Should paragraph start with common
+ * "lorem ipsum" sentence.
+ * @returns {String}
+ */
+function paragraph(dict, wordCount, startWithCommon) {
+	const result = [];
+	let totalWords = 0;
+	let words;
+
+	if (startWithCommon && dict.common) {
+		words = dict.common.slice(0, wordCount);
+		totalWords += words.length;
+		result.push(sentence(insertCommas(words), '.'));
+	}
+
+	while (totalWords < wordCount) {
+		words = sample(dict.words, Math.min(rand(2, 30), wordCount - totalWords));
+		totalWords += words.length;
+		result.push(sentence(insertCommas(words)));
+	}
+
+	return result.join(' ');
+}
+
+/**
+ * Check if given node is in repeating context, e.g. node itself or one of its
+ * parent is repeated
+ * @param  {Node}  node
+ * @return {Boolean}
+ */
+function isRepeating(node) {
+    while (node.parent) {
+        if (node.repeat && node.repeat.value && node.repeat.value > 1) {
+            return true;
+        }
+
+        node = node.parent;
+    }
+
+    return false;
+}
+
+// add lorem
+var reLorem = /^lorem([a-z]*)(\d*)$/i;
+var registry = new SnippetsRegistry(htmlSnippet);
+registry.get(0).set(reLorem, function (node) {
+    var option = {};
+    var _a = node.name.match(reLorem), lang = _a[1], wordCount = _a[2];
+    if (lang)
+        option.lang = lang;
+    if (wordCount)
+        option.wordCount = +wordCount;
+    return index$8(node, option);
+});
+var option$1 = __assign({}, defaultOption, { snippets: registry, profile: new Profile() });
 function expand$1(abbr) {
     var tree = index$3(abbr)
         .use(index$5, option$1.snippets)
