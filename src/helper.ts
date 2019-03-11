@@ -15,7 +15,7 @@ export function checkMonacoExists(
 ): monaco is typeof Monaco {
   if (!monaco)
     console.error(
-      "monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter"
+      "emmet-monaco-es: 'monaco' should be either declared on window or passed as second parameter"
     );
 
   return !!monaco;

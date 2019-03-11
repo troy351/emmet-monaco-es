@@ -2893,7 +2893,7 @@ var defaultOption = {
 };
 function checkMonacoExists(monaco) {
     if (!monaco)
-        console.error("monaco-emmet-es: 'monaco' should be either declared on window or passed as second parameter");
+        console.error("emmet-monaco-es: 'monaco' should be either declared on window or passed as second parameter");
     return !!monaco;
 }
 /**
