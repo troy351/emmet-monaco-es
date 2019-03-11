@@ -2896,11 +2896,8 @@ function checkMonacoExists(monaco) {
  * add completion provider
  * @param monaco monaco self
  * @param language added language
- * @param isLegalToken check if given token legal
+ * @param isLegalToken check whether given token is legal or not
  * @param getLegalSubstr get legal emmet substring from a string.
- * if whole string matches emmet rules, return it.
- * if a substring(right to left) split by white space matches emmet rules, return the substring.
- * if nothing matches, return empty string
  */
 function onCompletion(monaco, language, isLegalToken, getLegalSubstr) {
     if (typeof language === "string")
@@ -2973,8 +2970,7 @@ function expand(abbr) {
 }
 /**
  * almost the same behavior as VSCode's builtin emmet.
- * only triggered when string before text cursor(caret) matches emmet rules,
- * caret within html tag content area and suggest widget not visible,
+ * only available when string before text cursor(caret) matches emmet rules.
  */
 function emmetCSS(monaco) {
     if (monaco === void 0) { monaco = window.monaco; }
@@ -5910,8 +5906,7 @@ function expand$1(abbr) {
 }
 /**
  * almost the same behavior as VSCode's builtin emmet.
- * only triggered when string before text cursor(caret) matches emmet rules,
- * caret within html tag content area and suggest widget not visible,
+ * only available when string before text cursor(caret) matches emmet rules.
  */
 function emmetHTML(monaco) {
     if (monaco === void 0) { monaco = window.monaco; }

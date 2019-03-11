@@ -36,11 +36,8 @@ interface EmmetSet {
  * add completion provider
  * @param monaco monaco self
  * @param language added language
- * @param isLegalToken check if given token legal
+ * @param isLegalToken check whether given token is legal or not
  * @param getLegalSubstr get legal emmet substring from a string.
- * if whole string matches emmet rules, return it.
- * if a substring(right to left) split by white space matches emmet rules, return the substring.
- * if nothing matches, return empty string
  */
 export function onCompletion(
   monaco: typeof Monaco,

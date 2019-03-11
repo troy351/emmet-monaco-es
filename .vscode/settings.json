@@ -1,4 +1,7 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.fixAll.tslint": true
+  },
   "editor.fontFamily": "Source Code Pro, Menlo, Consolas, 'Courier New', monospace",
   "editor.quickSuggestions": {
     "strings": true
@@ -16,8 +19,6 @@
   },
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 5000,
-  "tslint.autoFixOnSave": true,
-  "tslint.enable": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsdk": "./node_modules/typescript/lib/"
 }

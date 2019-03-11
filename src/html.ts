@@ -36,8 +36,7 @@ function expand(abbr: string) {
 
 /**
  * almost the same behavior as VSCode's builtin emmet.
- * only triggered when string before text cursor(caret) matches emmet rules,
- * caret within html tag content area and suggest widget not visible,
+ * only available when string before text cursor(caret) matches emmet rules.
  */
 export default function emmetHTML(monaco = window.monaco) {
   if (!checkMonacoExists(monaco)) return;
