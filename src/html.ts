@@ -48,7 +48,7 @@ export default function emmetHTML(monaco = window.monaco) {
       return (
         (tokens[index].type === "" &&
           (index === 0 || tokens[index - 1].type === "delimiter.html")) ||
-        // #1 compatible with https://github.com/NeekSandhu/monaco-textmate
+        // #7 compatible with https://github.com/NeekSandhu/monaco-textmate
         tokens[0].type === "text.html.basic"
       );
     },
