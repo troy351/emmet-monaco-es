@@ -44,9 +44,10 @@ export default function emmetHTML(monaco = window.monaco) {
   return onCompletion(
     monaco,
     "html",
-    (tokens, index) =>
-      tokens[index].type === "" &&
-      (index === 0 || tokens[index - 1].type === "delimiter.html"),
+    (tokens, index) => {
+      return (tokens[index].type === "" && (index === 0 || (tokens[index - 1].type === "delimiter.html")) ||
+        (tokens[0].type === "text.html.basic"))
+    },
     str => {
       // empty or ends with white space, illegal
       if (str === "" || str.match(/\s$/)) return;
