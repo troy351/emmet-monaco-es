@@ -4443,7 +4443,7 @@ var emmetMonaco = (function (exports) {
     	options = Object.assign({}, defaultNodeOptions, options);
     	const node = outNode.node;
 
-    	outNode.indent = profile.indent(getIndentLevel$1(node, profile));
+    	outNode.indent = profile.indent(getIndentLevel$1(node));
     	outNode.newline = '\n';
 
     	// Do not format the very first node in output
@@ -5292,7 +5292,7 @@ var emmetMonaco = (function (exports) {
     var bem = function(tree, options) {
     	options = Object.assign({}, defaultOptions$3, options);
 
-    	tree.walk(node => expandClassNames(node, options));
+    	tree.walk(node => expandClassNames(node));
 
     	const lookup = createBlockLookup(tree);
     	tree.walk(node => expandShortNotation(node, lookup, options));
