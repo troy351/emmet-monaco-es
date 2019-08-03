@@ -2924,7 +2924,7 @@ function onCompletion(monaco, language, isLegalToken, getLegalSubstr) {
         language = [language];
     var providers = language.map(function (lang) {
         return monaco.languages.registerCompletionItemProvider(lang, {
-            triggerCharacters: "1234567890>+-^*()#.[]$@{}=".split(""),
+            triggerCharacters: ">+-^*()#.[]$@{}=!:".split(""),
             provideCompletionItems: function (model, position) {
                 var column = position.column, lineNumber = position.lineNumber;
                 // there is nothing before caret, return
@@ -5965,7 +5965,7 @@ function emmetHTML(monaco) {
         // starts with illegal character
         // note: emmet self allowed number element like `<1></1>`,
         // but obviously it's not fit with html standard, so skip it
-        if (!str.match(/^[a-zA-Z[(.#]/))
+        if (!str.match(/^[a-zA-Z[(.#!]/))
             return;
         // run expand to test the final result
         // `field` was used to set proper caret position after emmet
