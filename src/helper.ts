@@ -49,7 +49,7 @@ export function onCompletion(
 
   const providers = language.map(lang =>
     monaco.languages.registerCompletionItemProvider(lang, {
-      triggerCharacters: "1234567890>+-^*()#.[]$@{}=".split(""),
+      triggerCharacters: ">+-^*()#.[]$@{}=!:".split(""),
       provideCompletionItems: (model, position) => {
         const { column, lineNumber } = position;
 
