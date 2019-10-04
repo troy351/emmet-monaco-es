@@ -2934,7 +2934,7 @@ function onCompletion(monaco, language, isLegalToken, getLegalSubstr) {
                 }
                 // inspired by `monaco.editor.tokenize`.
                 // see source map from `https://microsoft.github.io/monaco-editor/`
-                var tokenizationSupport = model._tokens.tokenizationSupport;
+                var tokenizationSupport = model._tokenization._tokenizationSupport;
                 var state = tokenizationSupport.getInitialState();
                 var tokenizationResult;
                 for (var i = 1; i <= lineNumber; i++) {
