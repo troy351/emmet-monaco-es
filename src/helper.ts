@@ -63,7 +63,7 @@ export function onCompletion(
 
         // inspired by `monaco.editor.tokenize`.
         // see source map from `https://microsoft.github.io/monaco-editor/`
-        const tokenizationSupport = (model as any)._tokenization.tokenizationSupport;
+        const tokenizationSupport = (model as any)._tokenization._tokenizationSupport;
         let state = tokenizationSupport.getInitialState();
         let tokenizationResult;
 
