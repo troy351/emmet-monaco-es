@@ -2937,7 +2937,8 @@ var emmetMonaco = (function (exports) {
                     }
                     // inspired by `monaco.editor.tokenize`.
                     // see source map from `https://microsoft.github.io/monaco-editor/`
-                    var tokenizationSupport = model._tokens.tokenizationSupport;
+                    // `_tokenization._tokenizationSupport` for version 0.18.0 and above
+                    var tokenizationSupport = model._tokens.tokenizationSupport || model._tokenization._tokenizationSupport;
                     var state = tokenizationSupport.getInitialState();
                     var tokenizationResult;
                     for (var i = 1; i <= lineNumber; i++) {
@@ -2986,7 +2987,7 @@ var emmetMonaco = (function (exports) {
         };
     }
 
-    var option = __assign({}, defaultOption, { snippets: new SnippetsRegistry(cssSnippet), profile: new Profile() });
+    var option = __assign(__assign({}, defaultOption), { snippets: new SnippetsRegistry(cssSnippet), profile: new Profile() });
     function expand(abbr) {
         var tree = index$2(abbr).use(index$1, option.snippets);
         return index(tree, option.profile, option);
@@ -5920,7 +5921,7 @@ var emmetMonaco = (function (exports) {
             option.wordCount = +wordCount;
         return index$8(node, option);
     });
-    var option$1 = __assign({}, defaultOption, { snippets: registry, profile: new Profile() });
+    var option$1 = __assign(__assign({}, defaultOption), { snippets: registry, profile: new Profile() });
     function expand$1(abbr) {
         var tree = index$3(abbr)
             .use(index$5, option$1.snippets)
