@@ -83,7 +83,7 @@ export default function emmetHTML(monaco = window.monaco) {
       // starts with illegal character
       // note: emmet self allowed number element like `<1></1>`,
       // but obviously it's not fit with html standard, so skip it
-      if (!str.match(/^[a-zA-Z[(.#]/)) return;
+      if (!str.match(/^[a-zA-Z[(.#!]/)) return;
 
       // run expand to test the final result
       // `field` was used to set proper caret position after emmet
