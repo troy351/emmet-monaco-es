@@ -35,12 +35,12 @@
     "@emmetio/stylesheet-formatters": "^0.2.1"
   },
   "devDependencies": {
-    "rollup": "^1.23.1",
+    "rollup": "^1.27.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^1.10.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.2"
   }
 }
