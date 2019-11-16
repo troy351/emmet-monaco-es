@@ -6,27 +6,25 @@
   <a href="https://www.npmjs.com/package/emmet-monaco-es"><img src="https://img.shields.io/npm/l/emmet-monaco-es.svg" alt="License"></a>
 </p>
 
-Emmet Plugin for [monaco-editor](https://github.com/Microsoft/monaco-editor)
+Emmet Support for [Monaco Editor](https://github.com/Microsoft/monaco-editor)
 
-**compatible with monaco-editor v0.12.0 and above**
+## Compatibility
 
-Treeshaking support
+Compatible with Monaco Editor `v0.12.0` and above
 
-Source codes are well commented if you want to figure out how it works
+## Advantage
 
-# Advantage
+- Almost the same as VSCode's built-in emmet, integrated with completion provider.
+- `HTML` / `CSS` / `LESS` / `SCSS` support
+- Treeshaking support
 
-Almost the same as VSCode's built-in emmet, integrated with completion provider.
-
-Support `HTML`, `CSS`, `LESS`, `SCSS`
-
-# Install
+## Install
 
 ```shell
 $ npm install emmet-monaco-es
 ```
 
-# Example
+## Usage
 
 ES Module
 
@@ -55,6 +53,6 @@ Browser
 </script>
 ```
 
-# License
+## License
 
 MIT
