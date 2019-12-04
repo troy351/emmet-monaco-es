@@ -1,7 +1,9 @@
-import typescript from "rollup-plugin-typescript";
-import commonjs from "rollup-plugin-commonjs";
-import resolve from "rollup-plugin-node-resolve";
+import typescript from "@rollup/plugin-typescript";
+import resolve from "@rollup/plugin-node-resolve";
+import json from "@rollup/plugin-json";
+import buble from '@rollup/plugin-buble';
 import { terser } from "rollup-plugin-terser";
+import commonjs from "rollup-plugin-commonjs";
 
 export default [
   {
@@ -30,12 +32,8 @@ export default [
       commonjs(),
       resolve(),
       typescript(),
-      {
-        name: "json",
-        transform(code, id) {
-          return id.slice(-5) === ".json" ? `export default ${code}` : null;
-        }
-      }
+      json(),
+      buble()
     ],
     external: ["monaco-editor"]
   },
@@ -65,13 +63,9 @@ export default [
       commonjs(),
       resolve(),
       typescript(),
-      {
-        name: "json",
-        transform(code, id) {
-          return id.slice(-5) === ".json" ? `export default ${code}` : null;
-        }
-      },
-      terser()
+      json(),
+      terser(),
+      buble()
     ],
     external: ["monaco-editor"]
   }
