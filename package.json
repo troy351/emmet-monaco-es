@@ -35,7 +35,7 @@
     "@emmetio/stylesheet-formatters": "^0.2.1"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.20.0",
+    "@rollup/plugin-buble": "^0.21.0",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
     "@rollup/plugin-typescript": "^2.0.1",
