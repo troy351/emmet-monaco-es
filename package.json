@@ -37,7 +37,7 @@
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.0",
     "@rollup/plugin-json": "^4.0.0",
-    "@rollup/plugin-node-resolve": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^7.0.0",
     "@rollup/plugin-typescript": "^2.0.1",
     "rollup": "^1.27.11",
     "rollup-plugin-commonjs": "^10.1.0",
