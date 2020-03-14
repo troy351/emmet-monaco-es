@@ -32,7 +32,8 @@
     "@emmetio/output-profile": "^0.1.6",
     "@emmetio/snippets": "^0.2.12",
     "@emmetio/snippets-registry": "^0.3.1",
-    "@emmetio/stylesheet-formatters": "^0.2.1"
+    "@emmetio/stylesheet-formatters": "^0.2.1",
+    "@emmetio/variable-resolver": "^0.2.1"
   },
   "devDependencies": {
     "@rollup/plugin-buble": "^0.21.1",

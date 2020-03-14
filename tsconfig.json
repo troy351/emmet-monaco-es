@@ -32,7 +32,8 @@
       "@emmetio/abbreviation": ["types/emmetio__abbreviation"],
       "@emmetio/markup-formatters": ["types/emmetio__markup-formatters"],
       "@emmetio/html-transform": ["types/emmetio__html-transform"],
-      "@emmetio/lorem": ["types/emmetio__lorem"]
+      "@emmetio/lorem": ["types/emmetio__lorem"],
+      "@emmetio/variable-resolver": ["types/emmetio__variable-resolver"]
     }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],

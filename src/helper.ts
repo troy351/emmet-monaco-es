@@ -7,7 +7,12 @@ declare global {
 }
 
 export const defaultOption = {
-  field: (index: number) => "$" + index
+  field: (index: number, placeholder: string) => `\${${index}${placeholder ? ':' + placeholder : ''}}`,
+  variables: {
+    lang: 'en',
+    locale: 'en-US',
+    charset: 'UTF-8'
+  }
 };
 
 export function checkMonacoExists(
@@ -118,7 +123,8 @@ export function onCompletion(
                 column
               ),
               detail: "Emmet Abbreviation",
-              documentation: expandText.replace(/\$\d+/g, "|")
+              // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L267
+              documentation: expandText.replace(/([^\\])\$\{\d+\}/g, '$1|').replace(/\$\{\d+:([^\}]+)\}/g, '$1')
             }
           ],
           incomplete: true

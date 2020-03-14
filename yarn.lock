@@ -137,6 +137,11 @@
     "@emmetio/field-parser" "^0.3.0"
     "@emmetio/output-renderer" "^0.1.1"
 
+"@emmetio/variable-resolver@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@emmetio/variable-resolver/-/variable-resolver-0.2.1.tgz#ce11b51584669a340986690cf0ec269e44c63fba"
+  integrity sha1-zhG1FYRmmjQJhmkM8OwmnkTGP7o=
+
 "@rollup/plugin-buble@^0.21.1":
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/@rollup/plugin-buble/-/plugin-buble-0.21.1.tgz#186413c2f27770bea4cefa86ba1c0aafd9593339"

@@ -6,6 +6,7 @@ import htmlSnippet from "@emmetio/snippets/html.json";
 import SnippetsRegistry from "@emmetio/snippets-registry";
 import Profile from "@emmetio/output-profile";
 import lorem, { LoremOption } from "@emmetio/lorem";
+import replaceVariables from "@emmetio/variable-resolver";
 
 import { checkMonacoExists, onCompletion, defaultOption } from "./helper";
 
@@ -29,6 +30,7 @@ const option = {
 function expand(abbr: string) {
   const tree = parseAbbreviation(abbr)
     .use(resolveSnippets, option.snippets)
+    .use(replaceVariables, option.variables)
     .use(transform, null, null);
 
   return format(tree, option.profile, option);
@@ -44,14 +46,11 @@ export default function emmetHTML(monaco = window.monaco) {
   return onCompletion(
     monaco,
     "html",
-    (tokens, index) => {
-      return (
-        (tokens[index].type === "" &&
-          (index === 0 || tokens[index - 1].type === "delimiter.html")) ||
-        // #7 compatible with https://github.com/NeekSandhu/monaco-textmate
-        tokens[0].type === "text.html.basic"
-      );
-    },
+    (tokens, index) =>
+      (tokens[index].type === "" &&
+        (index === 0 || tokens[index - 1].type === "delimiter.html")) ||
+      // #7 compatible with https://github.com/NeekSandhu/monaco-textmate
+      tokens[0].type === "text.html.basic",
     str => {
       // empty or ends with white space, illegal
       if (str === "" || str.match(/\s$/)) return;
