@@ -24,7 +24,12 @@ registry.get(0).set(reLorem, node => {
 const option = {
   ...defaultOption,
   snippets: registry,
-  profile: new Profile()
+  profile: new Profile(),
+  variables: {
+    lang: 'en',
+    locale: 'en-US',
+    charset: 'UTF-8'
+  },
 };
 
 function expand(abbr: string) {

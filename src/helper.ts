@@ -7,12 +7,7 @@ declare global {
 }
 
 export const defaultOption = {
-  field: (index: number, placeholder: string) => `\${${index}${placeholder ? ':' + placeholder : ''}}`,
-  variables: {
-    lang: 'en',
-    locale: 'en-US',
-    charset: 'UTF-8'
-  }
+  field: (index: number, placeholder: string) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
 };
 
 export function checkMonacoExists(
