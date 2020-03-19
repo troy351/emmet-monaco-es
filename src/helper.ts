@@ -38,15 +38,15 @@ interface EmmetSet {
  * @param monaco monaco self
  * @param language added language
  * @param isLegalToken check whether given token is legal or not
- * @param getLegalSubstr get legal emmet substring from a string.
+ * @param getLegalEmmetSets get legal emmet substring from a string.
  */
 export function onCompletion(
   monaco: typeof Monaco,
   language: string | string[],
   isLegalToken: (tokens: Token[], index: number) => boolean,
-  getLegalSubstr: (emmetText: string) => EmmetSet[] | undefined,
-  isStyleSheet = false
+  getLegalEmmetSets: (emmetText: string) => EmmetSet[] | undefined
 ) {
+  const isHTML = language === "html";
   if (typeof language === "string") language = [language];
 
   const providers = language.map(lang =>
@@ -83,7 +83,7 @@ export function onCompletion(
 
         const tokens: Token[] = tokenizationResult.tokens;
 
-        let setArr: ReturnType<typeof getLegalSubstr>;
+        let setArr: ReturnType<typeof getLegalEmmetSets>;
 
         // get token type at current column
         for (let i = tokens.length - 1; i >= 0; i--) {
@@ -93,7 +93,7 @@ export function onCompletion(
             // to prevent emmet triggered within attributes
             if (isLegalToken(tokens, i)) {
               // get content between current token offset and current cursor column
-              setArr = getLegalSubstr(
+              setArr = getLegalEmmetSets(
                 model
                   .getLineContent(lineNumber)
                   .substring(tokens[i].offset, column - 1)
@@ -107,12 +107,12 @@ export function onCompletion(
 
         return {
           suggestions: setArr.map(({ emmetText, expandText }) => {
-            const label = isStyleSheet
-              ? // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
+            const label = isHTML
+              ? emmetText
+              : // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
                 expandText
                   .replace(/([^\\])\$\{\d+\}/g, "$1")
-                  .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
-              : emmetText;
+                  .replace(/\$\{\d+:([^\}]+)\}/g, "$1");
 
             return {
               kind: monaco.languages.CompletionItemKind.Property,
