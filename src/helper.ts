@@ -44,7 +44,7 @@ export function onCompletion(
   monaco: typeof Monaco,
   language: string | string[],
   isLegalToken: (tokens: Token[], index: number) => boolean,
-  getLegalSubstr: (emmetText: string) => EmmetSet | undefined,
+  getLegalSubstr: (emmetText: string) => EmmetSet[] | undefined,
   isStyleSheet = false
 ) {
   if (typeof language === "string") language = [language];
@@ -83,7 +83,7 @@ export function onCompletion(
 
         const tokens: Token[] = tokenizationResult.tokens;
 
-        let set: EmmetSet | undefined = undefined;
+        let setArr: ReturnType<typeof getLegalSubstr>;
 
         // get token type at current column
         for (let i = tokens.length - 1; i >= 0; i--) {
@@ -93,7 +93,7 @@ export function onCompletion(
             // to prevent emmet triggered within attributes
             if (isLegalToken(tokens, i)) {
               // get content between current token offset and current cursor column
-              set = getLegalSubstr(
+              setArr = getLegalSubstr(
                 model
                   .getLineContent(lineNumber)
                   .substring(tokens[i].offset, column - 1)
@@ -103,20 +103,18 @@ export function onCompletion(
           }
         }
 
-        if (!set) return;
-
-        const { emmetText, expandText } = set;
-
-        const label = isStyleSheet
-          ? // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
-            expandText
-              .replace(/([^\\])\$\{\d+\}/g, "$1")
-              .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
-          : emmetText;
+        if (!setArr) return;
 
         return {
-          suggestions: [
-            {
+          suggestions: setArr.map(({ emmetText, expandText }) => {
+            const label = isStyleSheet
+              ? // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
+                expandText
+                  .replace(/([^\\])\$\{\d+\}/g, "$1")
+                  .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
+              : emmetText;
+
+            return {
               kind: monaco.languages.CompletionItemKind.Property,
               label: label,
               // Workaround for the main expanded abbr not appearing before the snippet suggestions
@@ -135,8 +133,8 @@ export function onCompletion(
               documentation: expandText
                 .replace(/([^\\])\$\{\d+\}/g, "$1|")
                 .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
-            }
-          ],
+            };
+          }),
           incomplete: true
         };
       }

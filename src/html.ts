@@ -21,15 +21,19 @@ registry.get(0).set(reLorem, node => {
   return lorem(node, option);
 });
 
+const markupSnippetKeys = registry
+  .all({ type: "string" })
+  .map(snippet => snippet.key);
+
 const option = {
   ...defaultOption,
   snippets: registry,
   profile: new Profile(),
   variables: {
-    lang: 'en',
-    locale: 'en-US',
-    charset: 'UTF-8'
-  },
+    lang: "en",
+    locale: "en-US",
+    charset: "UTF-8"
+  }
 };
 
 function expand(abbr: string) {
@@ -89,13 +93,20 @@ export default function emmetHTML(monaco = window.monaco) {
       // but obviously it's not fit with html standard, so skip it
       if (!str.match(/^[a-zA-Z[(.#!]/)) return;
 
-      // run expand to test the final result
-      // `field` was used to set proper caret position after emmet
+      // provide all possible abbreviation completions
+      const strlen = str.length;
+      // match all snippet starts with the given `str` but not `str` itself
+      const strArr = markupSnippetKeys.filter(
+        key => key.length > strlen && key.slice(0, strlen) === str
+      );
+      // prepend `str` itself
+      strArr.unshift(str);
+
       try {
-        return {
-          emmetText: str,
-          expandText: expand(str)
-        };
+        return strArr.map(s => ({
+          emmetText: s,
+          expandText: expand(s)
+        }));
       } catch {
         return;
       }

@@ -43,13 +43,13 @@ export default function emmetCSS(monaco = window.monaco) {
 
       if (!str) return;
 
-      // run expand to test the final result
-      // `field` was used to set proper caret position after emmet
       try {
-        return {
-          emmetText: str,
-          expandText: expand(str)
-        };
+        return [
+          {
+            emmetText: str,
+            expandText: expand(str)
+          }
+        ];
       } catch {
         return;
       }
