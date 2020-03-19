@@ -24,6 +24,8 @@ registry.get(0).set(reLorem, node => {
 const markupSnippetKeys = registry
   .all({ type: "string" })
   .map(snippet => snippet.key);
+// add extra lorem
+markupSnippetKeys.push("lorem");
 
 const option = {
   ...defaultOption,
