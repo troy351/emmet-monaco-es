@@ -53,6 +53,7 @@ export default function emmetCSS(monaco = window.monaco) {
       } catch {
         return;
       }
-    }
+    },
+    true
   );
 }

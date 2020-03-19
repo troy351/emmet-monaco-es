@@ -7,7 +7,8 @@ declare global {
 }
 
 export const defaultOption = {
-  field: (index: number, placeholder: string) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
+  field: (index: number, placeholder: string) =>
+    `\${${index}${placeholder ? ":" + placeholder : ""}}`
 };
 
 export function checkMonacoExists(
@@ -43,7 +44,8 @@ export function onCompletion(
   monaco: typeof Monaco,
   language: string | string[],
   isLegalToken: (tokens: Token[], index: number) => boolean,
-  getLegalSubstr: (emmetText: string) => EmmetSet | undefined
+  getLegalSubstr: (emmetText: string) => EmmetSet | undefined,
+  isStyleSheet = false
 ) {
   if (typeof language === "string") language = [language];
 
@@ -64,7 +66,9 @@ export function onCompletion(
         // inspired by `monaco.editor.tokenize`.
         // see source map from `https://microsoft.github.io/monaco-editor/`
         // `_tokenization._tokenizationSupport` for version 0.18.0 and above
-        const tokenizationSupport = (model as any)._tokens.tokenizationSupport || (model as any)._tokenization._tokenizationSupport;
+        const tokenizationSupport =
+          (model as any)._tokens.tokenizationSupport ||
+          (model as any)._tokenization._tokenizationSupport;
         let state = tokenizationSupport.getInitialState();
         let tokenizationResult;
 
@@ -103,11 +107,20 @@ export function onCompletion(
 
         const { emmetText, expandText } = set;
 
+        const label = isStyleSheet
+          ? // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
+            expandText
+              .replace(/([^\\])\$\{\d+\}/g, "$1")
+              .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
+          : emmetText;
+
         return {
           suggestions: [
             {
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              label: emmetText,
+              kind: monaco.languages.CompletionItemKind.Property,
+              label: label,
+              // Workaround for the main expanded abbr not appearing before the snippet suggestions
+              sortText: "0" + label,
               insertText: expandText,
               insertTextRules:
                 monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -119,7 +132,9 @@ export function onCompletion(
               ),
               detail: "Emmet Abbreviation",
               // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L267
-              documentation: expandText.replace(/([^\\])\$\{\d+\}/g, '$1|').replace(/\$\{\d+:([^\}]+)\}/g, '$1')
+              documentation: expandText
+                .replace(/([^\\])\$\{\d+\}/g, "$1|")
+                .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
             }
           ],
           incomplete: true
