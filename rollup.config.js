@@ -1,9 +1,9 @@
 import typescript from "@rollup/plugin-typescript";
 import resolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
-import buble from '@rollup/plugin-buble';
+import buble from "@rollup/plugin-buble";
 import { terser } from "rollup-plugin-terser";
-import commonjs from "rollup-plugin-commonjs";
+import commonjs from "@rollup/plugin-commonjs";
 
 export default [
   {
