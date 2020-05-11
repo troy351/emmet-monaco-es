@@ -27,14 +27,12 @@
     "@emmetio/stream-reader" "^2.2.0"
     "@emmetio/stream-reader-utils" "^0.1.0"
 
-"@emmetio/abbreviation@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@emmetio/abbreviation/-/abbreviation-0.7.0.tgz#f65b2024699378bfa042607027a236b240ddc009"
-  integrity sha512-CjLWtUCyh2nRgG/TkBruPTNI03i+b2Bau9UP7g0zgWdeV6bBjNC8CxX106ZdMekK3I/RmTrWuzVV9b+7nwqKXA==
+"@emmetio/abbreviation@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@emmetio/abbreviation/-/abbreviation-2.0.1.tgz#d6857f3bdb81bf99024ff37165f1329bdcdd96dc"
+  integrity sha512-/KI2WBU6KpE5KiEzyvrvQIK6sIG8C/rJ4fmIS4JyLKL+5W98HaUwrfidN3cUFTcCWGW+TQhRgYXjHdm2RCTt3g==
   dependencies:
-    "@emmetio/node" "^0.1.2"
-    "@emmetio/stream-reader" "^2.2.0"
-    "@emmetio/stream-reader-utils" "^0.1.0"
+    "@emmetio/scanner" "^1.0.0"
 
 "@emmetio/css-abbreviation@^0.4.0":
   version "0.4.0"
@@ -108,6 +106,11 @@
   integrity sha1-Ds4RrM6SmFB4aK7SGrUlPh6wgvg=
   dependencies:
     "@emmetio/field-parser" "^0.3.0"
+
+"@emmetio/scanner@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@emmetio/scanner/-/scanner-1.0.0.tgz#065b2af6233fe7474d44823e3deb89724af42b5f"
+  integrity sha512-8HqW8EVqjnCmWXVpqAOZf+EGESdkR27odcMMMGefgKXtar00SoYNSryGv//TELI4T3QFsECo78p+0lmalk/CFA==
 
 "@emmetio/snippets-registry@^0.3.1":
   version "0.3.1"
