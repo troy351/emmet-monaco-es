@@ -9,10 +9,14 @@ import lorem, { LoremOption } from "@emmetio/lorem";
 import replaceVariables from "@emmetio/variable-resolver";
 
 import { checkMonacoExists, onCompletion, defaultOption } from "./helper";
+import { htmlData } from './htmlData';
+
+htmlData.tags.forEach(tag => htmlSnippet[tag as keyof typeof htmlSnippet] = htmlSnippet[tag as keyof typeof htmlSnippet] || tag)
+const registry = new SnippetsRegistry(htmlSnippet);
 
 // add lorem
 const reLorem = /^lorem([a-z]*)(\d*)$/i;
-const registry = new SnippetsRegistry(htmlSnippet);
+
 registry.get(0).set(reLorem, node => {
   const option: LoremOption = {} as any;
   const [, lang, wordCount] = node.name.match(reLorem)!;
