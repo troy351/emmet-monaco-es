@@ -53,6 +53,10 @@ Browser
 </script>
 ```
 
+## Limitation
+
+Do **NOT** support Emmet for embed CSS inside HTML
+
 ## License
 
 MIT
