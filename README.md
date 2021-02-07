@@ -55,7 +55,7 @@ Browser
 
 ## Limitation
 
-Do **NOT** support Emmet for embed CSS inside HTML
+Does **NOT** support Emmet for embed CSS inside HTML
 
 ## License
 
