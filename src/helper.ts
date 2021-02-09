@@ -63,18 +63,16 @@ export function onCompletion(
           return;
         }
 
-        // inspired by `monaco.editor.tokenize`.
-        // see source map from `https://microsoft.github.io/monaco-editor/`
-        // `_tokenization._tokenizationSupport` for version 0.18.0 and above
-        const tokenizationSupport =
-          (model as any)._tokens.tokenizationSupport ||
-          (model as any)._tokenization._tokenizationSupport;
+        // inspired by `monaco.editor.tokenize`
+        // see source map from `https://microsoft.github.io/monaco-editor/`    
+        const tokenizationSupport = (model as any)._tokenization._tokenizationSupport;
         let state = tokenizationSupport.getInitialState();
         let tokenizationResult;
 
         for (let i = 1; i <= lineNumber; i++) {
           tokenizationResult = tokenizationSupport.tokenize(
             model.getLineContent(i),
+            true,
             state,
             0
           );

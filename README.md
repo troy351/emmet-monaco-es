@@ -10,7 +10,9 @@ Emmet Support for [Monaco Editor](https://github.com/Microsoft/monaco-editor)
 
 ## Compatibility
 
-Compatible with Monaco Editor `v0.12.0` and above
+Compatible with Monaco Editor `v0.22.0` and above.
+
+_If you are using old version of Monaco Editor, Please use `v4.4.2` of this lib._
 
 ## Advantage
 
