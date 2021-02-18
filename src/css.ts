@@ -13,7 +13,7 @@ const option = {
   profile: new Profile(),
 };
 
-function expand(abbr: string) {
+export function expand(abbr: string) {
   const tree = parseAbbreviation(abbr).use(resolveSnippets, option.snippets);
   return format(tree, option.profile, option);
 }

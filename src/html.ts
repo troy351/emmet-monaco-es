@@ -46,7 +46,7 @@ const option = {
   },
 };
 
-function expand(abbr: string) {
+export function expand(abbr: string) {
   const tree = parseAbbreviation(abbr)
     .use(resolveSnippets, option.snippets)
     .use(replaceVariables, option.variables)

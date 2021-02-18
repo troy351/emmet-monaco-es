@@ -6,5 +6,5 @@ declare module "@emmetio/markup-formatters" {
     tree: Tree,
     profile: Profile,
     option: any
-  ): any;
+  ): string;
 }

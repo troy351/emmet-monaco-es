@@ -34,25 +34,25 @@
     <script src="../dist/emmet-monaco.js"></script>
     <script>
       require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
-      require(["vs/editor/editor.main"], function() {
+      require(["vs/editor/editor.main"], function () {
         var containers = document.getElementsByClassName("container");
 
         emmetMonaco.emmetHTML();
         monaco.editor.create(containers[0], {
           value: "",
-          language: "html"
+          language: "html",
         });
 
         emmetMonaco.emmetCSS();
         monaco.editor.create(containers[1], {
           value: "",
-          language: "css"
+          language: "css",
         });
 
         emmetMonaco.emmetJSX();
         monaco.editor.create(containers[2], {
           value: "",
-          language: "javascript"
+          language: "javascript",
         });
       });
     </script>

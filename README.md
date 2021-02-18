@@ -30,16 +30,18 @@ $ npm install emmet-monaco-es
 
 #### NOTE
 
+The `emmet` functionality was bind to language features not to a specific editor instance.
+
 - `emmetHTML` works for `HTML`
 - `emmetCSS` works for `CSS` / `LESS` / `SCSS`
 - `emmetJSX` works for `JSX` / `TSX`
 
-**Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`**
+_Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`_
 
 #### ESM
 
 ```javascript
-import { emmetHTML, emmetCSS, emmetJSX } from "emmet-monaco-es";
+import { emmetHTML, emmetCSS, emmetJSX, expandHTML, expandCSS } from "emmet-monaco-es";
 
 // `emmetHTML` , `emmetCSS` and `emmetJSX` are used the same way
 const dispose = emmetHTML(
@@ -50,6 +52,10 @@ const dispose = emmetHTML(
 
 // run it if you want to dispose emmet
 dispose();
+
+// internal expand API, if you want to extend functionality with emmet
+expandHTML('a'); // <a href="${1}">${2}</a>
+expandCSS('fz14'); // font-size: 14px;
 ```
 
 #### Browser
