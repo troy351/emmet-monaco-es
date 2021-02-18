@@ -8,7 +8,7 @@ declare global {
 
 export const defaultOption = {
   field: (index: number, placeholder: string) =>
-    `\${${index}${placeholder ? ":" + placeholder : ""}}`
+    `\${${index}${placeholder ? ":" + placeholder : ""}}`,
 };
 
 export function checkMonacoExists(
@@ -37,19 +37,20 @@ interface EmmetSet {
  * add completion provider
  * @param monaco monaco self
  * @param language added language
+ * @param isMarkup is markup language
  * @param isLegalToken check whether given token is legal or not
  * @param getLegalEmmetSets get legal emmet substring from a string.
  */
 export function onCompletion(
   monaco: typeof Monaco,
   language: string | string[],
+  isMarkup: boolean,
   isLegalToken: (tokens: Token[], index: number) => boolean,
   getLegalEmmetSets: (emmetText: string) => EmmetSet[] | undefined
 ) {
-  const isHTML = language === "html";
   if (typeof language === "string") language = [language];
 
-  const providers = language.map(lang =>
+  const providers = language.map((lang) =>
     monaco.languages.registerCompletionItemProvider(lang, {
       triggerCharacters: ">+-^*()#.[]$@{}=!:%".split(""),
       provideCompletionItems: (model, position) => {
@@ -64,8 +65,9 @@ export function onCompletion(
         }
 
         // inspired by `monaco.editor.tokenize`
-        // see source map from `https://microsoft.github.io/monaco-editor/`    
-        const tokenizationSupport = (model as any)._tokenization._tokenizationSupport;
+        // see source map from `https://microsoft.github.io/monaco-editor/`
+        const tokenizationSupport = (model as any)._tokenization
+          ._tokenizationSupport;
         let state = tokenizationSupport.getInitialState();
         let tokenizationResult;
 
@@ -105,7 +107,7 @@ export function onCompletion(
 
         return {
           suggestions: setArr.map(({ emmetText, expandText }) => {
-            const label = isHTML
+            const label = isMarkup
               ? emmetText
               : // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
                 expandText
@@ -115,8 +117,7 @@ export function onCompletion(
             return {
               kind: monaco.languages.CompletionItemKind.Property,
               label: label,
-              // Workaround for the main expanded abbr not appearing before the snippet suggestions
-              sortText: "0" + label,
+              sortText: label,
               insertText: expandText,
               insertTextRules:
                 monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -130,16 +131,16 @@ export function onCompletion(
               // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L267
               documentation: expandText
                 .replace(/([^\\])\$\{\d+\}/g, "$1|")
-                .replace(/\$\{\d+:([^\}]+)\}/g, "$1")
+                .replace(/\$\{\d+:([^\}]+)\}/g, "$1"),
             };
           }),
-          incomplete: true
+          incomplete: true,
         };
-      }
+      },
     })
   );
 
   return () => {
-    providers.forEach(provider => provider.dispose());
+    providers.forEach((provider) => provider.dispose());
   };
 }

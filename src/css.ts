@@ -10,7 +10,7 @@ import { checkMonacoExists, onCompletion, defaultOption } from "./helper";
 const option = {
   ...defaultOption,
   snippets: new SnippetsRegistry(cssSnippet),
-  profile: new Profile()
+  profile: new Profile(),
 };
 
 function expand(abbr: string) {
@@ -28,18 +28,16 @@ export default function emmetCSS(monaco = window.monaco) {
   return onCompletion(
     monaco,
     ["css", "less", "scss"],
+    false,
     (tokens, index) =>
       // stop emmet when at attribute.value
       tokens[index].type.substring(0, 15) !== "attribute.value",
-    str => {
+    (str) => {
       // empty or ends with white space, illegal
       if (str === "" || str.match(/\s$/)) return;
 
       // find last substring after `{` or `}` or `;`
-      str = str
-        .trim()
-        .split(/{|}|;/)
-        .pop()!;
+      str = str.trim().split(/{|}|;/).pop()!;
 
       if (!str) return;
 
@@ -47,8 +45,8 @@ export default function emmetCSS(monaco = window.monaco) {
         return [
           {
             emmetText: str,
-            expandText: expand(str)
-          }
+            expandText: expand(str),
+          },
         ];
       } catch {
         return;

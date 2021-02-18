@@ -13,3 +13,4 @@ CVS
 node_modules/
 .history
 npm-debug.log
+example/

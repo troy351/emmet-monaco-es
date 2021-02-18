@@ -8,7 +8,7 @@
     <style>
       body > div {
         float: left;
-        width: 50%;
+        width: 33.333%;
       }
 
       .container {
@@ -24,6 +24,10 @@
     </div>
     <div class="css">
       <h2>CSS</h2>
+      <div class="container"></div>
+    </div>
+    <div class="jsx">
+      <h2>JSX</h2>
       <div class="container"></div>
     </div>
     <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
@@ -43,6 +47,12 @@
         monaco.editor.create(containers[1], {
           value: "",
           language: "css"
+        });
+
+        emmetMonaco.emmetJSX();
+        monaco.editor.create(containers[2], {
+          value: "",
+          language: "javascript"
         });
       });
     </script>

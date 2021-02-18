@@ -17,7 +17,7 @@ _If you are using old version of Monaco Editor, Please use `v4.4.2` of this lib.
 ## Advantage
 
 - Almost the same as VSCode's built-in emmet, integrated with completion provider.
-- `HTML` / `CSS` / `LESS` / `SCSS` support
+- `HTML` / `CSS` / `LESS` / `SCSS` / `JSX` / `TSX` support
 - Treeshaking support
 
 ## Install
@@ -28,12 +28,20 @@ $ npm install emmet-monaco-es
 
 ## Usage
 
-ES Module
+#### NOTE
+
+- `emmetHTML` works for `HTML`
+- `emmetCSS` works for `CSS` / `LESS` / `SCSS`
+- `emmetJSX` works for `JSX` / `TSX`
+
+**Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`**
+
+#### ESM
 
 ```javascript
-import { emmetHTML, emmetCSS } from "emmet-monaco-es";
+import { emmetHTML, emmetCSS, emmetJSX } from "emmet-monaco-es";
 
-// both `emmetHTML` and `emmetCSS` are used the same way
+// `emmetHTML` , `emmetCSS` and `emmetJSX` are used the same way
 const dispose = emmetHTML(
   // monaco-editor it self. If not provided, will use window.monaco instead.
   // This could make the plugin support both ESM and AMD loaded monaco-editor
@@ -44,7 +52,7 @@ const dispose = emmetHTML(
 dispose();
 ```
 
-Browser
+#### Browser
 
 ```html
 <script src="https://unpkg.com/emmet-monaco-es/dist/emmet-monaco.min.js"></script>
@@ -57,7 +65,7 @@ Browser
 
 ## Limitation
 
-Does **NOT** support Emmet for embed CSS inside HTML
+Does **NOT** support Emmet for embed CSS inside HTML / JSX / TSX
 
 ## License
 
