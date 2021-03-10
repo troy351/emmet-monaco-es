@@ -17,7 +17,7 @@ _If you are using old version of Monaco Editor, Please use `v4.4.2` of this lib.
 ## Advantage
 
 - Almost the same as VSCode's built-in emmet, integrated with completion provider.
-- `HTML` / `JSX` / `TSX` / `PHP` / `CSS` / `LESS` / `SCSS` support
+- `HTML` / `JSX` / `TSX` / `PHP` / `TWIG` / `CSS` / `LESS` / `SCSS` support
 - Treeshaking support
 
 ## Install
@@ -32,7 +32,7 @@ $ npm install emmet-monaco-es
 
 The `emmet` functionality was bind to language features not to a specific editor instance.
 
-- `emmetHTML` works for `HTML` / `PHP`
+- `emmetHTML` works for `HTML` / `PHP` / `TWIG`
 - `emmetCSS` works for `CSS` / `LESS` / `SCSS`
 - `emmetJSX` works for `JSX` / `TSX`
 
