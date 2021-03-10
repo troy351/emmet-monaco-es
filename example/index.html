@@ -8,7 +8,7 @@
     <style>
       body > div {
         float: left;
-        width: 33.333%;
+        width: 25%;
       }
 
       .container {
@@ -28,6 +28,10 @@
     </div>
     <div class="jsx">
       <h2>JSX</h2>
+      <div class="container"></div>
+    </div>
+    <div class="php">
+      <h2>PHP</h2>
       <div class="container"></div>
     </div>
     <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
@@ -53,6 +57,11 @@
         monaco.editor.create(containers[2], {
           value: "",
           language: "javascript",
+        });
+
+        monaco.editor.create(containers[3], {
+          value: "",
+          language: "php",
         });
       });
     </script>

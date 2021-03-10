@@ -116,7 +116,7 @@ export default function emmetHTML(monaco = window.monaco) {
 
   return onCompletion(
     monaco,
-    "html",
+    ["html", "php"],
     true,
     (tokens, index) =>
       (tokens[index].type === "" &&
