@@ -16,8 +16,8 @@ _If you are using old version of Monaco Editor, Please use `v4.4.2` of this lib.
 
 ## Advantage
 
-- Almost the same as VSCode's built-in emmet, integrated with completion provider.
-- `HTML` / `JSX` / `TSX` / `PHP` / `TWIG` / `CSS` / `LESS` / `SCSS` support
+- Almost the same as VSCode's built-in emmet, integrated with completion provider
+- Various languages support
 - Treeshaking support
 
 ## Install
@@ -32,9 +32,9 @@ $ npm install emmet-monaco-es
 
 The `emmet` functionality was bind to language features not to a specific editor instance.
 
-- `emmetHTML` works for `HTML` / `PHP` / `TWIG`
-- `emmetCSS` works for `CSS` / `LESS` / `SCSS`
-- `emmetJSX` works for `JSX` / `TSX`
+- `emmetHTML` works for `HTML` compatible languages, like `PHP`
+- `emmetCSS` works for `CSS` compatible languages, like `LESS` / `SCSS`
+- `emmetJSX` works for `JSX` compatible languages, like `TypeScript`
 
 _Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`_
 
@@ -47,10 +47,13 @@ import { emmetHTML, emmetCSS, emmetJSX, expandHTML, expandCSS } from "emmet-mona
 const dispose = emmetHTML(
   // monaco-editor it self. If not provided, will use window.monaco instead.
   // This could make the plugin support both ESM and AMD loaded monaco-editor
-  monaco
+  monaco,
+  // languages needs to support html markup emmet
+  ['html', 'php']
 );
 
-// run it if you want to dispose emmet
+// run it if you want to dispose emmetHTML.
+// NOTE: all languages specified will be disposed.
 dispose();
 
 // internal expand API, if you want to extend functionality with emmet

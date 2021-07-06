@@ -22,12 +22,15 @@ export function expand(abbr: string) {
  * almost the same behavior as VSCode's builtin emmet.
  * only available when string before text cursor(caret) matches emmet rules.
  */
-export default function emmetCSS(monaco = window.monaco) {
+export default function emmetCSS(
+  monaco = window.monaco,
+  languages: string[] = ["css"]
+) {
   if (!checkMonacoExists(monaco)) return;
 
   return onCompletion(
     monaco,
-    ["css", "less", "scss"],
+    languages,
     false,
     (tokens, index) =>
       // stop emmet when at attribute.value
