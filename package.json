@@ -19,7 +19,7 @@
   "author": "Troy",
   "homepage": "https://github.com/troy351/emmet-monaco-es",
   "peerDependencies": {
-    "monaco-editor": "^0.22.0"
+    "monaco-editor": ">0.22.0"
   },
   "dependencies": {
     "@emmetio/abbreviation": "^0.7.0",
