@@ -1,6 +1,6 @@
 {
   "name": "emmet-monaco-es",
-  "version": "4.7.0",
+  "version": "4.7.1",
   "description": "emmet plugin for monaco-editor",
   "keywords": [
     "emmet",
@@ -19,7 +19,7 @@
   "author": "Troy",
   "homepage": "https://github.com/troy351/emmet-monaco-es",
   "peerDependencies": {
-    "monaco-editor": ">0.22.0"
+    "monaco-editor": ">=0.22.0"
   },
   "dependencies": {
     "@emmetio/abbreviation": "^0.7.0",
