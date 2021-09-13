@@ -64,23 +64,10 @@ export function onCompletion(
           return;
         }
 
-        // inspired by `monaco.editor.tokenize`
-        // see source map from `https://microsoft.github.io/monaco-editor/`
-        const tokenizationSupport = (model as any)._tokenization
-          ._tokenizationSupport;
-        let state = tokenizationSupport.getInitialState();
-        let tokenizationResult;
-
-        for (let i = 1; i <= lineNumber; i++) {
-          tokenizationResult = tokenizationSupport.tokenize(
-            model.getLineContent(i),
-            true,
-            state,
-            0
-          );
-          state = tokenizationResult.endState;
-        }
-
+        // get current line's tokens
+        const { _tokenizationSupport, _tokenizationStateStore } = (model as any)._tokenization
+        const state = _tokenizationStateStore.getBeginState(lineNumber - 1).clone()
+        const tokenizationResult = _tokenizationSupport.tokenize(model.getLineContent(lineNumber), true, state, 0);
         const tokens: Token[] = tokenizationResult.tokens;
 
         let setArr: ReturnType<typeof getLegalEmmetSets>;
@@ -110,9 +97,9 @@ export function onCompletion(
             const label = isMarkup
               ? emmetText
               : // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
-                expandText
-                  .replace(/([^\\])\$\{\d+\}/g, "$1")
-                  .replace(/\$\{\d+:([^\}]+)\}/g, "$1");
+              expandText
+                .replace(/([^\\])\$\{\d+\}/g, "$1")
+                .replace(/\$\{\d+:([^\}]+)\}/g, "$1");
 
             return {
               kind: monaco.languages.CompletionItemKind.Property,
