@@ -17,8 +17,12 @@ export default function emmetJSX(
     true,
     // This is a rough token check, because monaco doesn't have accurate tokens as vscode does
     (tokens, index) =>
-      tokens[index].type === "identifier.js" ||
-      tokens[index].type === "identifier.ts",
-    getHTMLLegalEmmetSets
+      [
+        "identifier.js",
+        "type.identifier.js",
+        "identifier.ts",
+        "type.identifier.ts",
+      ].includes(tokens[index].type),
+    (str) => getHTMLLegalEmmetSets(str, true)
   );
 }

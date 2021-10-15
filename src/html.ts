@@ -55,7 +55,7 @@ export function expand(abbr: string) {
   return format(tree, option.profile, option);
 }
 
-export function getHTMLLegalEmmetSets(str: string) {
+export function getHTMLLegalEmmetSets(str: string, isJSX = false) {
   // empty or ends with white space, illegal
   if (str === "" || str.match(/\s$/)) return;
 
@@ -96,8 +96,8 @@ export function getHTMLLegalEmmetSets(str: string) {
     (key) => key.length >= strlen && key.slice(0, strlen) === str
   );
 
-  // append `str` itself when custom element which contains `-` or jsx element which first letter was capitalized
-  if (str.indexOf("-") !== -1 || str[0].toLowerCase() !== str[0]){
+  // append `str` itself when not all letters, uppercase letter was allowed in JSX
+  if (!(isJSX ? /^[a-z]+$/ : /^[a-z]+$/i).test(str)) {
     strArr.push(str);
   }
 
