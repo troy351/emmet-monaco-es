@@ -30,11 +30,11 @@ $ npm install emmet-monaco-es
 
 #### NOTE
 
-The `emmet` functionality was bind to language features not to a specific editor instance.
+The `emmet` functionality was bound to language features not to a specific editor instance.
 
-- `emmetHTML` works for `HTML` compatible languages, like `PHP`
-- `emmetCSS` works for `CSS` compatible languages, like `LESS` / `SCSS`
-- `emmetJSX` works for `JSX` compatible languages, like `TypeScript`
+- `emmetHTML` works for `HTML` compatible languages, like `PHP`, for `html` only by default
+- `emmetCSS` works for `CSS` compatible languages, like `LESS` / `SCSS`, for `css` only by default
+- `emmetJSX` works for `JSX` compatible languages, like `JavaScript` / `TypeScript`, for `javascript` only by default
 
 _Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`_
 
@@ -48,7 +48,7 @@ const dispose = emmetHTML(
   // monaco-editor it self. If not provided, will use window.monaco instead.
   // This could make the plugin support both ESM and AMD loaded monaco-editor
   monaco,
-  // languages needs to support html markup emmet
+  // languages needs to support html markup emmet, should be lower case.
   ['html', 'php']
 );
 
@@ -67,7 +67,7 @@ expandCSS('fz14'); // font-size: 14px;
 <script src="https://unpkg.com/emmet-monaco-es/dist/emmet-monaco.min.js"></script>
 <script>
   // NOTE: monaco-editor should be loaded first
-  // see above esm example for details
+  // see the above esm example for details
   emmetMonaco.emmetHTML(monaco);
 </script>
 ```
