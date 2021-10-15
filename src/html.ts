@@ -90,12 +90,16 @@ export function getHTMLLegalEmmetSets(str: string) {
 
   // provide all possible abbreviation completions
   const strlen = str.length;
-  // match all snippet starts with the given `str` but not `str` itself
+
+  // match all snippet starts with the given `str`
   const strArr = markupSnippetKeys.filter(
-    (key) => key.length > strlen && key.slice(0, strlen) === str
+    (key) => key.length >= strlen && key.slice(0, strlen) === str
   );
-  // prepend `str` itself
-  strArr.unshift(str);
+
+  // append `str` itself when custom element which contains `-` or jsx element which first letter was capitalized
+  if (str.indexOf("-") !== -1 || str[0].toLowerCase() !== str[0]){
+    strArr.push(str);
+  }
 
   try {
     return strArr.map((s) => ({

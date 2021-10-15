@@ -41,6 +41,9 @@
         monaco.editor.create(containers[0], {
           value: "",
           language: "html",
+          suggest: {
+            snippetsPreventQuickSuggestions: false,
+          },
         });
 
         emmetMonaco.emmetCSS();
