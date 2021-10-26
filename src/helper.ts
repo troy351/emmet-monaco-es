@@ -65,9 +65,17 @@ export function onCompletion(
         }
 
         // get current line's tokens
-        const { _tokenizationSupport, _tokenizationStateStore } = (model as any)._tokenization
-        const state = _tokenizationStateStore.getBeginState(lineNumber - 1).clone()
-        const tokenizationResult = _tokenizationSupport.tokenize(model.getLineContent(lineNumber), true, state, 0);
+        const { _tokenizationSupport, _tokenizationStateStore } = (model as any)
+          ._tokenization;
+        const state = _tokenizationStateStore
+          .getBeginState(lineNumber - 1)
+          .clone();
+        const tokenizationResult = _tokenizationSupport.tokenize(
+          model.getLineContent(lineNumber),
+          true,
+          state,
+          0
+        );
         const tokens: Token[] = tokenizationResult.tokens;
 
         let setArr: ReturnType<typeof getLegalEmmetSets>;
@@ -97,14 +105,17 @@ export function onCompletion(
             const label = isMarkup
               ? emmetText
               : // https://github.com/microsoft/vscode-emmet-helper/blob/075cb1736582383d75f0dc9e2252e73643e55f59/src/emmetHelper.ts#L271
-              expandText
-                .replace(/([^\\])\$\{\d+\}/g, "$1")
-                .replace(/\$\{\d+:([^\}]+)\}/g, "$1");
+                expandText
+                  .replace(/([^\\])\$\{\d+\}/g, "$1")
+                  .replace(/\$\{\d+:([^\}]+)\}/g, "$1");
 
             return {
               kind: monaco.languages.CompletionItemKind.Property,
               label: label,
-              sortText: label,
+              // Workaround for the main expanded abbr not appearing before the snippet suggestions
+              sortText: "0" + label,
+              // Workaround for snippet suggestions items getting filtered out as the complete abbr does not start with snippetKey
+              filterText: emmetText,
               insertText: expandText,
               insertTextRules:
                 monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
