@@ -96,8 +96,8 @@ export function getHTMLLegalEmmetSets(str: string, isJSX = false) {
     (key) => key.length >= strlen && key.slice(0, strlen) === str
   );
 
-  // append `str` itself when not all letters, uppercase letter was allowed in JSX
-  if (!(isJSX ? /^[a-z]+$/ : /^[a-z]+$/i).test(str)) {
+  // append `str` itself when not all letters and numbers, uppercase letter was allowed in JSX
+  if (!(isJSX ? /^[a-z0-9]+$/ : /^[a-z0-9]+$/i).test(str)) {
     strArr.push(str);
   }
 
