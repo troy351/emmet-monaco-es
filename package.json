@@ -1,6 +1,6 @@
 {
   "name": "emmet-monaco-es",
-  "version": "4.7.6",
+  "version": "5.0.0",
   "description": "emmet plugin for monaco-editor",
   "keywords": [
     "emmet",
@@ -22,25 +22,12 @@
     "monaco-editor": ">=0.22.0"
   },
   "dependencies": {
-    "@emmetio/abbreviation": "^0.7.0",
-    "@emmetio/css-abbreviation": "^0.4.0",
-    "@emmetio/css-snippets-resolver": "^0.4.0",
-    "@emmetio/html-snippets-resolver": "^0.1.4",
-    "@emmetio/html-transform": "^0.3.10",
-    "@emmetio/lorem": "^1.0.2",
-    "@emmetio/markup-formatters": "^0.4.1",
-    "@emmetio/output-profile": "^0.1.6",
-    "@emmetio/snippets": "^0.2.12",
-    "@emmetio/snippets-registry": "^0.3.1",
-    "@emmetio/stylesheet-formatters": "^0.2.1",
-    "@emmetio/variable-resolver": "^0.2.1"
+    "emmet": "^2.3.4"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.1.1",
-    "@rollup/plugin-typescript": "^8.2.5",
+    "@rollup/plugin-node-resolve": "^11.2.1",
+    "@rollup/plugin-typescript": "^8.3.0",
     "monaco-editor": "^0.29.1",
     "rollup": "^2.58.0",
     "rollup-plugin-terser": "^7.0.2",

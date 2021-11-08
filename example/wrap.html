@@ -25,15 +25,15 @@
     <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
     <script src="../dist/emmet-monaco.js"></script>
     <script>
-      require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
-      require(["vs/editor/editor.main"], function () {
-        var containers = document.getElementsByClassName("container");
+      require.config({ paths: { vs: '../node_modules/monaco-editor/min/vs' } })
+      require(['vs/editor/editor.main'], function () {
+        var containers = document.getElementsByClassName('container')
 
-        emmetMonaco.emmetHTML();
+        emmetMonaco.emmetHTML()
         var editor = monaco.editor.create(containers[0], {
-          value: "",
-          language: "html",
-        });
+          value: '',
+          language: 'html',
+        })
 
         /**
          * vscode provide realtime preview and other things, we just do the simple things here.
@@ -41,45 +41,48 @@
          * https://github.com/microsoft/vscode/blob/eb21069624c0996f8c985b2ab8c5552be83ceff0/extensions/emmet/src/abbreviationActions.ts#L46
          */
         editor.addAction({
-          id: "emmet-warp-with-abbreviation",
-          label: "Emmet: Wrap with Abbreviation",
+          id: 'emmet-warp-with-abbreviation',
+          label: 'Emmet: Wrap with Abbreviation',
           // add keybindings if any
           // keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.F10],
           run(editor) {
             // Monaco Editor does not provide `showInputBox` as vscode does,
             // just open a prompt instead here, can be replaced by other input boxes
-            const abbr = window.prompt("Enter Abbreviation");
-            const expanded = emmetMonaco.expandHTML(abbr);
+            const abbr = window.prompt('Enter Abbreviation')
+
+            const expanded = emmetMonaco.expandAbbreviation(abbr, {
+              type: 'markup',
+              syntax: 'html',
+              options: {
+                'output.field': (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`,
+              },
+            })
 
             // match exists for sure
-            const lastPlaceholder = `\${${expanded.match(/\$/g).length}}`;
+            const lastPlaceholder = `\${${expanded.match(/\$/g).length - 1}}`
 
-            const model = editor.getModel();
+            const model = editor.getModel()
 
             // take care of multi-selections
-            const selectionsWithText = editor
-              .getSelections()
-              .map((selection) => ({
-                range: selection,
-                text: model.getValueInRange(selection),
-              }));
+            const selectionsWithText = editor.getSelections().map((selection) => ({
+              range: selection,
+              text: model.getValueInRange(selection),
+            }))
 
-            editor.pushUndoStop();
+            editor.pushUndoStop()
 
             editor.executeEdits(
-              "emmet",
+              'emmet',
               selectionsWithText.map(({ range, text }) => ({
-                text: expanded.replace(/(\${\d+})/g, (matched) =>
-                  matched === lastPlaceholder ? text : ""
-                ),
+                text: expanded.replace(/(\${\d+})/g, (matched) => (matched === lastPlaceholder ? text : '')),
                 range,
-              }))
-            );
+              })),
+            )
 
-            editor.pushUndoStop();
+            editor.pushUndoStop()
           },
-        });
-      });
+        })
+      })
     </script>
   </body>
 </html>

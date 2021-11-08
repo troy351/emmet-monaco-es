@@ -1,7 +1,4 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll.tslint": true
-  },
   "editor.fontFamily": "Source Code Pro, Menlo, Consolas, 'Courier New', monospace",
   "editor.quickSuggestions": {
     "strings": true

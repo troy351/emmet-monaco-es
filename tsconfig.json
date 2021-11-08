@@ -15,25 +15,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "*": ["node_modules/*"],
-      "@emmetio/snippets": ["types/emmetio__snippets"],
-      "@emmetio/stylesheet-formatters": [
-        "types/emmetio__stylesheet-formatters"
-      ],
-      "@emmetio/css-snippets-resolver": [
-        "types/emmetio__css-snippets-resolver"
-      ],
-      "@emmetio/html-snippets-resolver": [
-        "types/emmetio__html-snippets-resolver"
-      ],
-      "@emmetio/snippets-registry": ["types/emmetio__snippets-registry"],
-      "@emmetio/output-profile": ["types/emmetio__output-profile"],
-      "@emmetio/css-abbreviation": ["types/emmetio__css-abbreviation"],
-      "@emmetio/abbreviation": ["types/emmetio__abbreviation"],
-      "@emmetio/markup-formatters": ["types/emmetio__markup-formatters"],
-      "@emmetio/html-transform": ["types/emmetio__html-transform"],
-      "@emmetio/lorem": ["types/emmetio__lorem"],
-      "@emmetio/variable-resolver": ["types/emmetio__variable-resolver"]
+      "*": ["node_modules/*"]
     }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],

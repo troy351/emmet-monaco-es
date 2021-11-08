@@ -33,31 +33,31 @@
     <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
     <script src="../dist/emmet-monaco.js"></script>
     <script>
-      require.config({ paths: { vs: "../node_modules/monaco-editor/min/vs" } });
-      require(["vs/editor/editor.main"], function () {
-        var containers = document.getElementsByClassName("container");
+      require.config({ paths: { vs: '../node_modules/monaco-editor/min/vs' } })
+      require(['vs/editor/editor.main'], function () {
+        var containers = document.getElementsByClassName('container')
 
-        emmetMonaco.emmetHTML();
+        emmetMonaco.emmetHTML()
         monaco.editor.create(containers[0], {
-          value: "",
-          language: "html",
+          value: '',
+          language: 'html',
           suggest: {
             snippetsPreventQuickSuggestions: false,
           },
-        });
+        })
 
-        emmetMonaco.emmetCSS();
+        emmetMonaco.emmetCSS()
         monaco.editor.create(containers[1], {
-          value: "",
-          language: "css",
-        });
+          value: '',
+          language: 'css',
+        })
 
-        emmetMonaco.emmetJSX();
+        emmetMonaco.emmetJSX()
         monaco.editor.create(containers[2], {
-          value: "",
-          language: "javascript",
-        });
-      });
+          value: '',
+          language: 'javascript',
+        })
+      })
     </script>
   </body>
 </html>

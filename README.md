@@ -6,19 +6,12 @@
   <a href="https://www.npmjs.com/package/emmet-monaco-es"><img src="https://img.shields.io/npm/l/emmet-monaco-es.svg" alt="License"></a>
 </p>
 
-Emmet Support for [Monaco Editor](https://github.com/Microsoft/monaco-editor)
-
-## Compatibility
-
-Compatible with Monaco Editor `v0.22.0` and above.
-
-_If you are using old version of Monaco Editor, Please use `v4.4.2` of this lib._
+Emmet Support for [Monaco Editor](https://github.com/Microsoft/monaco-editor), based on [vscode-emmet-helper](https://github.com/microsoft/vscode-emmet-helper)
 
 ## Advantage
 
 - Almost the same as VSCode's built-in emmet, integrated with completion provider
 - Various languages support
-- Treeshaking support
 
 ## Install
 
@@ -41,7 +34,7 @@ _Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecommen
 #### ESM
 
 ```javascript
-import { emmetHTML, emmetCSS, emmetJSX, expandHTML, expandCSS } from "emmet-monaco-es";
+import { emmetHTML, emmetCSS, emmetJSX, expandAbbreviation } from 'emmet-monaco-es'
 
 // `emmetHTML` , `emmetCSS` and `emmetJSX` are used the same way
 const dispose = emmetHTML(
@@ -49,16 +42,16 @@ const dispose = emmetHTML(
   // This could make the plugin support both ESM and AMD loaded monaco-editor
   monaco,
   // languages needs to support html markup emmet, should be lower case.
-  ['html', 'php']
-);
+  ['html', 'php'],
+)
 
 // run it if you want to dispose emmetHTML.
 // NOTE: all languages specified will be disposed.
-dispose();
+dispose()
 
 // internal expand API, if you want to extend functionality with emmet
-expandHTML('a'); // <a href="${1}">${2}</a>
-expandCSS('fz14'); // font-size: 14px;
+expandAbbreviation('a', { type: 'markup', syntax: 'html' }) // <a href=""></a>
+expandAbbreviation('fz14', { type: 'stylesheet', syntax: 'css' }) // font-size: 14px;
 ```
 
 #### Browser
@@ -68,7 +61,7 @@ expandCSS('fz14'); // font-size: 14px;
 <script>
   // NOTE: monaco-editor should be loaded first
   // see the above esm example for details
-  emmetMonaco.emmetHTML(monaco);
+  emmetMonaco.emmetHTML(monaco)
 </script>
 ```
 
