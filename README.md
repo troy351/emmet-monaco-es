@@ -50,6 +50,7 @@ const dispose = emmetHTML(
 dispose()
 
 // internal expand API, if you want to extend functionality with emmet
+// check out the emmet repo https://github.com/emmetio/emmet for how to use it
 expandAbbreviation('a', { type: 'markup', syntax: 'html' }) // <a href=""></a>
 expandAbbreviation('fz14', { type: 'stylesheet', syntax: 'css' }) // font-size: 14px;
 ```
