@@ -6,25 +6,29 @@ interface Token {
   readonly language: string
 }
 
-function isValidEmmetToken(syntax: string, tokens: Token[], index: number): boolean {
+function isValidEmmetToken(tokens: Token[], index: number, syntax: string, language: string): boolean {
+  const currentTokenType = tokens[index].type
+
   if (syntax === 'html') {
     // prevent emmet triggered within attributes
     return (
-      (tokens[index].type === '' && (index === 0 || tokens[index - 1].type === 'delimiter.html')) ||
+      (currentTokenType === '' && (index === 0 || tokens[index - 1].type === 'delimiter.html')) ||
       // #7 compatible with https://github.com/NeekSandhu/monaco-textmate
       tokens[0].type === 'text.html.basic'
     )
   }
 
   if (syntax === 'css') {
-    return tokens[index].type === ''
+    if (currentTokenType === '') return true
+    // less / scss allow nesting
+    return currentTokenType === 'tag.' + language
   }
 
   if (syntax === 'jsx') {
     // type must be `identifier` and not at start
     return (
       !!index &&
-      ['identifier.js', 'type.identifier.js', 'identifier.ts', 'type.identifier.ts'].includes(tokens[index].type)
+      ['identifier.js', 'type.identifier.js', 'identifier.ts', 'type.identifier.ts'].includes(currentTokenType)
     )
   }
 
@@ -37,6 +41,7 @@ export function isValidLocationForEmmetAbbreviation(
   model: Monaco.editor.ITextModel,
   position: Monaco.Position,
   syntax: string,
+  language: string,
 ) {
   const { column, lineNumber } = position
 
@@ -51,7 +56,7 @@ export function isValidLocationForEmmetAbbreviation(
   // get token type at current column
   for (let i = tokens.length - 1; i >= 0; i--) {
     if (column - 1 > tokens[i].offset) {
-      valid = isValidEmmetToken(syntax, tokens, i)
+      valid = isValidEmmetToken(tokens, i, syntax, language)
 
       break
     }

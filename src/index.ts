@@ -58,7 +58,7 @@ function registerProvider(monaco: typeof Monaco | undefined, languages: string[]
     monaco.languages.registerCompletionItemProvider(language, {
       triggerCharacters: LANGUAGE_MODES[MAPPED_MODES[language] || language],
       provideCompletionItems: (model, position) =>
-        isValidLocationForEmmetAbbreviation(model, position, syntax)
+        isValidLocationForEmmetAbbreviation(model, position, syntax, language)
           ? doComplete(monaco!, model, position, syntax, DEFAULT_CONFIG)
           : undefined,
     }),
