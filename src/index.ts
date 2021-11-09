@@ -1,6 +1,7 @@
 import type * as Monaco from 'monaco-editor'
 
 import { doComplete, VSCodeEmmetConfig } from './emmetHelper'
+import { isValidLocationForEmmetAbbreviation } from './abbreviationActions'
 
 declare global {
   interface Window {
@@ -56,7 +57,10 @@ function registerProvider(monaco: typeof Monaco | undefined, languages: string[]
   const providers = languages.map((language) =>
     monaco.languages.registerCompletionItemProvider(language, {
       triggerCharacters: LANGUAGE_MODES[MAPPED_MODES[language] || language],
-      provideCompletionItems: (model, position) => doComplete(monaco, model, position, syntax, DEFAULT_CONFIG),
+      provideCompletionItems: (model, position) =>
+        isValidLocationForEmmetAbbreviation(model, position, syntax)
+          ? doComplete(monaco!, model, position, syntax, DEFAULT_CONFIG)
+          : undefined,
     }),
   )
 
