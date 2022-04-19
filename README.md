@@ -31,6 +31,8 @@ The `emmet` functionality was bound to language features not to a specific edito
 
 _Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`_
 
+**Initialize emmet should BEFORE all monaco editor instance creation**
+
 #### ESM
 
 ```javascript
