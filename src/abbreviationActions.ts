@@ -7,7 +7,8 @@ interface Token {
 }
 
 function isValidEmmetToken(tokens: Token[], index: number, syntax: string, language: string): boolean {
-  const currentTokenType = tokens[index].type
+  const currentToken = tokens[index]
+  const currentTokenType = currentToken.type
 
   if (syntax === 'html') {
     // prevent emmet triggered within attributes
@@ -25,6 +26,10 @@ function isValidEmmetToken(tokens: Token[], index: number, syntax: string, langu
   }
 
   if (syntax === 'jsx') {
+    if (currentToken.language === 'mdx' && currentTokenType === '') {
+      return true
+    }
+
     // type must be `identifier` and not at start
     return (
       !!index &&
