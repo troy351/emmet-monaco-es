@@ -46,10 +46,17 @@ export function isValidLocationForEmmetAbbreviation(
   const { column, lineNumber } = position
 
   // get current line's tokens
-  const _tokenization = (model as any)._tokenization
+  const _tokenization =
+    // monaco-editor < 0.34.0
+    (model as any)._tokenization ||
+    // monaco-editor >= 0.34.0
+    (model as any).tokenization._tokenization
   const _tokenizationStateStore = _tokenization._tokenizationStateStore
-  // monaco-editor 0.32.0 changes the api to `_tokenizationStateStore.tokenizationSupport`
-  const _tokenizationSupport = _tokenizationStateStore.tokenizationSupport || _tokenization._tokenizationSupport
+  const _tokenizationSupport =
+    // monaco-editor >= 0.32.0
+    _tokenizationStateStore.tokenizationSupport ||
+    // monaco-editor < 0.32.0
+    _tokenization._tokenizationSupport
 
   const state = _tokenizationStateStore.getBeginState(lineNumber - 1).clone()
   const tokenizationResult = _tokenizationSupport.tokenize(model.getLineContent(lineNumber), true, state, 0)

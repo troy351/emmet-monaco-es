@@ -1,6 +1,6 @@
 {
   "name": "emmet-monaco-es",
-  "version": "5.1.0",
+  "version": "5.1.2",
   "description": "emmet plugin for monaco-editor",
   "keywords": [
     "emmet",
@@ -25,10 +25,10 @@
     "emmet": "^2.3.6"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.1.0",
+    "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.4",
-    "monaco-editor": "^0.33.0",
+    "monaco-editor": "^0.34.0",
     "rollup": "^2.77.2",
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
