@@ -1,6 +1,6 @@
 {
   "name": "emmet-monaco-es",
-  "version": "5.1.2",
+  "version": "5.2.0",
   "description": "emmet plugin for monaco-editor",
   "keywords": [
     "emmet",
@@ -14,10 +14,11 @@
     "watch": "rollup -c --watch",
     "build": "rollup -c"
   },
-  "repository": {	
+  "repository": {
     "type": "git",
     "url": "https://github.com/troy351/emmet-monaco-es.git"
   },
+  "type": "module",
   "sideEffects": false,
   "license": "MIT",
   "author": "Troy",
@@ -29,13 +30,13 @@
     "emmet": "^2.3.6"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^22.0.2",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-typescript": "^8.3.4",
-    "monaco-editor": "^0.34.0",
-    "rollup": "^2.77.2",
-    "rollup-plugin-terser": "^7.0.2",
-    "tslib": "^2.4.0",
-    "typescript": "^4.7.4"
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "monaco-editor": "^0.35.0",
+    "rollup": "^3.15.0",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
   }
 }

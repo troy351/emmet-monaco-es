@@ -49,9 +49,15 @@ export function isValidLocationForEmmetAbbreviation(
   const _tokenization =
     // monaco-editor < 0.34.0
     (model as any)._tokenization ||
-    // monaco-editor >= 0.34.0
-    (model as any).tokenization._tokenization
-  const _tokenizationStateStore = _tokenization._tokenizationStateStore
+    // monaco-editor 0.34.0
+    (model as any).tokenization._tokenization ||
+    // monaco-editor >= 0.35.0
+    (model as any).tokenization.m
+  const _tokenizationStateStore =
+    // monaco-editor <= 0.34.0
+    _tokenization._tokenizationStateStore ||
+    // monaco-editor >= 0.35.0
+    _tokenization.a
   const _tokenizationSupport =
     // monaco-editor >= 0.32.0
     _tokenizationStateStore.tokenizationSupport ||
