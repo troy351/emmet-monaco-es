@@ -35,6 +35,42 @@ function isValidEmmetToken(tokens: Token[], index: number, syntax: string, langu
   return false
 }
 
+const tokenEnvCache = new WeakMap<any, { _stateStore: any; _support: any }>()
+function getTokenizationEnv(model: any) {
+  if (tokenEnvCache.has(model)) return tokenEnvCache.get(model)!
+
+  let _tokenization =
+    // monaco-editor < 0.34.0
+    model._tokenization ||
+    // monaco-editor 0.34.0
+    model.tokenization._tokenization
+
+  // monaco-editor <= 0.34.0
+  let _tokenizationStateStore = _tokenization?._tokenizationStateStore
+
+  // monaco-editor >= 0.35.0, source code was minified
+  if (!_tokenization || !_tokenizationStateStore) {
+    const _t = model.tokenization
+
+    Object.values(_t).some((val: any) => (_tokenization = val.tokenizeViewport && val))
+    Object.values(_tokenization).some((val: any) => (_tokenizationStateStore = val.tokenizationSupport && val))
+  }
+
+  const _tokenizationSupport =
+    // monaco-editor >= 0.32.0
+    _tokenizationStateStore.tokenizationSupport ||
+    // monaco-editor < 0.32.0
+    _tokenization._tokenizationSupport
+
+  const env = {
+    _stateStore: _tokenizationStateStore,
+    _support: _tokenizationSupport,
+  }
+
+  tokenEnvCache.set(model, env)
+  return env
+}
+
 // vscode did a complex node analysis, we just use monaco's built-in tokenizer
 // to achieve almost the same effect
 export function isValidLocationForEmmetAbbreviation(
@@ -46,26 +82,9 @@ export function isValidLocationForEmmetAbbreviation(
   const { column, lineNumber } = position
 
   // get current line's tokens
-  const _tokenization =
-    // monaco-editor < 0.34.0
-    (model as any)._tokenization ||
-    // monaco-editor 0.34.0
-    (model as any).tokenization._tokenization ||
-    // monaco-editor >= 0.35.0
-    (model as any).tokenization.m
-  const _tokenizationStateStore =
-    // monaco-editor <= 0.34.0
-    _tokenization._tokenizationStateStore ||
-    // monaco-editor >= 0.35.0
-    _tokenization.a
-  const _tokenizationSupport =
-    // monaco-editor >= 0.32.0
-    _tokenizationStateStore.tokenizationSupport ||
-    // monaco-editor < 0.32.0
-    _tokenization._tokenizationSupport
-
-  const state = _tokenizationStateStore.getBeginState(lineNumber - 1).clone()
-  const tokenizationResult = _tokenizationSupport.tokenize(model.getLineContent(lineNumber), true, state, 0)
+  const { _stateStore, _support } = getTokenizationEnv(model)
+  const state = _stateStore.getBeginState(lineNumber - 1).clone()
+  const tokenizationResult = _support.tokenize(model.getLineContent(lineNumber), true, state, 0)
   const tokens: Token[] = tokenizationResult.tokens
 
   let valid = false
