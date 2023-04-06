@@ -48,12 +48,19 @@ function getTokenizationEnv(model: any) {
   // monaco-editor <= 0.34.0
   let _tokenizationStateStore = _tokenization?._tokenizationStateStore
 
-  // monaco-editor >= 0.35.0, source code was minified
+  // monaco-editor >= 0.35.0
   if (!_tokenization || !_tokenizationStateStore) {
     const _t = model.tokenization
 
-    Object.values(_t).some((val: any) => (_tokenization = val.tokenizeViewport && val))
-    Object.values(_tokenization).some((val: any) => (_tokenizationStateStore = val.tokenizationSupport && val))
+    if (_t.grammarTokens) {
+      // monaco-editor >= 0.37.0
+      _tokenization = _t.grammarTokens._defaultBackgroundTokenizer
+      _tokenizationStateStore = _tokenization._tokenizerWithStateStore
+    } else {
+      // monaco-editor >= 0.35.0 && < 0.37.0, source code was minified
+      Object.values(_t).some((val: any) => (_tokenization = val.tokenizeViewport && val))
+      Object.values(_tokenization).some((val: any) => (_tokenizationStateStore = val.tokenizationSupport && val))
+    }
   }
 
   const _tokenizationSupport =
@@ -83,7 +90,9 @@ export function isValidLocationForEmmetAbbreviation(
 
   // get current line's tokens
   const { _stateStore, _support } = getTokenizationEnv(model)
-  const state = _stateStore.getBeginState(lineNumber - 1).clone()
+  // monaco-editor < 0.37.0 uses `getBeginState` while monaco-editor >= 0.37.0 uses `getStartState`
+  // note: lineNumber difference between two api
+  const state = _stateStore.getBeginState?.(lineNumber - 1).clone() || _stateStore.getStartState(lineNumber).clone()
   const tokenizationResult = _support.tokenize(model.getLineContent(lineNumber), true, state, 0)
   const tokens: Token[] = tokenizationResult.tokens
 
