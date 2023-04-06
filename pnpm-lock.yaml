@@ -2,44 +2,44 @@ lockfileVersion: 5.4
 
 specifiers:
   '@rollup/plugin-commonjs': ^24.0.1
-  '@rollup/plugin-node-resolve': ^15.0.1
+  '@rollup/plugin-node-resolve': ^15.0.2
   '@rollup/plugin-terser': ^0.4.0
-  '@rollup/plugin-typescript': ^11.0.0
-  emmet: ^2.3.6
-  monaco-editor: ^0.36.1
-  rollup: ^3.18.0
+  '@rollup/plugin-typescript': ^11.1.0
+  emmet: ^2.4.1
+  monaco-editor: ^0.37.0
+  rollup: ^3.20.2
   tslib: ^2.5.0
-  typescript: ^4.9.5
+  typescript: ^5.0.3
 
 dependencies:
-  emmet: 2.3.6
+  emmet: 2.4.1
 
 devDependencies:
-  '@rollup/plugin-commonjs': 24.0.1_rollup@3.18.0
-  '@rollup/plugin-node-resolve': 15.0.1_rollup@3.18.0
-  '@rollup/plugin-terser': 0.4.0_rollup@3.18.0
-  '@rollup/plugin-typescript': 11.0.0_elyygukqrpnyv7sactoooq5kjq
-  monaco-editor: 0.36.1
-  rollup: 3.18.0
+  '@rollup/plugin-commonjs': 24.0.1_rollup@3.20.2
+  '@rollup/plugin-node-resolve': 15.0.2_rollup@3.20.2
+  '@rollup/plugin-terser': 0.4.0_rollup@3.20.2
+  '@rollup/plugin-typescript': 11.1.0_arrnfnpvhdqbfckwo3rdb7mowy
+  monaco-editor: 0.37.0
+  rollup: 3.20.2
   tslib: 2.5.0
-  typescript: 4.9.5
+  typescript: 5.0.3
 
 packages:
 
-  /@emmetio/abbreviation/2.2.3:
-    resolution: {integrity: sha512-87pltuCPt99aL+y9xS6GPZ+Wmmyhll2WXH73gG/xpGcQ84DRnptBsI2r0BeIQ0EB/SQTOe2ANPqFqj3Rj5FOGA==}
+  /@emmetio/abbreviation/2.3.1:
+    resolution: {integrity: sha512-QXgYlXZGprqb6aCBJPPWVBN/Jb69khJF73GGJkOk//PoMgSbPGuaHn1hCRolctnzlBHjCIC6Om97Pw46/1A23g==}
     dependencies:
-      '@emmetio/scanner': 1.0.0
+      '@emmetio/scanner': 1.0.2
     dev: false
 
-  /@emmetio/css-abbreviation/2.1.4:
-    resolution: {integrity: sha512-qk9L60Y+uRtM5CPbB0y+QNl/1XKE09mSO+AhhSauIfr2YOx/ta3NJw2d8RtCFxgzHeRqFRr8jgyzThbu+MZ4Uw==}
+  /@emmetio/css-abbreviation/2.1.6:
+    resolution: {integrity: sha512-bvuPogt0OvwcILRg+ZD/oej1H72xwOhUDPWOmhCWLJrZZ8bMTazsWnvw8a8noaaVqUhOE9PsC0tYgGVv5N7fsw==}
     dependencies:
-      '@emmetio/scanner': 1.0.0
+      '@emmetio/scanner': 1.0.2
     dev: false
 
-  /@emmetio/scanner/1.0.0:
-    resolution: {integrity: sha512-8HqW8EVqjnCmWXVpqAOZf+EGESdkR27odcMMMGefgKXtar00SoYNSryGv//TELI4T3QFsECo78p+0lmalk/CFA==}
+  /@emmetio/scanner/1.0.2:
+    resolution: {integrity: sha512-1ESCGgXRgn1r29hRmz8K0G4Ywr5jDWezMgRnICComBCWmg3znLWU8+tmakuM1og1Vn4W/sauvlABl/oq2pve8w==}
     dev: false
 
   /@jridgewell/gen-mapping/0.3.2:
@@ -79,7 +79,7 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@rollup/plugin-commonjs/24.0.1_rollup@3.18.0:
+  /@rollup/plugin-commonjs/24.0.1_rollup@3.20.2:
     resolution: {integrity: sha512-15LsiWRZk4eOGqvrJyu3z3DaBu5BhXIMeWnijSRvd8irrrg9SHpQ1pH+BUK4H6Z9wL9yOxZJMTLU+Au86XHxow==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -88,17 +88,17 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.18.0
+      '@rollup/pluginutils': 5.0.2_rollup@3.20.2
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
       is-reference: 1.2.1
       magic-string: 0.27.0
-      rollup: 3.18.0
+      rollup: 3.20.2
     dev: true
 
-  /@rollup/plugin-node-resolve/15.0.1_rollup@3.18.0:
-    resolution: {integrity: sha512-ReY88T7JhJjeRVbfCyNj+NXAG3IIsVMsX9b5/9jC98dRP8/yxlZdz7mHZbHk5zHr24wZZICS5AcXsFZAXYUQEg==}
+  /@rollup/plugin-node-resolve/15.0.2_rollup@3.20.2:
+    resolution: {integrity: sha512-Y35fRGUjC3FaurG722uhUuG8YHOJRJQbI6/CkbRkdPotSpDj9NtIN85z1zrcyDcCQIW4qp5mgG72U+gJ0TAFEg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0
@@ -106,16 +106,16 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.18.0
+      '@rollup/pluginutils': 5.0.2_rollup@3.20.2
       '@types/resolve': 1.20.2
       deepmerge: 4.3.0
       is-builtin-module: 3.2.1
       is-module: 1.0.0
       resolve: 1.22.1
-      rollup: 3.18.0
+      rollup: 3.20.2
     dev: true
 
-  /@rollup/plugin-terser/0.4.0_rollup@3.18.0:
+  /@rollup/plugin-terser/0.4.0_rollup@3.20.2:
     resolution: {integrity: sha512-Ipcf3LPNerey1q9ZMjiaWHlNPEHNU/B5/uh9zXLltfEQ1lVSLLeZSgAtTPWGyw8Ip1guOeq+mDtdOlEj/wNxQw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -124,14 +124,14 @@ packages:
       rollup:
         optional: true
     dependencies:
-      rollup: 3.18.0
+      rollup: 3.20.2
       serialize-javascript: 6.0.1
       smob: 0.0.6
       terser: 5.16.3
     dev: true
 
-  /@rollup/plugin-typescript/11.0.0_elyygukqrpnyv7sactoooq5kjq:
-    resolution: {integrity: sha512-goPyCWBiimk1iJgSTgsehFD5OOFHiAknrRJjqFCudcW8JtWiBlK284Xnn4flqMqg6YAjVG/EE+3aVzrL5qNSzQ==}
+  /@rollup/plugin-typescript/11.1.0_arrnfnpvhdqbfckwo3rdb7mowy:
+    resolution: {integrity: sha512-86flrfE+bSHB69znnTV6kVjkncs2LBMhcTCyxWgRxLyfXfQrxg4UwlAqENnjrrxnSNS/XKCDJCl8EkdFJVHOxw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.14.0||^3.0.0
@@ -143,14 +143,14 @@ packages:
       tslib:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.2_rollup@3.18.0
+      '@rollup/pluginutils': 5.0.2_rollup@3.20.2
       resolve: 1.22.1
-      rollup: 3.18.0
+      rollup: 3.20.2
       tslib: 2.5.0
-      typescript: 4.9.5
+      typescript: 5.0.3
     dev: true
 
-  /@rollup/pluginutils/5.0.2_rollup@3.18.0:
+  /@rollup/pluginutils/5.0.2_rollup@3.20.2:
     resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -162,7 +162,7 @@ packages:
       '@types/estree': 1.0.0
       estree-walker: 2.0.2
       picomatch: 2.3.1
-      rollup: 3.18.0
+      rollup: 3.20.2
     dev: true
 
   /@types/estree/1.0.0:
@@ -211,11 +211,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /emmet/2.3.6:
-    resolution: {integrity: sha512-pLS4PBPDdxuUAmw7Me7+TcHbykTsBKN/S9XJbUOMFQrNv9MoshzyMFK/R57JBm94/6HSL4vHnDeEmxlC82NQ4A==}
+  /emmet/2.4.1:
+    resolution: {integrity: sha512-8rZn/3b0WRT21UeGjQ+bzUqg3up6xBKqRjeWRZA1mrzHokNf4brqPx88XQ53+s9lK2p/pWI2VlTIu1S59OwDtA==}
     dependencies:
-      '@emmetio/abbreviation': 2.2.3
-      '@emmetio/css-abbreviation': 2.1.4
+      '@emmetio/abbreviation': 2.3.1
+      '@emmetio/css-abbreviation': 2.1.6
     dev: false
 
   /estree-walker/2.0.2:
@@ -304,8 +304,8 @@ packages:
       brace-expansion: 2.0.1
     dev: true
 
-  /monaco-editor/0.36.1:
-    resolution: {integrity: sha512-/CaclMHKQ3A6rnzBzOADfwdSJ25BFoFT0Emxsc4zYVyav5SkK9iA6lEtIeuN/oRYbwPgviJT+t3l+sjFa28jYg==}
+  /monaco-editor/0.37.0:
+    resolution: {integrity: sha512-PrvIsrbD/uLQlzYqNnzrZ0yDCK+X3YoLgNx+fFZKvmgkDZxo9kJRvb5YNtCUesG4xjv44jEEKaHKE0demcEleg==}
     dev: true
 
   /once/1.4.0:
@@ -338,8 +338,8 @@ packages:
       supports-preserve-symlinks-flag: 1.0.0
     dev: true
 
-  /rollup/3.18.0:
-    resolution: {integrity: sha512-J8C6VfEBjkvYPESMQYxKHxNOh4A5a3FlP+0BETGo34HEcE4eTlgCrO2+eWzlu2a/sHs2QUkZco+wscH7jhhgWg==}
+  /rollup/3.20.2:
+    resolution: {integrity: sha512-3zwkBQl7Ai7MFYQE0y1MeQ15+9jsi7XxfrqwTb/9EK8D9C9+//EBR4M+CuA1KODRaNbFez/lWxA5vhEGZp4MUg==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -392,9 +392,9 @@ packages:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
     dev: true
 
-  /typescript/4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
+  /typescript/5.0.3:
+    resolution: {integrity: sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==}
+    engines: {node: '>=12.20'}
     hasBin: true
     dev: true
 
