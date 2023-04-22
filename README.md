@@ -36,7 +36,7 @@ _Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecommen
 #### ESM
 
 ```javascript
-import { emmetHTML, emmetCSS, emmetJSX, expandAbbreviation } from 'emmet-monaco-es'
+import { emmetHTML, emmetCSS, emmetJSX, expandAbbreviation, registerCustomSnippets } from 'emmet-monaco-es'
 
 // `emmetHTML` , `emmetCSS` and `emmetJSX` are used the same way
 const dispose = emmetHTML(
@@ -55,6 +55,13 @@ dispose()
 // check out the emmet repo https://github.com/emmetio/emmet for how to use it
 expandAbbreviation('a', { type: 'markup', syntax: 'html' }) // <a href=""></a>
 expandAbbreviation('fz14', { type: 'stylesheet', syntax: 'css' }) // font-size: 14px;
+
+// register custom snippets
+registerCustomSnippets('html', {
+  ull: 'ul>li[id=${1} class=${2}]*2{ Will work with html, pug, haml and slim }',
+  oll: '<ol><li id=${1} class=${2}> Will only work in html </ol>',
+  ran: '{ Wrap plain text in curly braces }',
+})
 ```
 
 #### Browser

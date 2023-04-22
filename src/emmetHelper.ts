@@ -4,17 +4,17 @@
  *--------------------------------------------------------------------------------------------*/
 
 import expand, {
-  Config,
+  type Config,
   extract,
-  ExtractOptions,
-  MarkupAbbreviation,
-  Options,
+  type ExtractOptions,
+  type MarkupAbbreviation,
+  type Options,
   resolveConfig,
   stringifyMarkup,
   stringifyStylesheet,
-  StylesheetAbbreviation,
-  SyntaxType,
-  UserConfig,
+  type StylesheetAbbreviation,
+  type SyntaxType,
+  type UserConfig,
 } from 'emmet'
 
 import { cssData, htmlData } from './data'
@@ -84,7 +84,10 @@ export function doComplete(
   // For example, when text at position is `a`, completions should return `a:blank`, `a:link`, `acr` etc.
   if (!isStyleSheetRes) {
     if (!snippetKeyCache.has(syntax)) {
-      const registry: SnippetsMap = getDefaultSnippets(syntax)
+      const registry: SnippetsMap = {
+        ...getDefaultSnippets(syntax),
+        ...customSnippetsRegistry[syntax],
+      }
       snippetKeyCache.set(syntax, Object.keys(registry))
     }
     markupSnippetKeys = snippetKeyCache.get(syntax) ?? []
@@ -393,6 +396,8 @@ function addFinalTabStop(text: string): string {
   return text
 }
 
+let customSnippetsRegistry: Record<string, SnippetsMap> = {}
+
 const emmetSnippetField = (index: number, placeholder: string) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
 
 /** Returns whether or not syntax is a supported stylesheet syntax, like CSS */
@@ -403,6 +408,11 @@ function isStyleSheet(syntax: string): boolean {
 /** Returns the syntax type, either markup (e.g. for HTML) or stylesheet (e.g. for CSS) */
 function getSyntaxType(syntax: string): SyntaxType {
   return isStyleSheet(syntax) ? 'stylesheet' : 'markup'
+}
+
+/** Returns the default syntax (html or css) to use for the snippets registry */
+export function getDefaultSyntax(syntax: string): string {
+  return isStyleSheet(syntax) ? 'css' : 'html'
 }
 
 /** Returns the default snippets that Emmet suggests */
@@ -607,8 +617,6 @@ type ExpandOptionsConfig = {
  * Returns options to be used by emmet
  */
 function getExpandOptions(syntax: string, filter?: string): ExpandOptionsConfig {
-  const type = getSyntaxType(syntax)
-
   const filters = filter ? filter.split(',').map((x) => x.trim()) : []
   const bemEnabled = filters.includes('bem')
   const commentEnabled = filters.includes('c')
@@ -645,17 +653,46 @@ function getExpandOptions(syntax: string, filter?: string): ExpandOptionsConfig 
     'output.selfClosingStyle': 'html',
   }
 
+  const type = getSyntaxType(syntax)
+  const baseSyntax = getDefaultSyntax(syntax)
+  const snippets =
+    type === 'stylesheet'
+      ? customSnippetsRegistry[syntax] ?? customSnippetsRegistry[baseSyntax]
+      : customSnippetsRegistry[syntax]
+
   return {
     type,
     options: combinedOptions,
     variables: {},
-    snippets: {},
+    snippets: snippets,
     syntax,
     // context: null,
     text: undefined,
     maxRepeat: 1000,
     // cache: null
   }
+}
+
+/**
+ * Assigns snippets from one snippet file under emmet.extensionsPath to
+ * customSnippetsRegistry, snippetKeyCache, and stylesheetCustomSnippetsKeyCache
+ */
+export function registerCustomSnippets(syntax: string, customSnippets: SnippetsMap) {
+  const baseSyntax = getDefaultSyntax(syntax)
+
+  if (baseSyntax !== syntax && customSnippetsRegistry[baseSyntax]) {
+    customSnippets = Object.assign({}, customSnippetsRegistry[baseSyntax], customSnippets)
+  }
+
+  if (isStyleSheet(syntax)) {
+    const prevSnippetKeys = stylesheetCustomSnippetsKeyCache.get(syntax)
+    const mergedSnippetKeys = Object.assign([], prevSnippetKeys, Object.keys(customSnippets))
+    stylesheetCustomSnippetsKeyCache.set(syntax, mergedSnippetKeys)
+  }
+
+  const prevSnippetsRegistry = customSnippetsRegistry[syntax]
+  const mergedSnippets = Object.assign({}, prevSnippetsRegistry, customSnippets)
+  customSnippetsRegistry[syntax] = mergedSnippets
 }
 
 /**

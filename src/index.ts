@@ -1,6 +1,6 @@
 import type * as Monaco from 'monaco-editor'
 
-import { doComplete, VSCodeEmmetConfig } from './emmetHelper'
+import { doComplete, type VSCodeEmmetConfig } from './emmetHelper'
 import { isValidLocationForEmmetAbbreviation } from './abbreviationActions'
 
 declare global {
@@ -81,4 +81,4 @@ export function emmetJSX(monaco = window.monaco, languages: string[] = ['javascr
   return registerProvider(monaco, languages, 'jsx')
 }
 
-export { expandAbbreviation } from './emmetHelper'
+export { expandAbbreviation, registerCustomSnippets } from './emmetHelper'

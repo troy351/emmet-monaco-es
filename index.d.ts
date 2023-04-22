@@ -32,3 +32,13 @@ export function expandAbbreviation(
   abbreviation: string | MarkupAbbreviation | StylesheetAbbreviation,
   config: UserConfig,
 ): string
+
+/**
+ * register custom snippets
+ */
+export function registerCustomSnippets(
+  language: string,
+  customSnippets: {
+    [name: string]: string
+  },
+): void
