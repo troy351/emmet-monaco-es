@@ -664,7 +664,7 @@ function getExpandOptions(syntax: string, filter?: string): ExpandOptionsConfig 
     type,
     options: combinedOptions,
     variables: {},
-    snippets: snippets,
+    snippets,
     syntax,
     // context: null,
     text: undefined,
