@@ -27,7 +27,7 @@ The `emmet` functionality was bound to language features not to a specific edito
 
 - `emmetHTML` works for `HTML` compatible languages, like `PHP`, for `html` only by default
 - `emmetCSS` works for `CSS` compatible languages, like `LESS` / `SCSS`, for `css` only by default
-- `emmetJSX` works for `JSX` compatible languages, like `JavaScript` / `TypeScript`, for `javascript` only by default
+- `emmetJSX` works for `JSX` compatible languages, like `JavaScript` / `TypeScript` / `MDX`, for `javascript` only by default
 
 _Follow [this](https://github.com/microsoft/monaco-editor/issues/264#issuecomment-654578687) guide to make Monaco Editor support `TSX`_
 
