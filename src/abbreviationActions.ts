@@ -57,9 +57,13 @@ function getTokenizationEnv(model: any) {
   if (!_tokenization || !_tokenizationStateStore) {
     const _t = model.tokenization
 
-    if (_t.grammarTokens) {
-      // monaco-editor >= 0.37.0
-      _tokenization = _t.grammarTokens._defaultBackgroundTokenizer
+    if (_t.grammarTokens || _t._tokens) {
+      const _tokens =
+        // monaco-editor >= 0.37.0
+        _t.grammarTokens ||
+        // monaco-editor 0.52.0
+        _t._tokens
+      _tokenization = _tokens._defaultBackgroundTokenizer
       _tokenizationStateStore = _tokenization._tokenizerWithStateStore
     } else {
       // monaco-editor >= 0.35.0 && < 0.37.0, source code was minified
