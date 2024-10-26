@@ -47,7 +47,7 @@ function getTokenizationEnv(model: any) {
   let _tokenization =
     // monaco-editor < 0.34.0
     model._tokenization ||
-    // monaco-editor 0.34.0
+    // monaco-editor >= 0.35.0
     model.tokenization._tokenization
 
   // monaco-editor <= 0.34.0
@@ -57,12 +57,13 @@ function getTokenizationEnv(model: any) {
   if (!_tokenization || !_tokenizationStateStore) {
     const _t = model.tokenization
 
-    if (_t.grammarTokens || _t._tokens) {
-      const _tokens =
-        // monaco-editor >= 0.37.0
-        _t.grammarTokens ||
-        // monaco-editor 0.52.0
-        _t._tokens
+    const _tokens =
+      // monaco-editor <= 0.51.0
+      _t.grammarTokens ||
+      // monaco-editor >= 0.52.0
+      _t._tokens
+
+    if (_tokens) {
       _tokenization = _tokens._defaultBackgroundTokenizer
       _tokenizationStateStore = _tokenization._tokenizerWithStateStore
     } else {
@@ -75,7 +76,7 @@ function getTokenizationEnv(model: any) {
   const _tokenizationSupport =
     // monaco-editor >= 0.32.0
     _tokenizationStateStore.tokenizationSupport ||
-    // monaco-editor < 0.32.0
+    // monaco-editor <= 0.31.0
     _tokenization._tokenizationSupport
 
   const env = {
