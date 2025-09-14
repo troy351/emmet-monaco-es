@@ -63,7 +63,7 @@ function getTokenizationEnv(model: any) {
       // monaco-editor 0.52.0
       _t._tokens ||
       // monaco-editor >= 0.53.0
-      _t.tokens._value
+      _t.tokens?._value
 
     if (_tokens) {
       _tokenization = _tokens._defaultBackgroundTokenizer
