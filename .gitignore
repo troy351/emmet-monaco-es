@@ -60,7 +60,7 @@ typings/
 .DS_Store
 
 .history
-# 忽略dist目录下的所有文件，但保留根目录下的html文件
+# ignored dist files, but keep html files in example
 dist/**/*
 example/dist/**
 !example/dist/*.html
