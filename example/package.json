@@ -1,0 +1,11 @@
+{
+  "name": "example",
+  "scripts": {
+    "build": "node ./build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9",
+    "file-loader": "^6.2.0",
+    "monaco-editor": "^0.53.0"
+  }
+}

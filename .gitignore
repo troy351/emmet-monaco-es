@@ -57,5 +57,10 @@ typings/
 # dotenv environment variables file
 .env
 
+.DS_Store
+
 .history
-dist/
+# 忽略dist目录下的所有文件，但保留根目录下的html文件
+dist/**/*
+example/dist/**
+!example/dist/*.html
