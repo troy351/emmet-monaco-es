@@ -142,9 +142,19 @@ function isValidLocationMonarch(
 
   // get current line's tokens
   const { _stateStore, _support } = getTokenizationEnv(model)
+
+  const anyModel = model as any
+  if (typeof anyModel.tokenization?.tokenizeIfCheap === 'function') {
+    anyModel.tokenization.tokenizeIfCheap(lineNumber)
+  } else if (typeof anyModel.tokenizeIfCheap === 'function') {
+    // monaco-editor < 0.35.0
+    anyModel.tokenizeIfCheap(lineNumber)
+  }
+
   // monaco-editor < 0.37.0 uses `getBeginState` while monaco-editor >= 0.37.0 uses `getStartState`
   // note: lineNumber difference between two api
-  const state = _stateStore.getBeginState?.(lineNumber - 1).clone() || _stateStore.getStartState(lineNumber).clone()
+  const state = _stateStore.getBeginState?.(lineNumber - 1)?.clone() ?? _stateStore.getStartState?.(lineNumber)?.clone()
+  if (!state) return false
   const tokenizationResult = _support.tokenize(model.getLineContent(lineNumber), true, state, 0)
   const tokens: Token[] = tokenizationResult.tokens
 
